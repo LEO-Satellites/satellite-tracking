@@ -4,13 +4,13 @@
 #revision 0.7
 #date: January 15th, 2020
 #updated: March 4th, 2020    calculation of RA and DEC for the Satellite and Sun was added
-#updated: March 13th, 2020   calculation of satellite instantaenous angular motion (in AZ, EL frame) was added 
-#updated: August 29, 2020    added coordinates for Chilescope and El Teide's IAC80 telescopes 
- 
+#updated: March 13th, 2020   calculation of satellite instantaenous angular motion (in AZ, EL frame) was added
+#updated: August 29, 2020    added coordinates for Chilescope and El Teide's IAC80 telescopes
+
 #Code by: Angel Otarola, aotarola@tmt.org
 
 # Important information:
-# run using python 3.7+ 
+# run using python 3.7+
 # needs installation of pyorbital, do: sudo pip install pyorbital
 # needs installation of urllib, do: sudo pip install urllib3
 # needs matplotlib, numpy, datetime (these are more standard python modules)
@@ -30,14 +30,14 @@ import math
 nargs = len(sys.argv)
 
 if nargs < 6:
-#   print("Use: python track_sat.py OBSname SATid Year Month Day\nEx:  python track_sat_rev0p7.py IAC80 "STARLINK-1436 (VISORSAT)" 2020 8 31\n") 
-   print("Use: python track_sat.py OBSname SATid Year Month Day\nEx:  python track_sat_rev0p7.py IAC80 \"STARLINK-1436 (VISORSAT)\" 2020 8 31\n") 
+#   print("Use: python track_sat.py OBSname SATid Year Month Day\nEx:  python track_sat_rev0p7.py IAC80 "STARLINK-1436 (VISORSAT)" 2020 8 31\n")
+   print("Use: python track_sat.py OBSname SATid Year Month Day\nEx:  python track_sat_rev0p7.py IAC80 \"STARLINK-1436 (VISORSAT)\" 2020 8 31\n")
 else:
    OBSname = sys.argv[1]
    if OBSname == "KPEAK":
       #Kitt Peak Observatory location
       obsName = 'K.P. Observatory'
-      (obs_lat, obs_lon, obs_altitude) = (+31.9599, -111.5997, 2.067) 
+      (obs_lat, obs_lon, obs_altitude) = (+31.9599, -111.5997, 2.067)
    elif OBSname == "CTIO":
       #CTIO  Observatory location
       obsName = 'CTIO'
@@ -77,17 +77,17 @@ else:
    observer = ephem.Observer()
    observer.epoch = '2000'
    #observer.pressure = 760
-   #observer.pressure = 906 
+   #observer.pressure = 906
    observer.pressure= 1010
-   observer.temp = 15 
+   observer.temp = 15
    observer.lon = np.radians(obs_lon)
    observer.lat = np.radians(obs_lat)
    observer.elevation = obs_altitude*1000
 
 
    #Starlink Satellites TLE data /URL of the TLE data
-   #sat_tle_url = "https://celestrak.com/NORAD/elements/supplemental/starlink.txt"
-   
+   # sat_tle_url = "https://celestrak.com/NORAD/elements/supplemental/starlink.txt"
+
    #OneWeb satellites:
    sat_tle_ulr = "https://celestrak.com/NORAD/elements/supplemental/oneweb.txt"
 
@@ -95,7 +95,7 @@ else:
    #retrieves the Starlinks TLE data from the web-site (a working internet link is needed)
    #out_fn = 'tle_darksat.txt'
    out_fn = 'tle_oneweb.txt'
-   flag=urllib.request.urlretrieve(sat_tle_url, out_fn)
+   flag=urllib.request.urlretrieve(sat_tle_ulr, out_fn)
 
    satID = sys.argv[2]
    #satID = 'STARLINK-1130 (DARKSAT)'
@@ -105,8 +105,8 @@ else:
 
    print(darksat)
 
-   year  = int(sys.argv[3]) 
-   month = int(sys.argv[4]) 
+   year  = int(sys.argv[3])
+   month = int(sys.argv[4])
    day   = int(sys.argv[5])
 
 
@@ -116,7 +116,7 @@ else:
 
    #print the columns header of sat data to be displayed
    # Note the angular speed of the satellite is in the AZ,EL (or AZ,ALT) frame
-   strdata = "UT Date, UT time, Sat(lon) [deg], Sat(lat) [deg], Sat(alt) [km], Sat(Azimuth) [deg], Sat(Elevation) [deg] SatRA[hr] SatDEC[deg] SunRA[hr] SunDEC[deg] SunZenithAngle[deg] SatAngularSpeed [arcsecs/sec]" 
+   strdata = "UT Date, UT time, Sat(lon) [deg], Sat(lat) [deg], Sat(alt) [km], Sat(Azimuth) [deg], Sat(Elevation) [deg] SatRA[hr] SatDEC[deg] SunRA[hr] SunDEC[deg] SunZenithAngle[deg] SatAngularSpeed [arcsecs/sec]"
    print(strdata)
 
    for hr in range(0, 24):
@@ -126,10 +126,10 @@ else:
    #for hr in range(0, 1):
    #    for mn in range(0, 30):
    #        for secs in range(0, 60):
- 
+
             # creates a date object
             dtobj = datetime(year, month, day, hr, mn, secs)
-       
+
             # computes the current latitude, longitude of the satellite's footprint and its current orbital altitude
             darksat_latlon = darksat.get_lonlatalt(dtobj)
 
@@ -138,7 +138,7 @@ else:
 
 
             # gets the Sun's RA and DEC at the time of observation
-            sun_ra, sun_dec = pyorbital.astronomy.sun_ra_dec(dtobj) 
+            sun_ra, sun_dec = pyorbital.astronomy.sun_ra_dec(dtobj)
             sun_zenith_angle = pyorbital.astronomy.sun_zenith_angle(dtobj, obs_lon, obs_lat)
 
             sunRA = sun_ra*180./math.pi	# from radians to degrees
@@ -153,7 +153,7 @@ else:
             #observer.date = ephem.date(datestr)
             observer.date = ephem.date(dtobj)
 
- 
+
             #tm_tuple = (year, month, day, hr, mn, secs)
             #J0 = ephem.julian_date(0)
             #JD = ephem.julian_date(tm_tuple)
@@ -176,7 +176,7 @@ else:
             # converts the DEC to dd:mm:ss
             if decSAT < 0:
                dec_sign = -1
-               decSAT = abs(decSAT) 
+               decSAT = abs(decSAT)
             else:
                dec_sign = 1
 
@@ -209,5 +209,4 @@ else:
               # keeps copy of the current AZ, ALT and time information to derive angular speed of the satellite in the AZ,EL frame
               sat_az0 = sat_az
               sat_alt0 = sat_alt
-              hr0 = hr + mn/60. + secs/3600.; 
-
+              hr0 = hr + mn/60. + secs/3600.;
