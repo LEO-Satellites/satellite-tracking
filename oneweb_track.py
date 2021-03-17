@@ -17,8 +17,8 @@
 
 
 from pyorbital.orbital import Orbital
-import pyorbital
 from datetime import datetime
+import pyorbital
 import urllib.request
 import matplotlib.pyplot as plt
 import numpy as np

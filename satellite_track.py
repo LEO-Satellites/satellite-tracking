@@ -1,13 +1,19 @@
 import sys
+import urllib
 
+from datetime import datetime
 import ephem
+import numpy as np
+import pyorbital
+from pyorbital.orbital import Orbital
 
 from lib_satellite_track import input_handler
 
 ################################################################################
 
 (obs_name, obs_lat, obs_lon, obs_altitude,
-    year, month, day, satellite_ID) = input_handler(arguments=sys.argv)
+    year, month, day,
+    satellite_ID, satellite_brand) = input_handler(arguments=sys.argv)
 
 print(f'Observatory: {obs_name}')
 print(f'Observatory latitude: {obs_lat}')
@@ -25,3 +31,116 @@ observer.temp = 15
 observer.lon = np.radians(obs_lon)
 observer.lat = np.radians(obs_lat)
 observer.elevation = obs_altitude*1000
+
+# sat_tle_url =\
+#     f'https://celestrak.com/NORAD/elements/supplemental/{satellite_brand}.txt'
+tle_file = f'tle_{satellite_brand}.txt'
+# flag = urllib.request.urlretrieve(sat_tle_url, tle_file)
+
+darksat = Orbital(satellite_ID, tle_file=f'./{tle_file}')
+print(darksat)
+
+sat_az0 =0
+sat_alt0 =0
+hr0 = 0
+
+#print the columns header of sat data to be displayed
+# Note the angular speed of the satellite is in the AZ,EL (or AZ,ALT) frame
+ut_time = 'UT Date, UT time'
+lla_sat = 'Sat(lon) [deg], Sat(lat) [deg], Sat(alt) [km]'
+angular_sat = 'Sat(Azimuth) [deg], Sat(Elevation) [deg] SatRA[hr] SatDEC[deg]'
+angular_sun = 'SunRA[hr] SunDEC[deg] SunZenithAngle[deg]'
+speed_sat = 'SatAngularSpeed [arcsecs/sec]'
+strdata = f'{ut_time}, {lla_sat}, {angular_sat}, {angular_sun}, {speed_sat}'
+print(strdata)
+################################################################################
+for hr in range(0, 2):
+
+   for mn in range(0, 2):
+
+       for secs in range(30, 31):
+
+        # creates a date object
+        dtobj = datetime(year, month, day, hr, mn, secs)
+
+        # computes the current latitude, longitude of the satellite's footprint and its current orbital altitude
+        darksat_latlon = darksat.get_lonlatalt(dtobj)
+
+        # uses the observer coordinates to compute the satellite azimuth and elevation, negative elevation implies satellite is under the horizon
+        sat_az, sat_alt = darksat.get_observer_look(
+            dtobj, obs_lon, obs_lat, obs_altitude
+            )
+
+                # gets the Sun's RA and DEC at the time of observation
+        sun_ra, sun_dec = pyorbital.astronomy.sun_ra_dec(dtobj)
+        sun_zenith_angle = pyorbital.astronomy.sun_zenith_angle(dtobj, obs_lon, obs_lat)
+
+        sunRA = sun_ra*180./np.pi	# from radians to degrees
+        if sunRA < 0:
+           sunRA = 360+sunRA
+
+        sunRA = sunRA*24./360   # from degrees to hours
+
+        sunDEC = sun_dec*180./np.pi #changes from radians to degrees
+
+        datestr ="%04d/%02d/%02d %02d:%02d:%02d" % (year, month, day, hr, mn, secs)
+        #observer.date = ephem.date(datestr)
+        observer.date = ephem.date(dtobj)
+
+
+        #tm_tuple = (year, month, day, hr, mn, secs)
+        #J0 = ephem.julian_date(0)
+        #JD = ephem.julian_date(tm_tuple)
+        #observer.date = JD-J0                     # these 4 lines of code produce same results
+                                                   # than the two lines above it
+
+        ra, dec = observer.radec_of(np.radians(sat_az), np.radians(sat_alt))
+        raSAT = ra*180./np.pi
+        if raSAT < 0:
+           raSAT = 360+raSAT
+
+        # converts the RA to hh:mm:ss.sss
+        raSAT = raSAT*24./360
+        raSAT_h=int(raSAT)
+        raSAT_m=int((raSAT-raSAT_h)*60.)
+        raSAT_s=(raSAT - (raSAT_h+raSAT_m/60.))*3600.
+
+        decSAT = dec*180./np.pi
+
+        # converts the DEC to dd:mm:ss
+        if decSAT < 0:
+           dec_sign = -1
+           decSAT = abs(decSAT)
+        else:
+           dec_sign = 1
+
+        decSAT_d=int(decSAT)
+        decSAT_m=int((decSAT-decSAT_d)*60.)
+        decSAT_s=(decSAT - (decSAT_d+decSAT_m/60.))*3600.
+        decSAT_d = dec_sign*decSAT_d
+        decSAT = dec_sign*decSAT
+
+        #if sat_alt > 0:
+        if sat_alt > 0 and sun_zenith_angle > 90 and sun_zenith_angle < 120:
+        #if sat_alt > -180:
+           # compute the change in AZ and ALT of the satellite position between this and previous observation
+           daz  = (sat_az - sat_az0)*3600			# difference in azimuth between current and previous postions in arcsecs
+           dalt = (sat_alt - sat_alt0)*3600                 # difference in altitude between current and previous postions in arcsecs
+           dt   = ((hr + mn/60. + secs/3600.) - hr0)*3600.  # difference in time stamps between current and previous observation in seconds of time
+
+           # sets the current sat position and time, as the "previous" for next observation
+           sat_az0 = sat_az
+           sat_alt0 = sat_alt
+           hr0 = hr + mn/60. + secs/3600.;
+
+           ang_motion = math.sqrt(math.pow(daz,2) + math.pow(dalt,2))/dt
+
+           # prints out the UT time, and satellite footprint position as well as satellite azimuth and elevation at the observer location
+           strdata = "%s\t%9.6f\t%9.6f\t%5.2f\t%06.3f\t%06.3f %02dh%02dm%05.3fs %03d:%02d:%05.3f %09.7f %09.7f %07.3f %08.3f" % (dtobj, darksat_latlon[0], darksat_latlon[1], darksat_latlon[2], sat_az, sat_alt, raSAT_h, raSAT_m, raSAT_s, decSAT_d, decSAT_m, decSAT_s, sunRA, sunDEC, sun_zenith_angle, ang_motion)
+           print(strdata)
+
+        else:
+          # keeps copy of the current AZ, ALT and time information to derive angular speed of the satellite in the AZ,EL frame
+          sat_az0 = sat_az
+          sat_alt0 = sat_alt
+          hr0 = hr + mn/60. + secs/3600.;
