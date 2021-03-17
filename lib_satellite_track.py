@@ -53,5 +53,47 @@ def input_handler(arguments):
         print(f'Observatory name = {arguments[1]}  not found...')
         sys.exit()
 ################################################################################
-################################################################################
+def radians_to_deg(radians):
+
+    deg = radians*180./np.pi
+
+    if deg < 0:
+           deg += 360
+
+    return deg
+
+def radians_to_hrs(radians):
+
+    deg = radians_to_deg(radians)
+
+    hrs = deg*24./360
+
+    return hrs
+
+def radians_to_hh_mm_ss(radians):
+
+    # converts the RA to hh:mm:ss.sss
+
+    hrs = radians_to_hrs(radians)
+    hh = int(hrs)
+
+    mins = (hrs-hh)*60.
+    mm = int(mins)
+
+    ss = (mins-mm)*60
+
+    return hh, mm, ss
+
+def dec_to_dd_mm_ss(dec):
+    # converts the DEC to dd:mm:ss
+
+    if dec < 0:
+       dec_sign = -1
+       dec = abs(dec)
+    else:
+        dec_sign = 1
+
+    dd, mm, ss = radians_to_hh_mm_ss(radians=dec)
+
+    return dd, mm, ss
 ################################################################################
