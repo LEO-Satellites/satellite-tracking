@@ -161,7 +161,9 @@ else:
                                                        # than the two lines above it
 
             ra, dec = observer.radec_of(np.radians(sat_az), np.radians(sat_alt))
+###############################################################################
             raSAT = ra*180./math.pi
+
             if raSAT < 0:
                raSAT = 360+raSAT
 
@@ -170,7 +172,7 @@ else:
             raSAT_h=int(raSAT)
             raSAT_m=int((raSAT-raSAT_h)*60.)
             raSAT_s=(raSAT - (raSAT_h+raSAT_m/60.))*3600.
-
+###############################################################################
             decSAT = dec*180./math.pi
 
             # converts the DEC to dd:mm:ss
@@ -187,7 +189,8 @@ else:
             decSAT = dec_sign*decSAT
 
             #if sat_alt > 0:
-            if sat_alt > 0 and sun_zenith_angle > 90 and sun_zenith_angle < 120:
+            # print(sat_alt > 0 and sun_zenith_angle > 95 and sun_zenith_angle < 115)
+            if sat_alt > 0 and sun_zenith_angle > 95 and sun_zenith_angle < 115:
             #if sat_alt > -180:
                # compute the change in AZ and ALT of the satellite position between this and previous observation
                daz  = (sat_az - sat_az0)*3600			# difference in azimuth between current and previous postions in arcsecs

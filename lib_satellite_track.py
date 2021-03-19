@@ -95,5 +95,5 @@ def dec_to_dd_mm_ss(dec):
 
     dd, mm, ss = radians_to_hh_mm_ss(radians=dec)
 
-    return dd, mm, ss
+    return dd*dec_sign, mm, ss
 ################################################################################
