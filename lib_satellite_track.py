@@ -45,6 +45,13 @@ def input_handler(arguments):
         month = int(arguments[4])
         day   = int(arguments[5])
 
+        print(f'Observatory: {obs_name}')
+        print(f'Observatory latitude: {obs_lat}')
+        print(f'Observatory latitude: {obs_lon}')
+        print(f'Observatory latitude: {obs_altitude}')
+        print(f'Satellite ID: {satellite_ID}')
+        print(f'Forecast date: {day}/{month}/{year}\n')
+
         return (obs_name, obs_lat, obs_lon, obs_altitude, year, month, day,
             satellite_ID, satellite_brand)
 

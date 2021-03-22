@@ -14,20 +14,16 @@ from lib_satellite_track import radians_to_deg, radians_to_hrs
 from lib_satellite_track import radians_to_hh_mm_ss, dec_to_dd_mm_ss
 
 ################################################################################
-
+# Handling script's external arguments
 (obs_name, obs_lat, obs_lon, obs_altitude,
     year, month, day,
     satellite_ID, satellite_brand) = input_handler(arguments=sys.argv)
 
-print(f'Observatory: {obs_name}')
-print(f'Observatory latitude: {obs_lat}')
-print(f'Observatory latitude: {obs_lon}')
-print(f'Observatory latitude: {obs_altitude}')
-print(f'Satellite ID: {satellite_ID}')
-print(f'Forecast date: {day}/{month}/{year}\n')
-
 ################################################################################
-
+head_name = satellite_ID.replace('(', '_').replace(')', '_').replace(' ', '_')
+output_fname = f'{head_name.lower()}_{year}_{month:02}_{day:02}.txt'
+save_orbital_computations = open(f'{output_fname}', 'w')
+################################################################################
 observer = ephem.Observer()
 observer.epoch = '2000'
 observer.pressure= 1010
@@ -46,7 +42,8 @@ if not os.path.exists(tle_file):
 
 darksat = Orbital(satellite_ID, tle_file=f'./{tle_file}')
 # print(darksat)
-
+################################################################################
+#??
 sat_az0 =0
 sat_alt0 =0
 hr0 = 0
@@ -58,8 +55,13 @@ lla_sat = 'Sat(lon) [deg], Sat(lat) [deg], Sat(alt) [km]'
 angular_sat = 'Sat(Azimuth) [deg], Sat(Elevation), [deg] SatRA[hr], SatDEC[deg]'
 angular_sun = 'SunRA[hr], SunDEC[deg], SunZenithAngle[deg]'
 speed_sat = 'SatAngularSpeed [arcsecs/sec]'
-strdata = f'{ut_time}, {lla_sat}, {angular_sat}, {angular_sun}, {speed_sat}'
-print(strdata)
+
+################################################################################
+# Store orbital computations in file
+colum_headers = f'{ut_time}, {lla_sat}, {angular_sat}, {angular_sun}, {speed_sat}'
+save_orbital_computations.write(f'{colum_headers}\n')
+# print(colum_headers) # save into a data frame and then to a csv or tsv
+
 ################################################################################
 for hr in range(0, 24):
 
@@ -107,7 +109,6 @@ for hr in range(0, 24):
         decSAT = radians_to_deg(radians=dec)
         decSAT_d, decSAT_m, decSAT_s = dec_to_dd_mm_ss(dec=dec)
 ###############################################################################
-        # print(sat_alt > 0 and sun_zenith_angle > 95 and sun_zenith_angle < 115)
         if sat_alt > 0 and sun_zenith_angle > 95 and sun_zenith_angle < 115:
            # compute the change in AZ and ALT of the satellite position between
            # this and previous observation
@@ -133,12 +134,21 @@ for hr in range(0, 24):
 
            # prints out the UT time, and satellite footprint position as well as
            # satellite azimuth and elevation at the observer location
-           strdata = "%s\t%9.6f\t%9.6f\t%5.2f\t%06.3f\t%06.3f %02dh%02dm%05.3fs %03d:%02d:%05.3f %09.7f %09.7f %07.3f %08.3f" % (date_obj, darksat_latlon[0], darksat_latlon[1], darksat_latlon[2], sat_az, sat_alt, raSAT_h, raSAT_m, raSAT_s, decSAT_d, decSAT_m, decSAT_s, sunRA, sunDEC, sun_zenith_angle, ang_motion)
-           print(strdata)
+           test_str = (date_obj, darksat_latlon[0], darksat_latlon[1],
+               darksat_latlon[2], sat_az, sat_alt, raSAT_h, raSAT_m, raSAT_s,
+               decSAT_d, decSAT_m, decSAT_s, sunRA, sunDEC, sun_zenith_angle,
+               ang_motion
+            )
 
+           strdata = "%s\t%9.6f\t%9.6f\t%5.2f\t%06.3f\t%06.3f %02dh%02dm%05.3fs %03d:%02d:%05.3f %09.7f %09.7f %07.3f %08.3f" % (date_obj, darksat_latlon[0], darksat_latlon[1], darksat_latlon[2], sat_az, sat_alt, raSAT_h, raSAT_m, raSAT_s, decSAT_d, decSAT_m, decSAT_s, sunRA, sunDEC, sun_zenith_angle, ang_motion)
+           # print(strdata)
+           save_orbital_computations.write(f'{strdata}\n')
         else:
           # keeps copy of the current AZ, ALT and time information to derive
           # angular speed of the satellite in the AZ,EL frame
           sat_az0 = sat_az
           sat_alt0 = sat_alt
           hr0 = hr + mn/60. + secs/3600.
+################################################################################
+# Closing file where orbital computations are written
+save_orbital_computations.close()
