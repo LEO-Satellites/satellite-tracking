@@ -21,6 +21,41 @@ observatories= {
     'IAC80':['IAC80', +28.29966667, -16.51102778, 2.38125],
     'CA':['CA', 37.22364444, -2.54621667, 2.168]
     }
+
+# Store orbital computations in file
+#print the columns header of sat data to be displayed
+# Note the angular speed of the satellite is in the AZ,EL (or AZ,ALT) frame
+## Convert using str.join and a function like list_to_str
+ut_time = 'UT Date, UT time'
+lla_sat = 'Sat(lon) [deg], Sat(lat) [deg], Sat(alt) [km]'
+angular_sat = 'Sat(Azimuth) [deg], Sat(Elevation), [deg] SatRA[hr], SatDEC[deg]'
+angular_sun = 'SunRA[hr], SunDEC[deg], SunZenithAngle[deg]'
+speed_sat = 'SatAngularSpeed [arcsecs/sec]'
+
+colum_headers = f'{ut_time}, {lla_sat}, {angular_sat}, {angular_sun}, {speed_sat}'
+
+################################################################################
+# str manipulation
+
+def data_formating_to_file(date_obj, darksat_latlon, sat_az, sat_alt,
+    raSAT_h, raSAT_m, raSAT_s, decSAT_d, decSAT_m, decSAT_s,
+    sunRA, sunDEC, sun_zenith_angle, ang_motion):
+
+    computed_data_str = [
+        f'{date_obj}\t', f'{darksat_latlon[0]:9.6f}\t',
+        f'{darksat_latlon[1]:9.6f}\t', f'{darksat_latlon[2]:5.2f}\t',
+        f'{sat_az:06.3f}\t',
+        f'{sat_alt:06.3f} ',
+        f'{raSAT_h:02d}h{raSAT_m:02d}m{raSAT_s:05.3f}s ',
+        f'{decSAT_d:03d}:{decSAT_m:02d}:{decSAT_s:05.3f} ',
+        f'{sunRA:09.7f} ', f'{sunDEC:09.7f} ',
+        f'{sun_zenith_angle:07.3f} ', f'{ang_motion:08.3f}'
+    ]
+
+    data_str_to_file = ''.join(computed_data_str)
+
+    return data_str_to_file
+
 ################################################################################
 def input_handler(arguments):
 
