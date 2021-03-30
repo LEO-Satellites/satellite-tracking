@@ -90,7 +90,7 @@ for hr in range(0, 24):
         decSAT = radians_to_deg(radians=dec)
         decSAT_d, decSAT_m, decSAT_s = dec_to_dd_mm_ss(dec=dec)
 ###############################################################################
-        if sat_alt > 0 and sun_zenith_angle > 95 and sun_zenith_angle < 115:
+        if sat_alt > 30 and sun_zenith_angle > 95 and sun_zenith_angle < 125:
            # compute the change in AZ and ALT of the satellite position between
            # this and previous observation
 

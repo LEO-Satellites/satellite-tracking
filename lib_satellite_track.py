@@ -1,3 +1,8 @@
+# Generalize the code receive all satellites and output which would be
+# visible at a given date
+
+# Add a time stamp to the tle file when downloaded to keep track of it
+
 import sys
 import time
 
