@@ -1,19 +1,100 @@
 # Generalize the code receive all satellites and output which would be
 # visible at a given date
-
-# Add a time stamp to the tle file when downloaded to keep track of it
-
+####################################################
+# create a dir for tle files DONE
+# full time stamp to all generated files DONE
+##########################################
+# change .pro to otarola format for longitude DONE
+# new: west 0 to -180, east: 0 to 180 DONE
+##########################################
+# lets say 20 output for satellite:
+# just to see like one line randomly
+###########################################
+# get second output file with: Date, time --> time - 5 seconds
+# (they have a 10 sec exposere), ra, dec
+###########################################
+# Observations are starting friday 7/5/2021
+###########################################
+###########################################
+# add a data structure so for each observatory you have a config of alt lat,
+# lon of the sat according to a given observatory and time
+import os
 import sys
 import time
+from datetime import datetime, timezone
 
-from datetime import datetime
 import ephem
 import matplotlib.pyplot as plt
 import numpy as np
 import pyorbital
 from pyorbital.orbital import Orbital
 import urllib
+################################################################################
+def time_stamp():
 
+    date = datetime.now(tz=timezone.utc)
+    year = date.year
+    month = date.month
+    day = date.day
+    hour = date.hour
+    minute = date.minute
+    second = date.second
+
+    stamp = (f'{year}_{month:02}_{day:02}_'
+        f'{hour:02}h_{minute:02}m_{second:02}s')
+
+    return stamp
+
+def download_tle(satellite_brand:'str', tle_dir:'str'):
+
+    sat_tle_url = (f'https://celestrak.com/NORAD/elements/supplemental/'
+        f'{satellite_brand}.txt')
+
+    tle_file = f'tle_{satellite_brand}_{time_stamp()}.txt'
+
+    if not os.path.exists(tle_dir):
+        os.makedirs(tle_dir)
+
+    urllib.request.urlretrieve(sat_tle_url, f'{tle_dir}/{tle_file}')
+
+    return tle_file
+
+################################################################################
+def observatory_pro(observatories:'dict'):
+    # converts to format used by otarola
+
+# ;       .observatory - abbreviated observatory name
+# ;       .name - full observatory name
+# ;       .longitude - observatory longitude in degrees *west*
+# ;       .latitude - observatory latitude in degrees
+# ;       .altitude - observatory altitude in meters above sea level
+# ;       .tz - time zone, number of hours *west* of Greenwich
+
+    satellite_track = {}
+    for observatory, data in observatories.items():
+        otarola_format = {}
+        for key, val in data.items():
+            if type(val)==type([]):
+                signo = 1
+                otarola_format[key]=0
+                for idx, f in enumerate(val):
+                    if f<0:
+                        signo = -1
+                        f = abs(f)
+                    otarola_format[key] += f/60**idx
+                otarola_format[key] = signo*otarola_format[key]
+            else:
+                otarola_format[key]=val
+
+            if key=='longitude':
+                if otarola_format[key] > 180.:
+                    otarola_format[key] = 360 - otarola_format[key]
+                else:
+                    otarola_format[key] = -otarola_format[key]
+
+        satellite_track[observatory] = otarola_format
+    return satellite_track
+################################################################################
 example_script_input = f'IAC80 "STARLINK-1436 (VISORSAT)" 2020 8 31'
 observatories= {
     'KPEAK':['K.P. Observatory', +31.9599, -111.5997, 2.067],
@@ -26,7 +107,6 @@ observatories= {
     'IAC80':['IAC80', +28.29966667, -16.51102778, 2.38125],
     'CA':['CA', 37.22364444, -2.54621667, 2.168]
     }
-
 # Store orbital computations in file
 #print the columns header of sat data to be displayed
 # Note the angular speed of the satellite is in the AZ,EL (or AZ,ALT) frame
