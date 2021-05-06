@@ -103,7 +103,7 @@ else:
    #darksat = Orbital(satID, tle_file='./tle_darksat.txt')
    darksat = Orbital(satID, tle_file='./tle_oneweb.txt')
 
-   print(darksat)
+   # print(darksat)
 
    year  = int(sys.argv[3])
    month = int(sys.argv[4])
@@ -117,7 +117,7 @@ else:
    #print the columns header of sat data to be displayed
    # Note the angular speed of the satellite is in the AZ,EL (or AZ,ALT) frame
    strdata = "UT Date, UT time, Sat(lon) [deg], Sat(lat) [deg], Sat(alt) [km], Sat(Azimuth) [deg], Sat(Elevation) [deg] SatRA[hr] SatDEC[deg] SunRA[hr] SunDEC[deg] SunZenithAngle[deg] SatAngularSpeed [arcsecs/sec]"
-   print(strdata)
+   # print(strdata)
 
    for hr in range(0, 24):
        for mn in range(0, 60):
@@ -206,8 +206,11 @@ else:
 
                # prints out the UT time, and satellite footprint position as well as satellite azimuth and elevation at the observer location
                strdata = "%s\t%9.6f\t%9.6f\t%5.2f\t%06.3f\t%06.3f %02dh%02dm%05.3fs %03d:%02d:%05.3f %09.7f %09.7f %07.3f %08.3f" % (dtobj, darksat_latlon[0], darksat_latlon[1], darksat_latlon[2], sat_az, sat_alt, raSAT_h, raSAT_m, raSAT_s, decSAT_d, decSAT_m, decSAT_s, sunRA, sunDEC, sun_zenith_angle, ang_motion)
-               print(strdata)
-
+               # print(strdata)
+               print(
+                   (f'{dtobj}\t'
+                   f'{raSAT_h:02d}h{raSAT_m:02d}m{raSAT_s:05.3f}s\t'
+                   f'{decSAT_d:03d}:{decSAT_m:02d}:{decSAT_s:05.3f}'))
             else:
               # keeps copy of the current AZ, ALT and time information to derive angular speed of the satellite in the AZ,EL frame
               sat_az0 = sat_az
