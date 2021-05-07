@@ -1,4 +1,4 @@
-#! /usr/bin/env python3.8
+#! /usr/bin/env python3
 from argparse import ArgumentParser
 import math
 import os
@@ -30,10 +30,9 @@ parser = ArgumentParser()
 parser.add_argument('--year', '-y', type=int)
 parser.add_argument('--month','-m', type=int)
 parser.add_argument('--day', '-d', type=int)
+parser.add_argument('--window', '-w', type=str)
 ############################################################################
-# parser.add_argument('--satellite_ID', '-s_ID', type=str)
 parser.add_argument('--satellite_brand', '-sb', type=str)
-# parser.add_argument('--output_file', '-o', type=str)
 parser.add_argument('--observatory', '-obs', type=str)
 ############################################################################
 script_arguments = parser.parse_args()
@@ -41,25 +40,30 @@ script_arguments = parser.parse_args()
 year = script_arguments.year
 month = script_arguments.month
 day = script_arguments.day
+window = script_arguments.window
 ############################################################################
 satellite_brand = script_arguments.satellite_brand
-# output_file = script_arguments.output_file
 observatory = script_arguments.observatory
 
 working_dir = f'/home/edgar/Documents/satellite-tracking'
 ################################################################################
-output_dir = f'{working_dir}/output'
+output_dir = f'{working_dir}/output_files'
 
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-output_fname = f'{observatory}_{satellite_brand}_{time_stamp()}'
+output_fname = (f'visible-leosats_{observatory}_'
+    f'{year}_{month:02}_{day:02}_{window}')
+
+output_fname_simple = (f'observing-details_{observatory}_'
+    f'{year}_{month:02}_{day:02}_{window}')
+
 ##############################################################
-with open(f'{output_dir}/{output_fname}.txt', 'a') as file:
+with open(f'{output_dir}/{output_fname}.txt', 'w') as file:
     file.write(f'{colum_headers}\n')
 
-with open(f'{output_dir}/{output_fname}_simple.txt', 'a') as file_simple:
-    file_simple.write(f'date\ttime\tra\tdec\n')
+with open(f'{output_dir}/{output_fname_simple}.txt', 'w') as file_simple:
+    file_simple.write(f'Date(UT)\tTime(UT)\tRA(hh:mm:ss)\tDEC(dd:mm:ss)\n')
 ################################################################################
 tle_dir = f'/home/edgar/Documents/satellite-tracking/tle_dir'
 tle_file = download_tle(satellite_brand, tle_dir)
@@ -94,12 +98,7 @@ observer.elevation = data['altitude']# in meters
 ############################################################################
 for satellite in satellites_list[58:59]:
     print(satellite)
-    with open(f'{output_dir}/{output_fname}.txt', 'a') as file:
-        file.write(f'{satellite}\n')
-
-    with open(f'{output_dir}/{output_fname}_simple.txt', 'a') as file_simple:
-        file_simple.write(f'{satellite}\n')
-
+    flag = 0
     darksat = Orbital(satellite, tle_file=f'{tle_dir}/{tle_file}')
     ############################################################################
     sat_az0 =0
@@ -143,9 +142,22 @@ for satellite in satellites_list[58:59]:
             ####################################################################
             #us
             if sat_alt > 35 and sun_zenith_angle > 95 and sun_zenith_angle < 125:
-            #Angel
+            # # Angel
             # if sat_alt > 0 and sun_zenith_angle > 95 and sun_zenith_angle < 115:
 
+                ################################################################
+                flag += 1
+
+                if flag == 1:
+
+                    with open(f'{output_dir}/{output_fname}.txt', 'a') as file:
+                        file.write(f'{satellite}\n')
+
+                    with open(f'{output_dir}/{output_fname_simple}.txt',
+                        'a') as file_simple:
+
+                        file_simple.write(f'{satellite}\n')
+                ################################################################
                 # compute the change in AZ and ALT of the satellite position
                 # between this and previous observation
                 ################################################################
@@ -183,7 +195,8 @@ for satellite in satellites_list[58:59]:
                 with open(f'{output_dir}/{output_fname}.txt', 'a') as file:
                     file.write(f'{data_str}\n')
 
-                with open(f'{output_dir}/{output_fname}_simple.txt', 'a') as file_simple:
+                with open(f'{output_dir}/{output_fname_simple}.txt',
+                    'a') as file_simple:
                     file_simple.write(f'{data_str_simple}\n')
                 ################################################################
             else:
