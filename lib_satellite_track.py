@@ -1,7 +1,10 @@
-###########################################
-# add a data structure so for each observatory you have a config of alt lat,
-# lon of the sat according to a given observatory and time
-###########################################
+##############################################################################
+# Satellite tracking code using TLE data from Celestrak to calculate times 
+# and positions of LEOsats to plan observations.
+# Written by 
+# Edgar Ortiz edgar.ortiz@uamail.cl 
+# Jeremy Tregloan-Reed jeremy.tregloan-reed@uda.cl 
+##############################################################################
 import os
 import random
 import sys
@@ -95,7 +98,7 @@ def data_formating(date_obj, darksat_latlon, sat_az, sat_alt,
     day = date_obj.day
     hour = date_obj.hour
     minute = date_obj.minute
-    second = date_obj.second - 5
+    second = date_obj.second
 
     date = f'{year}-{month:02}-{day:02}'
     time = f'{hour:02}:{minute:02}:{second:02}s'
@@ -199,14 +202,17 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
     hr0 = 0
     ############################################################################
     if window=='evening':
-        hours = [hr for hr in range(12, 24)] + [0]
+        hours = [hr for hr in range(12, 24)]
         hours = [hr + obs_tz for hr in hours]
-        hours = [hr if hr<24 else hr%24 for hr in hours]
-        # [18, 19, 20, 21, 22, 23, 0, 1, 2]
+        hours = [hr-24 if hr>=24 else hr for hr in hours]
+        hours = [hr+24 if hr<0 else hr for hr in hours]
     elif window=='morning':
-        hours = [hr + obs_tz for hr in range(0, 13)]
-        hours = [0 if hr==24 else hr for hr in hours]
-        #[6, 7, 8, 9, 10, 11, 12]
+        hours = [hr for hr in range(0, 13)]
+        hours = [hr + obs_tz for hr in hours]
+        if hours[0] < 0:
+            day -= 1
+        hours = [hr-24 if hr>=24 else hr for hr in hours]
+        hours = [hr+24 if hr<0 else hr for hr in hours]
     else:
         print(f'window keyword must be of either "morning" or "evening"')
         sys.exit()
@@ -214,8 +220,7 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
     write = []
     ############################################################################
     for hr in hours:
-        # print(hr, '#'*30)
-        if hours[0] != 0 and hr == 0:
+        if  hours[0] != 0 and hr == 0:
             day += 1
 
         for mn in range(0, 60):
@@ -254,9 +259,7 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                 decSAT_d, decSAT_m, decSAT_s = dec_to_dd_mm_ss(dec=dec)
                 ####################################################################
                 #us
-                if sat_alt > 35 and sun_zenith_angle > 95 and sun_zenith_angle < 125:
-                # # Angel
-                # if sat_alt > 0 and sun_zenith_angle > 95 and sun_zenith_angle < 115:
+                if sat_alt > 30 and sun_zenith_angle > 97 and sun_zenith_angle < 114:
                     ################################################################
                     # compute the change in AZ and ALT of the satellite position
                     # between this and previous observation
@@ -280,7 +283,6 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                     hr0 = hr + mn/60. + secs/3600.
 
                     ang_motion = np.sqrt(np.power(daz,2) + np.power(dalt,2))/dt
-                    # ang_motion = math.sqrt(math.pow(daz,2) + math.pow(dalt,2))/dt
                     # prints out the UT time, and satellite footprint position as well as
                     # satellite azimuth and elevation at the observer location
 
@@ -329,42 +331,3 @@ def input_handler(arguments):
     ############################################################################
     return satellite_brand, observatory, year, month, day, window
 ###############################################################################
-        #
-        # with open(f'{output_dir}/{output_fname}.txt',
-        #     'a') as file:
-        #     file.write(f'{data_str}\n')
-        #
-        # with open(f'{output_dir}/{output_fname_simple}.txt',
-        #     'a') as file_simple:
-        #     file_simple.write(f'{data_str_simple}\n')
-                    ############################################################
-                    # random_bit = random.getrandbits(1)
-                    # random_boolean = bool(random_bit)
-                    # print(random_boolean, write, random_boolean and write)
-                    #
-                    # if write and random_boolean:
-
-                    # with open(f'{output_dir}/{output_fname}.txt',
-                    #     'a') as file:
-                    #     file.write(f'{data_str}\n')
-                    #
-                    # with open(f'{output_dir}/{output_fname_simple}.txt',
-                    #     'a') as file_simple:
-                    #     file_simple.write(f'{data_str_simple}\n')
-
-                    # write = False
-
-                    ################################################################
-                    # flag += 1
-                    #
-                    # if flag == 1:
-                    #
-                    #     with open(f'{output_dir}/{output_fname}.txt', 'a') as file:
-                    #         file.write(f'{satellite}\n')
-                    #
-                    #     with open(f'{output_dir}/{output_fname_simple}.txt',
-                    #         'a') as file_simple:
-                    #
-                    #         file_simple.write(f'{satellite}\n')
-                    #
-                    # print(f'{satellite} is visible')

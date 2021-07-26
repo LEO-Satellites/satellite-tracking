@@ -1,5 +1,14 @@
+##############################################################################
+# Satellite tracking code using TLE data from Celestrak to calculate times 
+# and positions of LEOsats to plan observations.
+# Written by 
+# Edgar Ortiz edgar.ortiz@uamail.cl 
+# Jeremy Tregloan-Reed jeremy.tregloan-reed@uda.cl 
+##############################################################################
+
+
 ################################################################################
-tle_dir = f'/home/edgar/Documents/satellite-tracking/tle_dir'
+tle_dir = f'./Output/tle_data/'
 ################################################################################
 # Note the angular speed of the satellite is in the AZ,EL (or AZ,ALT) frame
 ut_time = 'UT Date, UT time'
@@ -17,6 +26,9 @@ colum_headers = (f'{ut_time}, {lla_sat}, {angular_sat}, '
 # latitude - observatory latitude in degrees
 # altitude - observatory altitude in meters above sea level
 # tz - time zone, number of hours *west* of Greenwich
+################################################################################
+# Details taken from the IDL script observatories.pro
+################################################################################
 
 observatories = {
     'kpno': {'name': 'Kitt Peak National Observatory',
@@ -25,7 +37,7 @@ observatories = {
     'ctio': {'name': 'Cerro Tololo Interamerican Observatory',
         'longitude': 70.815, 'latitude': -30.16527778,	'altitude': 2215.,
         'tz': 4},
-    'eso': {'name': 'European Southern Observatory',
+    'lasilla': {'name': 'European Southern Observatory, La Silla',
         'longitude': [70,43.8], 'latitude': [-29,15.4],	'altitude': 2347.,
         'tz': 4},
     'lick': {'name': 'Lick Observatory',
@@ -141,53 +153,14 @@ observatories = {
         'tz': 5},
     'palomar': {'name': 'The Hale Telescope',
         'longitude': [116,51,46.80], 'latitude': [33,21,21.6],	'altitude': 1706.,
-        'tz': 8}
+        'tz': 8},
+    'quynhon': {'name': 'The Quy Nhon Observatory',
+        'longitude': 250.786994, 'latitude': 13.71863,	'altitude': 5.,
+        'tz': -7},
+    'CBNUO': {'name': 'ChungBuk National University Observatory',
+        'longitude': 232.524644889, 'latitude': 36.7815,	'altitude': 86.92,
+        'tz': -9},
+    'ouka': {'name': 'Oukaimeden observatory',
+        'longitude': 7.866, 'latitude': 31.206389,	'altitude': 2700.,
+        'tz': -1},
 }
-
-
-# # 'ekar': {'name': 'Mt. Ekar 182 cm. Telescope',
-#         'longitude': [348,25,07.92],
-#     'latitude': [45,50,54.92],	'altitude': 1413.69,
-#         'tz': -1},
-# # 'lowell': {'name': 'Lowell Observatory',
-#         'longitude': [111,32.1],
-#     'latitude': [35,05.8],	'altitude': 2198. ,
-#         'tz': 7 },
-# # 'casleo': {'name': 'Complejo Astronomico El Leoncito, San Juan',     'longitude': [69,18,00] , 'latitude': [-31,47,57], 'altitude': 2552,
-#         'tz': 3},
-# # 'mgio': {'name': 'Mount Graham International Observatory',
-#         'longitude': [109,53,31.25],
-#     'latitude': [32,42,04.69],	'altitude': 3191.0,
-#         'tz': 7},
-# # 'lna': {'name': 'Laboratorio Nacional de Astrofisica - Brazil',     'longitude': 45.5825, 'latitude': [-22,32,04], 'altitude': 1864.,
-#         'tz': 3}
-# # 'spm': {'name': 'Observatorio Astronomico Nacional, San Pedro Martir',
-#         'longitude': [115,29,13],
-#     'latitude': [31,01,45],	'altitude': 2830.,
-#         'tz': 7},
-# # 'ckoir': {'name': 'Ckoirama Observatory, Universidad de Antofagasta, Chile',;    'longitude': [69,55.8] , 'latitude': [-24,05.4],     'longitude': 69.93058889,
-#     'latitude': -24.08913333,	'altitude': 966.,
-#         'tz': 4},
-# # 'lmo': {'name': 'Leander McCormick Observatory',     'longitude': [78,31,24], 'latitude': [38,02,00], 'altitude': 264,
-#         'tz': 5},
-# #
-# # 'holi': {'name': 'Observatorium Hoher List (Universitaet Bonn) - Germany',     'longitude': 353.15   ;Corrected sign error March 2008, 'latitude': 50.16276, 'altitude': 541,
-#         'tz': -1},
-# # 'tona': {'name': 'Observatorio Astronomico Nacional, Tonantzintla',
-#         'longitude': [98,18,50],
-#     'latitude': [19,01,58],
-#         'tz': 8, 'altitude': -999999  ; Altitude not supplied},
-###############################################################################
-# otarola
-# example_script_input = f'IAC80 "STARLINK-1436 (VISORSAT)" 2020 8 31'
-# observatories= {
-#     'KPEAK':['K.P. Observatory', +31.9599, -111.5997, 2.067],
-#     'CTIO':['CTIO', -30.1690, -70.8063, 2.2],
-#     'CKOIRAMA':['Ckoirama Observatory', -24.08913333, -69.93058889, 0.966],
-#     'HOME':['Home', +32.2671111, -110.8507778, .753],
-#     'VLT':['VLT', -24.6275, -70.4044, 2.650],
-#     'VISTA':['VISTA', -24.6157000, -70.3976000, 2.635],
-#     'CHILESCOPE':['CHILESCOPE', -30.4708333333333, -70.7647222222222, 1.580],
-#     'IAC80':['IAC80', +28.29966667, -16.51102778, 2.38125],
-#     'CA':['CA', 37.22364444, -2.54621667, 2.168]
-#     }
