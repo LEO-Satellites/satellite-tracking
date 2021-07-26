@@ -1,22 +1,20 @@
-# lets say 20 output for satellite:
-# just to see like one line randomly
-###########################################
-# Observations are starting friday 7/5/2021
 ###########################################
 # add a data structure so for each observatory you have a config of alt lat,
 # lon of the sat according to a given observatory and time
 ###########################################
 import os
+import random
 import sys
 import time
-from datetime import datetime, timezone
+import urllib
 
+from datetime import datetime, timezone
 import ephem
-import matplotlib.pyplot as plt
 import numpy as np
 import pyorbital
 from pyorbital.orbital import Orbital
-import urllib
+
+from constants_satellite_track import tle_dir
 ################################################################################
 def time_stamp():
 
@@ -47,68 +45,47 @@ def download_tle(satellite_brand:'str', tle_dir:'str'):
 
     return tle_file
 ################################################################################
-def observatory_pro(observatories:'dict'):
+def get_observatory_data(observatories:'dict'):
     # converts to format used by otarola
 
-# ;       .observatory - abbreviated observatory name
-# ;       .name - full observatory name
-# ;       .longitude - observatory longitude in degrees *west*
-# ;       .latitude - observatory latitude in degrees
-# ;       .altitude - observatory altitude in meters above sea level
-# ;       .tz - time zone, number of hours *west* of Greenwich
-
     satellite_track = {}
+    ############################################################################
     for observatory, data in observatories.items():
+
         otarola_format = {}
+        ########################################################################
         for key, val in data.items():
+
             if type(val)==type([]):
                 signo = 1
                 otarola_format[key]=0
+                ################################################################
                 for idx, f in enumerate(val):
+
                     if f<0:
                         signo = -1
                         f = abs(f)
+
                     otarola_format[key] += f/60**idx
+                ################################################################
                 otarola_format[key] = signo*otarola_format[key]
+
             else:
                 otarola_format[key]=val
 
             if key=='longitude':
+
                 if otarola_format[key] > 180.:
                     otarola_format[key] = 360 - otarola_format[key]
+
                 else:
                     otarola_format[key] = -otarola_format[key]
 
         satellite_track[observatory] = otarola_format
+        ########################################################################
+    ############################################################################
     return satellite_track
 ################################################################################
-example_script_input = f'IAC80 "STARLINK-1436 (VISORSAT)" 2020 8 31'
-observatories= {
-    'KPEAK':['K.P. Observatory', +31.9599, -111.5997, 2.067],
-    'CTIO':['CTIO', -30.1690, -70.8063, 2.2],
-    'CKOIRAMA':['Ckoirama Observatory', -24.08913333, -69.93058889, 0.966],
-    'HOME':['Home', +32.2671111, -110.8507778, .753],
-    'VLT':['VLT', -24.6275, -70.4044, 2.650],
-    'VISTA':['VISTA', -24.6157000, -70.3976000, 2.635],
-    'CHILESCOPE':['CHILESCOPE', -30.4708333333333, -70.7647222222222, 1.580],
-    'IAC80':['IAC80', +28.29966667, -16.51102778, 2.38125],
-    'CA':['CA', 37.22364444, -2.54621667, 2.168]
-    }
-# Store orbital computations in file
-#print the columns header of sat data to be displayed
-# Note the angular speed of the satellite is in the AZ,EL (or AZ,ALT) frame
-## Convert using str.join and a function like list_to_str
-ut_time = 'UT Date, UT time'
-lla_sat = 'Sat(lon) [deg], Sat(lat) [deg], Sat(alt) [km]'
-angular_sat = 'Sat(Azimuth) [deg], Sat(Elevation), [deg] SatRA[hr], SatDEC[deg]'
-angular_sun = 'SunRA[hr], SunDEC[deg], SunZenithAngle[deg]'
-speed_sat = 'SatAngularSpeed [arcsecs/sec]'
-
-colum_headers = f'{ut_time}, {lla_sat}, {angular_sat}, {angular_sun}, {speed_sat}'
-
-################################################################################
-# str manipulation
-
 def data_formating(date_obj, darksat_latlon, sat_az, sat_alt,
     raSAT_h, raSAT_m, raSAT_s, decSAT_d, decSAT_m, decSAT_s,
     sunRA, sunDEC, sun_zenith_angle, ang_motion):
@@ -123,9 +100,6 @@ def data_formating(date_obj, darksat_latlon, sat_az, sat_alt,
     date = f'{year}-{month:02}-{day:02}'
     time = f'{hour:02}:{minute:02}:{second:02}s'
 
-    # print(date_obj)
-    # date_obj.second -= 5
-    # print(date_obj)
     computed_data_str = [
         f'{date_obj}\t', f'{darksat_latlon[0]:9.6f}\t',
         f'{darksat_latlon[1]:9.6f}\t', f'{darksat_latlon[2]:5.2f}\t',
@@ -147,7 +121,6 @@ def data_formating(date_obj, darksat_latlon, sat_az, sat_alt,
     data_str_simple = ''.join(computed_data_str_simple)
 
     return data_str, data_str_simple
-
 ################################################################################
 def ra_to_hours(ra):
     ra = ra*180./np.pi
@@ -198,19 +171,7 @@ def dec_to_dd_mm_ss(dec):
 
     return dd*dec_sign, mm, ss
 ################################################################################
-import math
-import os
-import sys
-import time
-import urllib
-
-from datetime import datetime, timezone
-import ephem
-import numpy as np
-import pyorbital
-from pyorbital.orbital import Orbital
 ################################################################################
-tle_dir = f'/home/edgar/Documents/satellite-tracking/tle_dir'
 def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
     output_fname:'str', output_fname_simple:'str', tle_file:'str',
     year, month, day,
@@ -224,6 +185,7 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
     obs_lat = observatory_data['latitude']
     obs_lon = observatory_data['longitude']
     obs_altitude = observatory_data['altitude']/1000. # in km
+    obs_tz = observatory_data['tz']
     ################################################################################
     observer.lon = np.radians(obs_lon)
     observer.lat = np.radians(obs_lat)
@@ -237,16 +199,23 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
     hr0 = 0
     ############################################################################
     if window=='evening':
-        hours = [18, 19, 20, 21, 22, 23, 0, 1, 2]
+        hours = [hr for hr in range(12, 24)] + [0]
+        hours = [hr + obs_tz for hr in hours]
+        hours = [hr if hr<24 else hr%24 for hr in hours]
+        # [18, 19, 20, 21, 22, 23, 0, 1, 2]
     elif window=='morning':
-        hours = [6, 7, 8, 9, 10, 11, 12]
+        hours = [hr + obs_tz for hr in range(0, 13)]
+        hours = [0 if hr==24 else hr for hr in hours]
+        #[6, 7, 8, 9, 10, 11, 12]
     else:
         print(f'window keyword must be of either "morning" or "evening"')
         sys.exit()
     ############################################################################
+    write = []
+    ############################################################################
     for hr in hours:
-
-        if hr == 0 and window =='evening':
+        # print(hr, '#'*30)
+        if hours[0] != 0 and hr == 0:
             day += 1
 
         for mn in range(0, 60):
@@ -288,19 +257,6 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                 if sat_alt > 35 and sun_zenith_angle > 95 and sun_zenith_angle < 125:
                 # # Angel
                 # if sat_alt > 0 and sun_zenith_angle > 95 and sun_zenith_angle < 115:
-
-                    ################################################################
-                    flag += 1
-
-                    if flag == 1:
-
-                        with open(f'{output_dir}/{output_fname}.txt', 'a') as file:
-                            file.write(f'{satellite}\n')
-
-                        with open(f'{output_dir}/{output_fname_simple}.txt',
-                            'a') as file_simple:
-
-                            file_simple.write(f'{satellite}\n')
                     ################################################################
                     # compute the change in AZ and ALT of the satellite position
                     # between this and previous observation
@@ -323,7 +279,8 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                     sat_alt0 = sat_alt
                     hr0 = hr + mn/60. + secs/3600.
 
-                    ang_motion = math.sqrt(math.pow(daz,2) + math.pow(dalt,2))/dt
+                    ang_motion = np.sqrt(np.power(daz,2) + np.power(dalt,2))/dt
+                    # ang_motion = math.sqrt(math.pow(daz,2) + math.pow(dalt,2))/dt
                     # prints out the UT time, and satellite footprint position as well as
                     # satellite azimuth and elevation at the observer location
 
@@ -335,13 +292,7 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                         decSAT_d, decSAT_m, decSAT_s,
                         sunRA, sunDEC, sun_zenith_angle,
                         ang_motion)
-                    ################################################################
-                    with open(f'{output_dir}/{output_fname}.txt', 'a') as file:
-                        file.write(f'{data_str}\n')
-
-                    with open(f'{output_dir}/{output_fname_simple}.txt',
-                        'a') as file_simple:
-                        file_simple.write(f'{data_str_simple}\n')
+                    write.append([data_str, data_str_simple])
                     ################################################################
                 else:
                     # keeps copy of the current AZ, ALT and time information
@@ -349,8 +300,14 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                     sat_az0 = sat_az
                     sat_alt0 = sat_alt
                     hr0 = hr + mn/60. + secs/3600.
-################################################################################
+                    ################################################################
 
+    if len(write) > 0:
+
+        [data_str, data_str_simple] = random.choice(write)
+        print(f'{satellite} is visible')
+        return [satellite, data_str, data_str_simple]
+################################################################################
 def input_handler(arguments):
     "arguments: list with arguments pass to the script"
 
@@ -371,48 +328,43 @@ def input_handler(arguments):
     window = arguments[6]
     ############################################################################
     return satellite_brand, observatory, year, month, day, window
-# def radians_to_hrs(radians):
-#
-#     deg = radians_to_deg(radians)
-#
-#     hrs = deg*24./360
-#
-#     return hrs
-# def input_handler(arguments):
-#
-#     "arguments: list with arguments pass to the script"
-#
-#     n_args = len(arguments)
-#
-#     if n_args < 6:
-#         print(f'Use: python satellite_track.py OBSname SATid Year Month Day')
-#         print(f'Ex: python satellite_track.py {example_script_input}')
-#         sys.exit()
-#
-#     elif arguments[1] in observatories.keys():
-#
-#         obs_name = observatories[arguments[1]][0]
-#         obs_lat = observatories[arguments[1]][1]
-#         obs_lon = observatories[arguments[1]][2]
-#         obs_altitude = observatories[arguments[1]][3]
-#         satellite_ID = arguments[2]
-#         satellite_brand = satellite_ID.split('-')[0].lower()
-#         year  = int(arguments[3])
-#         month = int(arguments[4])
-#         day   = int(arguments[5])
-#
-#         print(f'Observatory: {obs_name}')
-#         print(f'Observatory latitude: {obs_lat}')
-#         print(f'Observatory latitude: {obs_lon}')
-#         print(f'Observatory latitude: {obs_altitude}')
-#         print(f'Satellite ID: {satellite_ID}')
-#         print(f'Forecast date: {day}/{month}/{year}\n')
-#
-#         return (obs_name, obs_lat, obs_lon, obs_altitude, year, month, day,
-#             satellite_ID, satellite_brand)
-#
-#     else:
-#
-#         print(f'Observatory name = {arguments[1]}  not found...')
-#         sys.exit()
 ###############################################################################
+        #
+        # with open(f'{output_dir}/{output_fname}.txt',
+        #     'a') as file:
+        #     file.write(f'{data_str}\n')
+        #
+        # with open(f'{output_dir}/{output_fname_simple}.txt',
+        #     'a') as file_simple:
+        #     file_simple.write(f'{data_str_simple}\n')
+                    ############################################################
+                    # random_bit = random.getrandbits(1)
+                    # random_boolean = bool(random_bit)
+                    # print(random_boolean, write, random_boolean and write)
+                    #
+                    # if write and random_boolean:
+
+                    # with open(f'{output_dir}/{output_fname}.txt',
+                    #     'a') as file:
+                    #     file.write(f'{data_str}\n')
+                    #
+                    # with open(f'{output_dir}/{output_fname_simple}.txt',
+                    #     'a') as file_simple:
+                    #     file_simple.write(f'{data_str_simple}\n')
+
+                    # write = False
+
+                    ################################################################
+                    # flag += 1
+                    #
+                    # if flag == 1:
+                    #
+                    #     with open(f'{output_dir}/{output_fname}.txt', 'a') as file:
+                    #         file.write(f'{satellite}\n')
+                    #
+                    #     with open(f'{output_dir}/{output_fname_simple}.txt',
+                    #         'a') as file_simple:
+                    #
+                    #         file_simple.write(f'{satellite}\n')
+                    #
+                    # print(f'{satellite} is visible')

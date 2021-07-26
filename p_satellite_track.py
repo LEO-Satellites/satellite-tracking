@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+from functools import partial
+import multiprocessing as mp
 import os
 import sys
 import time
@@ -6,11 +8,9 @@ import urllib
 
 import numpy as np
 
-from lib_satellite_track import colum_headers
-from lib_satellite_track import observatory_pro
-
-from constants_satellite_track import observatories
-from lib_satellite_track import download_tle, compute_visible, input_handler
+from constants_satellite_track import colum_headers, observatories
+from lib_satellite_track import get_observatory_data, input_handler
+from lib_satellite_track import compute_visible, download_tle
 ###############################################################################
 ti = time.time()
 ################################################################################
@@ -51,21 +51,81 @@ with open(f'{tle_dir}/{tle_file}', 'r') as tle:
         if idx%3==0:
             satellites_list.append(l.strip())
 ################################################################################
-observatories = observatory_pro(observatories)
+observatories = get_observatory_data(observatories)
 
 observatory_data = observatories[observatory]
 
-for satellite in satellites_list:
-    print(satellite)
-    compute_visible(
-        satellite,
-        window,
-        observatory_data,
-        output_fname,
-        output_fname_simple,
-        tle_file,
-        year, month, day,
-        output_dir)
+compute_visible_parallel = partial(compute_visible,
+    window=window,
+    observatory_data=observatory_data,
+    output_fname=output_fname,
+    output_fname_simple=output_fname_simple,
+    tle_file=tle_file,
+    year=year, month=month, day=day,
+    output_dir=output_dir)
+
+with mp.Pool(processes=None) as pool:
+    res = pool.map(compute_visible_parallel, satellites_list)
+################################################################################
+visible_satellites = []
+
+for satellite in res:
+
+    if satellite == None:
+        continue
+
+    visible_satellites.append(satellite)
+################################################################################
+observing_time = np.empty(len(visible_satellites))
+
+for idx, visible in enumerate(visible_satellites):
+
+    [satellite, data_str, data_str_simple] = visible
+
+    obs_time = data_str_simple.split('\t')[1].split(':')
+
+    hours = float(obs_time[0])
+    if hours < 3:
+        hours += 24
+
+    minutes = float(obs_time[1])/60.
+    seconds = float(obs_time[2][:-1])/3600.
+
+    obs_time = hours + minutes + seconds
+
+    observing_time[idx] = obs_time
+################################################################################
+# if window=='evening':
+#     obs_time_sort_ids = np.argsort(-1*observing_time)
+# else:
+#     obs_time_sort_ids = np.argsort(observing_time)
+
+obs_time_sort_ids = np.argsort(observing_time)
+
+for sort_id in obs_time_sort_ids:
+
+    [satellite, data_str, data_str_simple] = visible_satellites[sort_id]
+
+    with open(f'{output_dir}/{output_fname}.txt',
+        'a') as file:
+        file.write(f'{satellite}\n{data_str}\n')
+
+    with open(f'{output_dir}/{output_fname_simple}.txt',
+        'a') as file_simple:
+        file_simple.write(f'{satellite}\n{data_str_simple}\n')
+# print(observing_time[obs_time_sort_ids])
 ################################################################################
 tf = time.time()
 print(f'Running time: {tf-ti:.2} [s]')
+
+# for satellite in satellites_list:
+#     # print(satellite)
+#     compute_visible(
+#         satellite,
+#         window,
+#         observatory_data,
+#         output_fname,
+#         output_fname_simple,
+#         tle_file,
+#         year, month, day,
+#         output_dir)
