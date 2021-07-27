@@ -64,18 +64,29 @@ if __name__ == '__main__':
 
             if idx%3==0:
                 satellites_list.append(l.strip())
-################################################################################
+    ############################################################################
     observatories = get_observatory_data(observatories)
-
     observatory_data = observatories[observatory]
+    ############################################################################
+    sat_alt_lower_bound = parser.getint('satellite observing limits',
+                                        'sat_alt_lower_bound')
 
+    ############################################################################
+    sun_zenith_range = parser.get('satellite observing limits',
+                                  'sun_zenith_angle_range')
+    sun_zenith_down, sun_zenith_up = sun_zenith_range.split(',')
+    sun_zenith_down, sun_zenith_up = int(sun_zenith_down), int(sun_zenith_up)
+    sun_zenith_range = range(sun_zenith_down, sun_zenith_up)
+    ############################################################################
     compute_visible_parallel = partial(compute_visible,
                                        window=window,
                                        observatory_data=observatory_data,
                                        output_fname=output_fname,
                                        output_fname_simple=output_fname_simple,
                                        tle_file=tle_file_path,
-                                       year=year, month=month, day=day)
+                                       year=year, month=month, day=day,
+                                       sat_alt_lower_bound=sat_alt_lower_bound,
+                                       sun_zenith_range=sun_zenith_range)
 
     with mp.Pool(processes=None) as pool:
         res = pool.map(compute_visible_parallel, satellites_list)

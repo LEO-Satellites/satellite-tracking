@@ -175,7 +175,7 @@ def dec_to_dd_mm_ss(dec):
 ################################################################################
 def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
     output_fname:'str', output_fname_simple:'str', tle_file:'str',
-    year, month, day):
+    year, month, day, sat_alt_lower_bound, sun_zenith_range):
 
     print(tle_file)
 
@@ -258,7 +258,8 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                 decSAT_d, decSAT_m, decSAT_s = dec_to_dd_mm_ss(dec=dec)
                 ####################################################################
                 #us
-                if sat_alt > 30 and sun_zenith_angle > 97 and sun_zenith_angle < 114:
+                if (sat_alt > sat_alt_lower_bound and
+                    sun_zenith_angle in sun_zenith_range):
                     ################################################################
                     # compute the change in AZ and ALT of the satellite position
                     # between this and previous observation
