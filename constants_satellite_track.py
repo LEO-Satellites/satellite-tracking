@@ -1,14 +1,9 @@
 ##############################################################################
-# Satellite tracking code using TLE data from Celestrak to calculate times 
+# Satellite tracking code using TLE data from Celestrak to calculate times
 # and positions of LEOsats to plan observations.
-# Written by 
-# Edgar Ortiz edgar.ortiz@uamail.cl 
-# Jeremy Tregloan-Reed jeremy.tregloan-reed@uda.cl 
-##############################################################################
-
-
-################################################################################
-tle_dir = f'./Output/tle_data/'
+# Written by
+# Edgar Ortiz edgar.ortiz@uamail.cl
+# Jeremy Tregloan-Reed jeremy.tregloan-reed@uda.cl
 ################################################################################
 # Note the angular speed of the satellite is in the AZ,EL (or AZ,ALT) frame
 ut_time = 'UT Date, UT time'
@@ -29,7 +24,6 @@ colum_headers = (f'{ut_time}, {lla_sat}, {angular_sat}, '
 ################################################################################
 # Details taken from the IDL script observatories.pro
 ################################################################################
-
 observatories = {
     'kpno': {'name': 'Kitt Peak National Observatory',
         'longitude': [111,36.0], 'latitude': [31,57.8],	'altitude': 2120.,

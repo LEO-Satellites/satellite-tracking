@@ -1,59 +1,62 @@
 ##############################################################################
-# Satellite tracking code using TLE data from Celestrak to calculate times 
+# Satellite tracking code using TLE data from Celestrak to calculate times
 # and positions of LEOsats to plan observations.
-# Written by 
-# Edgar Ortiz edgar.ortiz@uamail.cl 
-# Jeremy Tregloan-Reed jeremy.tregloan-reed@uda.cl 
+# Written by
+# Edgar Ortiz edgar.ortiz@uamail.cl
+# Jeremy Tregloan-Reed jeremy.tregloan-reed@uda.cl
 ##############################################################################
-
-
 #! /usr/bin/env python3
+from configparser import ConfigParser
 from functools import partial
 import multiprocessing as mp
 import os
-import sys
 import time
-import urllib
-import random
-
+################################################################################
 import numpy as np
-
+################################################################################
 from constants_satellite_track import colum_headers, observatories
 from lib_satellite_track import get_observatory_data, input_handler
 from lib_satellite_track import compute_visible, download_tle
-
+################################################################################
 if __name__ == '__main__':
-###############################################################################
+    ############################################################################
     ti = time.time()
-################################################################################
-    satellite_brand, observatory, year, month, day, window = input_handler(
-        arguments=sys.argv)
-################################################################################
-    working_dir = f'./Output/'
-################################################################################
-    output_dir = f'{working_dir}/output_files'
+    ################################################################################
+    parser = ConfigParser()
+    parser.read('configuration.ini')
+    ############################################################################
+    satellite_brand = parser.get('user configuration', 'satellite_brand')
+    observatory = parser.get('user configuration', 'observatory')
 
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    day = parser.getint('user configuration', 'day')
+    month = parser.getint('user configuration', 'month')
+    year = parser.getint('user configuration', 'year')
 
+    window = parser.get('user configuration', 'window')
+    ############################################################################
+    output_dir = parser.get('paths', 'output_dir')
+    data_output_dir = parser.get('paths', 'data_output_dir')
+    if not os.path.exists(data_output_dir):
+        os.makedirs(data_output_dir)
+    ############################################################################
     output_fname = (f'visible-{satellite_brand}s_{observatory}_'
                     f'{year}_{month:02}_{day:02}_{window}')
 
-    output_fname_simple = (f'observing-details_for-{satellite_brand}_{observatory}_'
-                           f'{year}_{month:02}_{day:02}_{window}')
+    output_fname_simple = (f'observing-details_for-{satellite_brand}_'
+      f'{observatory}_{year}_{month:02}_{day:02}_{window}')
 
-##############################################################
-    with open(f'{output_dir}/{output_fname}.txt', 'w') as file:
+    with open(f'{data_output_dir}/{output_fname}.txt', 'w') as file:
         file.write(f'{colum_headers}\n')
 
-    with open(f'{output_dir}/{output_fname_simple}.txt', 'w') as file_simple:
-        file_simple.write(f'Date(UT)\tTime(UT)\tRA(hh:mm:ss)\tDEC(dd:mm:ss)\n')
-################################################################################
-    tle_dir = f'./Output/tle_data/'
-    tle_file = download_tle(satellite_brand, tle_dir)
+    with open(f'{data_output_dir}/{output_fname_simple}.txt', 'w') as file:
+        file.write(f'Date(UT)\tTime(UT)\tRA(hh:mm:ss)\tDEC(dd:mm:ss)\n')
+    ############################################################################
+    tle_dir = parser.get('paths', 'tle_dir')
+    tle_fname = download_tle(satellite_brand, tle_dir)
+    tle_file_path = f'{tle_dir}/{tle_fname}'
     satellites_list = []
 
-    with open(f'{tle_dir}/{tle_file}', 'r') as tle:
+    with open(f'{tle_dir}/{tle_fname}', 'r') as tle:
 
         lines_tle = tle.readlines()
 
@@ -71,9 +74,8 @@ if __name__ == '__main__':
                                        observatory_data=observatory_data,
                                        output_fname=output_fname,
                                        output_fname_simple=output_fname_simple,
-                                       tle_file=tle_file,
-                                       year=year, month=month, day=day,
-                                       output_dir=output_dir)
+                                       tle_file=tle_file_path,
+                                       year=year, month=month, day=day)
 
     with mp.Pool(processes=None) as pool:
         res = pool.map(compute_visible_parallel, satellites_list)
@@ -113,11 +115,11 @@ if __name__ == '__main__':
 
         [satellite, data_str, data_str_simple] = visible_satellites[sort_id]
 
-        with open(f'{output_dir}/{output_fname}.txt',
+        with open(f'{data_output_dir}/{output_fname}.txt',
                   'a') as file:
             file.write(f'{satellite}\n{data_str}\n')
 
-        with open(f'{output_dir}/{output_fname_simple}.txt',
+        with open(f'{data_output_dir}/{output_fname_simple}.txt',
                   'a') as file_simple:
             file_simple.write(f'{satellite}\n{data_str_simple}\n')
 ################################################################################

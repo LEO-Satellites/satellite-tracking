@@ -1,9 +1,9 @@
 ##############################################################################
-# Satellite tracking code using TLE data from Celestrak to calculate times 
+# Satellite tracking code using TLE data from Celestrak to calculate times
 # and positions of LEOsats to plan observations.
-# Written by 
-# Edgar Ortiz edgar.ortiz@uamail.cl 
-# Jeremy Tregloan-Reed jeremy.tregloan-reed@uda.cl 
+# Written by
+# Edgar Ortiz edgar.ortiz@uamail.cl
+# Jeremy Tregloan-Reed jeremy.tregloan-reed@uda.cl
 ##############################################################################
 import os
 import random
@@ -16,8 +16,6 @@ import ephem
 import numpy as np
 import pyorbital
 from pyorbital.orbital import Orbital
-
-from constants_satellite_track import tle_dir
 ################################################################################
 def time_stamp():
 
@@ -177,8 +175,9 @@ def dec_to_dd_mm_ss(dec):
 ################################################################################
 def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
     output_fname:'str', output_fname_simple:'str', tle_file:'str',
-    year, month, day,
-    output_dir:'str'):
+    year, month, day):
+
+    print(tle_file)
 
     observer = ephem.Observer()
     observer.epoch = '2000'
@@ -195,7 +194,7 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
     observer.elevation = observatory_data['altitude']# in meters
     ############################################################################
     flag = 0
-    darksat = Orbital(satellite, tle_file=f'{tle_dir}/{tle_file}')
+    darksat = Orbital(satellite, tle_file=f'{tle_file}')
     ############################################################################
     sat_az0 =0
     sat_alt0 =0
