@@ -68,15 +68,14 @@ if __name__ == '__main__':
     observatories = get_observatory_data(observatories)
     observatory_data = observatories[observatory]
     ############################################################################
-    sat_alt_lower_bound = parser.getint('satellite observing limits',
+    sat_alt_lower_bound = parser.getfloat('satellite observing limits',
                                         'sat_alt_lower_bound')
 
     ############################################################################
     sun_zenith_range = parser.get('satellite observing limits',
                                   'sun_zenith_angle_range')
-    sun_zenith_down, sun_zenith_up = sun_zenith_range.split(',')
-    sun_zenith_down, sun_zenith_up = int(sun_zenith_down), int(sun_zenith_up)
-    sun_zenith_range = range(sun_zenith_down, sun_zenith_up)
+    sun_zenith_lower, sun_zenith_upper = sun_zenith_range.split(',')
+    sun_zenith_lower, sun_zenith_upper = float(sun_zenith_lower), float(sun_zenith_upper)
     ############################################################################
     compute_visible_parallel = partial(compute_visible,
                                        window=window,
@@ -86,7 +85,8 @@ if __name__ == '__main__':
                                        tle_file=tle_file_path,
                                        year=year, month=month, day=day,
                                        sat_alt_lower_bound=sat_alt_lower_bound,
-                                       sun_zenith_range=sun_zenith_range)
+                                       sun_zenith_lower=sun_zenith_lower,
+                                       sun_zenith_upper=sun_zenith_upper)
 
     with mp.Pool(processes=None) as pool:
         res = pool.map(compute_visible_parallel, satellites_list)
@@ -119,7 +119,6 @@ if __name__ == '__main__':
 
         observing_time[idx] = obs_time
 ################################################################################
-
     obs_time_sort_ids = np.argsort(observing_time)
 
     for sort_id in obs_time_sort_ids:

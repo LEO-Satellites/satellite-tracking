@@ -175,9 +175,9 @@ def dec_to_dd_mm_ss(dec):
 ################################################################################
 def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
     output_fname:'str', output_fname_simple:'str', tle_file:'str',
-    year, month, day, sat_alt_lower_bound, sun_zenith_range):
+    year, month, day, sat_alt_lower_bound, sun_zenith_lower,  sun_zenith_upper):
 
-    print(tle_file)
+    # print(tle_file)
 
     observer = ephem.Observer()
     observer.epoch = '2000'
@@ -218,6 +218,7 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
     ############################################################################
     write = []
     ############################################################################
+    # pass_loop = False
     for hr in hours:
         if  hours[0] != 0 and hr == 0:
             day += 1
@@ -227,17 +228,19 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
             for secs in range(30, 31):
 
                 date_obj = datetime(year, month, day, hr, mn, secs)
-
                 # computes the current latitude, longitude of the satellite's
                 #footprint and its current orbital altitude
-                darksat_latlon = darksat.get_lonlatalt(date_obj)
-
+                try:
+                    darksat_latlon = darksat.get_lonlatalt(date_obj)
+                    # print(f'Something is right, {satellite}, {hr}:{mn}:{secs}')
+                except:
+                    # print(f'Something happened, {satellite}, {hr}:{mn}:{secs}')
+                    return None
                 # uses the observer coordinates to compute the satellite azimuth
                 # and elevation, negative elevation implies satellite is under
                 # the horizon
                 sat_az, sat_alt = darksat.get_observer_look(date_obj,
                     obs_lon, obs_lat, obs_altitude)
-
                 # gets the Sun's RA and DEC at the time of observation
                 sun_ra, sun_dec = pyorbital.astronomy.sun_ra_dec(date_obj)
 
@@ -254,12 +257,10 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                 raSAT_h, raSAT_m, raSAT_s = ra_to_hh_mm_ss(ra)
                 ####################################################################
                 # converts the DEC to dd:mm:ss
-                # print(dec)
                 decSAT_d, decSAT_m, decSAT_s = dec_to_dd_mm_ss(dec=dec)
                 ####################################################################
-                #us
                 if (sat_alt > sat_alt_lower_bound and
-                    sun_zenith_angle in sun_zenith_range):
+                    (sun_zenith_lower < sun_zenith_angle < sun_zenith_upper)):
                     ################################################################
                     # compute the change in AZ and ALT of the satellite position
                     # between this and previous observation
@@ -267,15 +268,12 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                     # difference in azimuth between current and previous postions in
                     # arcsecs
                     daz  = (sat_az - sat_az0)*3600
-
                     # difference in altitude between current and previous postions
                     # in arcsecs
                     dalt = (sat_alt - sat_alt0)*3600
-
                     # difference in time stamps between current and previous
                     # observation in seconds of time
                     dt = ((hr + mn/60. + secs/3600.) - hr0)*3600.
-
                     # sets the current sat position and time, as the "previous" for
                     # next observation
                     sat_az0 = sat_az
@@ -285,7 +283,6 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                     ang_motion = np.sqrt(np.power(daz,2) + np.power(dalt,2))/dt
                     # prints out the UT time, and satellite footprint position as well as
                     # satellite azimuth and elevation at the observer location
-
                     data_str, data_str_simple = data_formating(
                         date_obj,
                         darksat_latlon,
@@ -303,7 +300,6 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                     sat_alt0 = sat_alt
                     hr0 = hr + mn/60. + secs/3600.
                     ################################################################
-
     if len(write) > 0:
 
         [data_str, data_str_simple] = random.choice(write)
