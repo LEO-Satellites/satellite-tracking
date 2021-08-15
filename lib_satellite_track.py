@@ -235,7 +235,9 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                     # print(f'Something is right, {satellite}, {hr}:{mn}:{secs}')
                 except:
                     # print(f'Something happened, {satellite}, {hr}:{mn}:{secs}')
-                    return None
+                    # return None
+                    # This is for the data frame
+                    return [satellite, 'pyorbital crash', 'pyorbital crash']
                 # uses the observer coordinates to compute the satellite azimuth
                 # and elevation, negative elevation implies satellite is under
                 # the horizon
@@ -302,9 +304,12 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                     ################################################################
     if len(write) > 0:
 
-        [data_str, data_str_simple] = random.choice(write)
+
+        # Return all the times for a satellite
+        # [data_str, data_str_simple] = random.choice(write)
         print(f'{satellite} is visible')
-        return [satellite, data_str, data_str_simple]
+        # return [satellite, data_str, data_str_simple]
+        return write
 ################################################################################
 def input_handler(arguments):
     "arguments: list with arguments pass to the script"

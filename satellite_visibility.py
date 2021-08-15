@@ -13,6 +13,7 @@ import os
 import time
 ################################################################################
 import numpy as np
+import pandas as pd
 ################################################################################
 from constants_satellite_track import colum_headers, observatories
 from lib_satellite_track import get_observatory_data, input_handler
@@ -96,47 +97,69 @@ if __name__ == '__main__':
     with mp.Pool(processes=None) as pool:
         results = pool.map(compute_visible_parallel, satellites_list)
     ############################################################################
-    # retrieving visible satellites
+    # Prepare data for DataFrame
+    columns_df = ['satellite']
+    columns_df = columns_df + column_headers.split(',')
+    # all columns nan except the satellite column
+    orbital_library_crash = [np.nan for _ in columns_df[:-1]]
+    ############################################################################
+    data_crash_satellites = []
     visible_satellites = []
     for satellite in results:
 
-        if satellite == None:
-            continue
+        if satellite[1] == 'pyorbital crash':
 
-        visible_satellites.append(satellite)
+            satellite_name = [satellite[0]]
+            data_crash_satellites.append(satellite_name + orbital_library_crash)
+        else:
+
+            visible_satellites.append(satellite)
     ############################################################################
-    observing_time = np.empty(len(visible_satellites))
+    # Prepare visible satellites for that the frame
+    # # time_observation computed to order satellites according to day
+    number_satellites = len(visible_satellites)
+    number_satellites *= sum([len(visible) for visible in visible_satellites])
+
+    observation_times = np.empty(number_satellites)
 
     for idx, visible in enumerate(visible_satellites):
 
-        [satellite, data_str, data_str_simple] = visible
+        number_times_visibility = len(visible)
 
-        obs_time = data_str_simple.split('\t')[1].split(':')
+        for idx2, visible_ in enumerate(visible):
 
-        hours = float(obs_time[0])
-        if hours < 3:
-            hours += 24
+            [_, _, data_str_simple] = visible_
+            # retrieve the observation time
+            observation_time = data_str_simple.split('\t')[1].split(':')
 
-        minutes = float(obs_time[1])/60.
-        seconds = float(obs_time[2][:-1])/3600.
+            hours = float(observation_time[0])
+            # pay attention to this talk to jeremy, was this particular to la silla
+            if hours < 3:
+                hours += 24
 
-        obs_time = hours + minutes + seconds
+            minutes = float(observation_time[1])/60.
+            seconds = float(observation_time[2][:-1])/3600.
 
-        observing_time[idx] = obs_time
+            observation_time = hours + minutes + seconds
+
+            observation_times[
+                number_times_visibility*idx + idx2] = observation_time
     ############################################################################
-    obs_time_sort_ids = np.argsort(observing_time)
+    data_visible_satellites = []
 
-    for sort_id in obs_time_sort_ids:
+    sort_observations = np.argsort(observation_times)
 
-        [satellite, data_str, data_str_simple] = visible_satellites[sort_id]
+    for sort_observation in sort_observations:
 
-        with open(f'{data_output_dir}/{output_fname}.txt','a') as file:
+        [satellite, data_str, _] = visible_satellites[sort_observation]
+        data_visible_satellites.append([satellite] + [data_str.split('\t')])
+    ############################################################################
+    # create DataFrame visible satellite
+    data_df = data_visible_satellites + data_crash_satellites
 
-            file.write(f'{satellite}\n{data_str}\n')
+    df = pd.DataFrame(columns=columns_df, data=data_df)
 
-        with open(f'{data_output_dir}/{output_fname_simple}.txt', 'a') as file:
-
-            file.write(f'{satellite}\n{data_str_simple}\n')
+    df.to_csv()
 ################################################################################
     tf = time.time()
     print(f'Running time: {tf-ti:.2} [s]')
