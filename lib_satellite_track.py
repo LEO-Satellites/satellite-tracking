@@ -174,8 +174,8 @@ def dec_to_dd_mm_ss(dec):
 ################################################################################
 ################################################################################
 def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
-    output_fname:'str', output_fname_simple:'str', tle_file:'str',
-    year, month, day, sat_alt_lower_bound, sun_zenith_lower,  sun_zenith_upper):
+    tle_file:'str', year, month, day,
+    sat_alt_lower_bound, sun_zenith_lower, sun_zenith_upper):
 
     # print(tle_file)
 
@@ -235,9 +235,9 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                     # print(f'Something is right, {satellite}, {hr}:{mn}:{secs}')
                 except:
                     # print(f'Something happened, {satellite}, {hr}:{mn}:{secs}')
-                    # return None
+                    # return [satellite, 'pyorbital crash', 'pyorbital crash']
+                    return None
                     # This is for the data frame
-                    return [satellite, 'pyorbital crash', 'pyorbital crash']
                 # uses the observer coordinates to compute the satellite azimuth
                 # and elevation, negative elevation implies satellite is under
                 # the horizon
@@ -304,12 +304,13 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                     ################################################################
     if len(write) > 0:
 
-
         # Return all the times for a satellite
         # [data_str, data_str_simple] = random.choice(write)
-        print(f'{satellite} is visible')
+        # print(f'{satellite} is visible')
         # return [satellite, data_str, data_str_simple]
-        return write
+        # print(write)
+        return [[satellite] + data for data in write]
+        # return write
 ################################################################################
 def input_handler(arguments):
     "arguments: list with arguments pass to the script"

@@ -12,7 +12,7 @@ angular_sat = 'Sat(Azimuth) [deg], Sat(Elevation), [deg] SatRA[hr], SatDEC[deg]'
 angular_sun = 'SunRA[hr], SunDEC[deg], SunZenithAngle[deg]'
 speed_sat = 'SatAngularSpeed [arcsecs/sec]'
 
-colum_headers = (f'{ut_time}, {lla_sat}, {angular_sat}, '
+column_headers = (f'{ut_time}, {lla_sat}, {angular_sat}, '
     f'{angular_sun}, {speed_sat}')
 ################################################################################
 # observatory - abbreviated observatory name
