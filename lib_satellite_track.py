@@ -293,6 +293,12 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                         decSAT_d, decSAT_m, decSAT_s,
                         sunRA, sunDEC, sun_zenith_angle,
                         ang_motion)
+
+                    data_str = data_str.split('\t')
+                    
+                    data_str = [val
+                        for entry in data_str for val in entry.split()]
+
                     write.append([data_str, data_str_simple])
                     ################################################################
                 else:

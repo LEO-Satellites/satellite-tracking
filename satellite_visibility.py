@@ -111,14 +111,12 @@ if __name__ == '__main__':
     # Prepare visible satellites data frame
     data_visible_satellites = []
 
-    for idx, visible in enumerate(visible_satellites):
+    for visible in visible_satellites:
 
-        for idx2, visible_ in enumerate(visible):
+        for visible_ in visible:
 
             [satellite, data_str, _] = visible_
-
-            data_visible_satellites.append(
-                [satellite] + data_str.split('\t'))
+            data_visible_satellites.append([satellite] + data_str)
     ############################################################################
     # create DataFrame
     data_df = data_visible_satellites + data_crash_satellites
@@ -127,7 +125,7 @@ if __name__ == '__main__':
     print(len(data_df), len(columns_df))
     df = pd.DataFrame(columns=columns_df, data=data_df)
 
-    df.to_csv('df.csv')
+    df.to_csv('df.csv', index=False)
 ################################################################################
     tf = time.time()
     print(f'Running time: {tf-ti:.2} [s]')
