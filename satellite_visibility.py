@@ -108,36 +108,7 @@ if __name__ == '__main__':
 
             visible_satellites.append(satellite)
     ############################################################################
-    # Prepare visible satellites for that the frame
-    # # time_observation computed to order satellites according to day
-    # number_satellites = len(visible_satellites)
-    # number_satellites *= sum([len(visible) for visible in visible_satellites])
-
-    # observation_times = np.empty(number_satellites)
-
-    # for idx, visible in enumerate(visible_satellites):
-    #
-    #     number_times_visibility = len(visible)
-    #
-    #     for idx2, visible_ in enumerate(visible):
-    #
-    #         [_, _, data_str_simple] = visible_
-    #         # retrieve the observation time
-    #         observation_time = data_str_simple.split('\t')[1].split(':')
-    #
-    #         hours = float(observation_time[0])
-    #         # pay attention to this talk to jeremy, was this particular to la silla
-    #         if hours < 3:
-    #             hours += 24
-    #
-    #         minutes = float(observation_time[1])/60.
-    #         seconds = float(observation_time[2][:-1])/3600.
-    #
-    #         observation_time = hours + minutes + seconds
-    #
-    #         observation_times[
-    #             number_times_visibility*idx + idx2] = observation_time
-    ############################################################################
+    # Prepare visible satellites data frame
     data_visible_satellites = []
 
     for idx, visible in enumerate(visible_satellites):
@@ -147,23 +118,16 @@ if __name__ == '__main__':
             [satellite, data_str, _] = visible_
 
             data_visible_satellites.append(
-                [satellite] + [data_str.split('\t')])
-
-    # sort_observations = np.argsort(observation_times)
-    # print(sort_observations.shape, len(visible_satellites))
-
-    # for sort_observation in sort_observations:
-
-        # [satellite, data_str, _] = visible_satellites[sort_observation]
-        # data_visible_satellites.append([satellite] + [data_str.split('\t')])
+                [satellite] + data_str.split('\t'))
     ############################################################################
-    # create DataFrame visible satellite
+    # create DataFrame
     data_df = data_visible_satellites + data_crash_satellites
-
+    print(data_df[0], '\n' * 2, data_df[1])
+    print(data_crash_satellites[0], '\n' * 2)
+    print(len(data_df), len(columns_df))
     df = pd.DataFrame(columns=columns_df, data=data_df)
 
     df.to_csv('df.csv')
 ################################################################################
     tf = time.time()
     print(f'Running time: {tf-ti:.2} [s]')
-# this is a test to see what happens with the branches
