@@ -88,11 +88,14 @@ if __name__ == '__main__':
     ############################################################################
     # Prepare data for DataFrame
     columns_df = ['satellite']
-    columns_df = columns_df + column_headers.split(',')
+
+    columns_df = columns_df + [header.strip()
+        for header in column_headers.split(',')]
     # all columns nan except the satellite column
     orbital_library_crash = [np.nan for _ in columns_df[:-1]]
     ############################################################################
     data_crash_satellites = []
+    data_simple_crash_satellites = []
     visible_satellites = []
 
     # for result in results:
@@ -104,28 +107,40 @@ if __name__ == '__main__':
 
             satellite_name = ['crash']
             data_crash_satellites.append(satellite_name + orbital_library_crash)
+            data_simple_crash_satellites.append(
+                satellite_name + orbital_library_crash[:4])
         else:
 
             visible_satellites.append(satellite)
     ############################################################################
     # Prepare visible satellites data frame
     data_visible_satellites = []
+    data_simple_visible_satellites = []
 
     for visible in visible_satellites:
 
         for visible_ in visible:
 
-            [satellite, data_str, _] = visible_
-            data_visible_satellites.append([satellite] + data_str)
+            [satellite, data, data_simple] = visible_
+            data_visible_satellites.append([satellite] + data)
+            data_simple_visible_satellites.append([satellite] + data_simple)
     ############################################################################
-    # create DataFrame
+    # create DataFrame all data
     data_df = data_visible_satellites + data_crash_satellites
-    print(data_df[0], '\n' * 2, data_df[1])
-    print(data_crash_satellites[0], '\n' * 2)
-    print(len(data_df), len(columns_df))
     df = pd.DataFrame(columns=columns_df, data=data_df)
 
     df.to_csv('df.csv', index=False)
+    ############################################################################
+    # create DataFrame simple data
+    columns_df = ['satellite',
+        'date(UT)', 'time(UT)', 'RA(hh:mm:ss)', 'DEC(hh:mm:ss)']
+
+    data_df = data_simple_visible_satellites + data_simple_crash_satellites
+    print(data_df[-1])
+
+    df_simple = pd.DataFrame(columns=columns_df, data=data_df)
+
+    df_simple.to_csv('simple_df.csv', index=False)
 ################################################################################
     tf = time.time()
     print(f'Running time: {tf-ti:.2} [s]')
