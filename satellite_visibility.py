@@ -126,16 +126,16 @@ if __name__ == '__main__':
             data_simple_visible_satellites.append([satellite] + data_simple)
     ############################################################################
     # create DataFrame all data
-    data_df = data_visible_satellites + data_crash_satellites
+    data_df = data_visible_satellites #+ data_crash_satellites
     df = pd.DataFrame(columns=columns_df, data=data_df)
 
     df.to_csv('df.csv', index=False)
     ############################################################################
     # create DataFrame simple data
     columns_df = ['satellite',
-        'date(UT)', 'time(UT)', 'RA(hh:mm:ss)', 'DEC(hh:mm:ss)']
+        'date[UT]', 'time[UT]', 'RA[hh:mm:ss]', 'DEC[hh:mm:ss]']
 
-    data_df = data_simple_visible_satellites + data_simple_crash_satellites
+    data_df = data_simple_visible_satellites #+ data_simple_crash_satellites
     print(data_df[-1])
 
     df_simple = pd.DataFrame(columns=columns_df, data=data_df)

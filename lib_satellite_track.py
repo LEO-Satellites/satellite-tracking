@@ -87,42 +87,6 @@ def get_observatory_data(observatories:'dict'):
     ############################################################################
     return satellite_track
 ################################################################################
-def data_formating(date_obj, darksat_latlon, sat_az, sat_alt,
-    raSAT_h, raSAT_m, raSAT_s, decSAT_d, decSAT_m, decSAT_s,
-    sunRA, sunDEC, sun_zenith_angle, ang_motion):
-
-    year = date_obj.year
-    month = date_obj.month
-    day = date_obj.day
-    hour = date_obj.hour
-    minute = date_obj.minute
-    second = date_obj.second
-
-    date = f'{year}-{month:02}-{day:02}'
-    time = f'{hour:02}:{minute:02}:{second:02}s'
-
-    computed_data_str = [
-        f'{date_obj}\t', f'{darksat_latlon[0]:9.6f}\t',
-        f'{darksat_latlon[1]:9.6f}\t', f'{darksat_latlon[2]:5.2f}\t',
-        f'{sat_az:06.3f}\t',
-        f'{sat_alt:06.3f} ',
-        f'{raSAT_h:02d}h{raSAT_m:02d}m{raSAT_s:05.3f}s ',
-        f'{decSAT_d:03d}:{decSAT_m:02d}:{decSAT_s:05.3f} ',
-        f'{sunRA:09.7f} ', f'{sunDEC:09.7f} ',
-        f'{sun_zenith_angle:07.3f} ', f'{ang_motion:08.3f}'
-        ]
-
-    computed_data_str_simple = [
-        f'{date}\t',
-        f'{time}\t',
-        f'{raSAT_h:02d}h{raSAT_m:02d}m{raSAT_s:05.3f}s\t',
-        f'{decSAT_d:03d}:{decSAT_m:02d}:{decSAT_s:05.3f}'
-        ]
-    data_str = ''.join(computed_data_str)
-    data_str_simple = ''.join(computed_data_str_simple)
-
-    return data_str, data_str_simple
-################################################################################
 def ra_to_hours(ra):
     ra = ra*180./np.pi
 
@@ -173,6 +137,47 @@ def dec_to_dd_mm_ss(dec):
     return dd*dec_sign, mm, ss
 ################################################################################
 ################################################################################
+def data_formating(date_obj, darksat_latlon, sat_az, sat_alt,
+    raSAT_h, raSAT_m, raSAT_s, decSAT_d, decSAT_m, decSAT_s,
+    sunRA, sunDEC, sun_zenith_angle, ang_motion):
+
+    year = date_obj.year
+    month = date_obj.month
+    day = date_obj.day
+    hour = date_obj.hour
+    minute = date_obj.minute
+    second = date_obj.second
+
+    date = f'{year}-{month:02}-{day:02}'
+    time = f'{hour:02}:{minute:02}:{second:02}s'
+
+    data = [
+        f'{date}',
+        f'{time}',
+        # SatLon[deg]
+        f'{darksat_latlon[0]:9.6f}',
+        # SatLat[deg]
+        f'{darksat_latlon[1]:9.6f}',
+        f'{darksat_latlon[2]:5.2f}',
+        f'{sat_az:06.3f}',
+        f'{sat_alt:06.3f}',
+        f'{raSAT_h:02d}h{raSAT_m:02d}m{raSAT_s:05.3f}s',
+        f'{decSAT_d:03d}:{decSAT_m:02d}:{decSAT_s:05.3f}',
+        f'{sunRA:09.7f}',
+        f'{sunDEC:09.7f}',
+        f'{sun_zenith_angle:07.3f}',
+        f'{ang_motion:08.3f}'
+        ]
+
+    data_simple = [
+        f'{date}',
+        f'{time}',
+        f'{raSAT_h:02d}h{raSAT_m:02d}m{raSAT_s:05.3f}s',
+        f'{decSAT_d:03d}:{decSAT_m:02d}:{decSAT_s:05.3f}'
+        ]
+
+    return data, data_simple
+################################################################################
 def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
     tle_file:'str', year, month, day,
     sat_alt_lower_bound, sun_zenith_lower, sun_zenith_upper):
@@ -220,6 +225,7 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
     ############################################################################
     # pass_loop = False
     for hr in hours:
+        # Check logic with jeremy
         if  hours[0] != 0 and hr == 0:
             day += 1
 
@@ -294,14 +300,6 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                         sunRA, sunDEC, sun_zenith_angle,
                         ang_motion)
                     ############################################################
-                    data_str_simple = data_str_simple.split('\t')
-                    ############################################################
-                    data_str = data_str.split('\t')
-
-                    data_str = [val
-                        for entry in data_str for val in entry.split()]
-                    ############################################################
-
                     write.append([data_str, data_str_simple])
                     ################################################################
                 else:

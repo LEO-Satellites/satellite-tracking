@@ -6,11 +6,11 @@
 # Jeremy Tregloan-Reed jeremy.tregloan-reed@uda.cl
 ################################################################################
 # Note the angular speed of the satellite is in the AZ,EL (or AZ,ALT) frame
-ut_time = 'UT Date, UT time'
-lla_sat = 'Sat(lon) [deg], Sat(lat) [deg], Sat(alt) [km]'
-angular_sat = 'Sat(Azimuth) [deg], Sat(Elevation), [deg] SatRA[hr], SatDEC[deg]'
+ut_time = 'date[UT], time[UT]'
+lla_sat = 'SatLon[deg], SatLat[deg], SatAlt[km]'
+angular_sat = 'SatAzimuth[deg], SatElevation[deg], SatRA[hr], SatDEC[deg]'
 angular_sun = 'SunRA[hr], SunDEC[deg], SunZenithAngle[deg]'
-speed_sat = 'SatAngularSpeed [arcsecs/sec]'
+speed_sat = 'SatAngularSpeed[arcsecs/sec]'
 
 column_headers = (f'{ut_time}, {lla_sat}, {angular_sat}, '
     f'{angular_sun}, {speed_sat}')
