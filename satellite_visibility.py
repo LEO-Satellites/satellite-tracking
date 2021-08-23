@@ -6,7 +6,7 @@
 # Jeremy Tregloan-Reed jeremy.tregloan-reed@uda.cl
 ##############################################################################
 #! /usr/bin/env python3
-from configparser import ConfigParser
+from configparser import ConfigParser, ExtendedInterpolation
 from functools import partial
 import multiprocessing as mp
 import os
@@ -18,25 +18,26 @@ import pandas as pd
 from constants_satellite_track import column_headers, observatories
 from lib_satellite_track import get_observatory_data, input_handler
 from lib_satellite_track import compute_visible, download_tle
+from output_lib import output_format
 ################################################################################
 if __name__ == '__main__':
     ############################################################################
     ti = time.time()
     ############################################################################
-    parser = ConfigParser()
+    parser = ConfigParser(interpolation=ExtendedInterpolation())
     parser.read('configuration.ini')
     ############################################################################
     # writing results
-    output_dir = parser.get('paths', 'output_dir')
-    data_output_dir = parser.get('paths', 'data_output_dir')
+    output_dir = parser.get('directories', 'output_dir')
+    data_output_dir = parser.get('directories', 'data_output_dir')
     if not os.path.exists(data_output_dir):
         os.makedirs(data_output_dir)
     ############################################################################
     # downloading tle file
     ## update this block to use pandas DataFrame :)
-    satellite_brand = parser.get('user configuration', 'satellite_brand')
+    satellite_brand = parser.get('configuration', 'satellite_brand')
 
-    tle_dir = parser.get('paths', 'tle_dir')
+    tle_dir = parser.get('directories', 'tle_dir')
     tle_fname = download_tle(satellite_brand, tle_dir)
     tle_file_path = f'{tle_dir}/{tle_fname}'
 
@@ -52,15 +53,15 @@ if __name__ == '__main__':
                 satellites_list.append(l.strip())
     ############################################################################
     observatories = get_observatory_data(observatories)
-    satellite_brand = parser.get('user configuration', 'satellite_brand')
-    observatory = parser.get('user configuration', 'observatory')
+    satellite_brand = parser.get('configuration', 'satellite_brand')
+    observatory = parser.get('configuration', 'observatory')
     observatory_data = observatories[observatory]
     ############################################################################
-    day = parser.getint('user configuration', 'day')
-    month = parser.getint('user configuration', 'month')
-    year = parser.getint('user configuration', 'year')
+    day = parser.getint('configuration', 'day')
+    month = parser.getint('configuration', 'month')
+    year = parser.getint('configuration', 'year')
 
-    window = parser.get('user configuration', 'window')
+    window = parser.get('configuration', 'window')
     ############################################################################
     sat_alt_lower_bound = parser.getfloat('satellite observing limits',
                                         'sat_alt_lower_bound')
@@ -98,9 +99,6 @@ if __name__ == '__main__':
     data_simple_crash_satellites = []
     visible_satellites = []
 
-    # for result in results:
-        # print(result, '\n', '#' * 40)
-
     for satellite in results:
 
         if satellite == None:
@@ -126,21 +124,31 @@ if __name__ == '__main__':
             data_simple_visible_satellites.append([satellite] + data_simple)
     ############################################################################
     # create DataFrame all data
-    data_df = data_visible_satellites #+ data_crash_satellites
-    df = pd.DataFrame(columns=columns_df, data=data_df)
+    data_df = data_visible_satellites + data_crash_satellites
+    observations_df = pd.DataFrame(columns=columns_df, data=data_df)
 
-    df.to_csv('df.csv', index=False)
+    details_name = parser.get('names', 'complete_output')
+
+    observations_df = output_format(data_frame=observations_df,
+        file_name=details_name,
+        simple=False,
+        output_directory=data_output_dir)
     ############################################################################
     # create DataFrame simple data
     columns_df = ['satellite',
         'date[UT]', 'time[UT]', 'RA[hh:mm:ss]', 'DEC[hh:mm:ss]']
 
     data_df = data_simple_visible_satellites #+ data_simple_crash_satellites
-    print(data_df[-1])
 
-    df_simple = pd.DataFrame(columns=columns_df, data=data_df)
+    visible_df = pd.DataFrame(columns=columns_df, data=data_df)
 
-    df_simple.to_csv('simple_df.csv', index=False)
+    visible_name = parser.get('names', 'simple_output')
+
+    observations_df = output_format(data_frame=visible_df,
+        file_name=visible_name,
+        simple=True,
+        output_directory=data_output_dir)
+# Modify output such I only use the df with all data :)
 ################################################################################
     tf = time.time()
     print(f'Running time: {tf-ti:.2} [s]')
