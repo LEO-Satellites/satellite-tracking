@@ -17,36 +17,10 @@ import numpy as np
 import pyorbital
 from pyorbital.orbital import Orbital
 ################################################################################
+from SatTrack.format import format
 from SatTrack.units import convert
 ################################################################################
-def time_stamp():
-
-    date = datetime.now(tz=timezone.utc)
-    year = date.year
-    month = date.month
-    day = date.day
-    hour = date.hour
-    minute = date.minute
-    second = date.second
-
-    stamp = (f'{year}_{month:02}_{day:02}_'
-        f'{hour:02}h_{minute:02}m_{second:02}s')
-
-    return stamp
 ################################################################################
-def download_tle(satellite_brand:'str', tle_dir:'str'):
-
-    sat_tle_url = (f'https://celestrak.com/NORAD/elements/supplemental/'
-        f'{satellite_brand}.txt')
-
-    tle_file = f'tle_{satellite_brand}_{time_stamp()}.txt'
-
-    if not os.path.exists(tle_dir):
-        os.makedirs(tle_dir)
-
-    urllib.request.urlretrieve(sat_tle_url, f'{tle_dir}/{tle_file}')
-
-    return tle_file
 ################################################################################
 def get_observatory_data(observatories:'dict'):
     # converts to format used by otarola
@@ -88,97 +62,6 @@ def get_observatory_data(observatories:'dict'):
         ########################################################################
     ############################################################################
     return satellite_track
-# ################################################################################
-# def ra_to_hours(ra):
-#     ra = ra*180./np.pi
-#
-#     if ra < 0 :
-#         ra += 360
-#
-#     ra = ra*(24./360.)
-#
-#     return ra
-# ################################################################################
-# def radians_to_deg(radians):
-#
-#     deg = radians*180./np.pi
-#
-#     return deg
-# ################################################################################
-# def ra_to_hh_mm_ss(ra):
-#     # converts the RA to hh:mm:ss.sss
-#
-#     hrs = ra_to_hours(ra)
-#
-#     hh = int(hrs)
-#
-#     mins = (hrs-hh)*60.
-#     mm = int(mins)
-#
-#     ss = (mins-mm)*60
-#
-#     return hh, mm, ss
-# ################################################################################
-# def dec_to_dd_mm_ss(dec):
-#     # converts the DEC to dd:mm:ss
-#     dec = radians_to_deg(dec)
-#
-#     if dec < 0:
-#        dec_sign = -1
-#        dec = abs(dec)
-#     else:
-#         dec_sign = 1
-
-    # dd = int(dec)
-
-   #  mins = (dec-dd)*60.
-    # mm = int(mins)
-
-   #  ss = (mins-mm)*60
-
-   #  return dd*dec_sign, mm, ss
-# ################################################################################
-################################################################################
-def data_formating(date_obj, darksat_latlon, sat_az, sat_alt,
-    raSAT_h, raSAT_m, raSAT_s, decSAT_d, decSAT_m, decSAT_s,
-    sunRA, sunDEC, sun_zenith_angle, ang_motion):
-
-    year = date_obj.year
-    month = date_obj.month
-    day = date_obj.day
-    hour = date_obj.hour
-    minute = date_obj.minute
-    second = date_obj.second
-
-    date = f'{year}-{month:02}-{day:02}'
-    time = f'{hour:02}:{minute:02}:{second:02}s'
-
-    data = [
-        f'{date}',
-        f'{time}',
-        # SatLon[deg]
-        f'{darksat_latlon[0]:9.6f}',
-        # SatLat[deg]
-        f'{darksat_latlon[1]:9.6f}',
-        f'{darksat_latlon[2]:5.2f}',
-        f'{sat_az:06.3f}',
-        f'{sat_alt:06.3f}',
-        f'{raSAT_h:02d}h{raSAT_m:02d}m{raSAT_s:05.3f}s',
-        f'{decSAT_d:03d}:{decSAT_m:02d}:{decSAT_s:05.3f}',
-        f'{sunRA:09.7f}',
-        f'{sunDEC:09.7f}',
-        f'{sun_zenith_angle:07.3f}',
-        f'{ang_motion:08.3f}'
-        ]
-
-    data_simple = [
-        f'{date}',
-        f'{time}',
-        f'{raSAT_h:02d}h{raSAT_m:02d}m{raSAT_s:05.3f}s',
-        f'{decSAT_d:03d}:{decSAT_m:02d}:{decSAT_s:05.3f}'
-        ]
-
-    return data, data_simple
 ################################################################################
 def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
     tle_file:'str', year, month, day,
@@ -257,8 +140,6 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                 sun_zenith_angle = pyorbital.astronomy.sun_zenith_angle(
                     date_obj, obs_lon, obs_lat)
 
-                # sunRA = ra_to_hours(ra=sun_ra)
-                # sunDEC = radians_to_deg(radians=sun_dec)
                 sunRA = convert.ra_to_hours(ra=sun_ra)
                 sunDEC = convert.radians_to_deg(radians=sun_dec)
 
@@ -266,11 +147,9 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                 ra, dec = observer.radec_of(np.radians(sat_az), np.radians(sat_alt))
                 ####################################################################
                 # converts the RA to hh:mm:ss.sss
-                # raSAT_h, raSAT_m, raSAT_s = ra_to_hh_mm_ss(ra)
                 raSAT_h, raSAT_m, raSAT_s = convert.ra_to_hh_mm_ss(ra)
                 ####################################################################
                 # converts the DEC to dd:mm:ss
-                # decSAT_d, decSAT_m, decSAT_s = dec_to_dd_mm_ss(dec=dec)
                 decSAT_d, decSAT_m, decSAT_s = convert.dec_to_dd_mm_ss(dec=dec)
                 ####################################################################
                 if (sat_alt > sat_alt_lower_bound and
@@ -297,7 +176,7 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                     ang_motion = np.sqrt(np.power(daz,2) + np.power(dalt,2))/dt
                     # prints out the UT time, and satellite footprint position as well as
                     # satellite azimuth and elevation at the observer location
-                    data_str, data_str_simple = data_formating(
+                    data_str, data_str_simple = format.data_formating(
                         date_obj,
                         darksat_latlon,
                         sat_az, sat_alt,

@@ -17,15 +17,16 @@ import pandas as pd
 ################################################################################
 from SatTrack.constants import column_headers, observatories
 from SatTrack.visible import get_observatory_data, input_handler
-from SatTrack.visible import compute_visible, download_tle
+from SatTrack.visible import compute_visible#, download_tle
 from SatTrack.output import output_format
+from SatTrack.tle.download import download_tle
 ################################################################################
 if __name__ == '__main__':
     ############################################################################
     ti = time.time()
     ############################################################################
     parser = ConfigParser(interpolation=ExtendedInterpolation())
-    parser.read('visibility.ini')
+    parser.read('track.ini')
     ############################################################################
     # writing results
     output_dir = parser.get('directories', 'output_dir')
