@@ -19,7 +19,7 @@ def output_format(
     ############################################################################
     data_frame = data_frame.dropna()
     ############################################################################
-# [['satellite', 'date[UT]', 'time[UT]', 'SatRA[hr]', 'SatDEC[deg]']]
+    # [['satellite', 'date[UT]', 'time[UT]', 'SatRA[hr]', 'SatDEC[deg]']]
     # columns_df = ['satellite',
     #     'date[UT]', 'time[UT]', 'RA[hh:mm:ss]', 'DEC[hh:mm:ss]']
 
