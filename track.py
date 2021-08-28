@@ -17,7 +17,7 @@ import pandas as pd
 ################################################################################
 from SatTrack.constants import column_headers, observatories
 from SatTrack.visible import get_observatory_data, input_handler
-from SatTrack.visible import compute_visible#, download_tle
+from SatTrack.visible import compute_visible
 from SatTrack.output import output_format
 from SatTrack.tle.download import download_tle
 ################################################################################
