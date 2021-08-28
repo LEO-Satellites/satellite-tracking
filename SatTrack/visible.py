@@ -17,6 +17,8 @@ import numpy as np
 import pyorbital
 from pyorbital.orbital import Orbital
 ################################################################################
+from SatTrack.units import convert
+################################################################################
 def time_stamp():
 
     date = datetime.now(tz=timezone.utc)
@@ -86,56 +88,56 @@ def get_observatory_data(observatories:'dict'):
         ########################################################################
     ############################################################################
     return satellite_track
-################################################################################
-def ra_to_hours(ra):
-    ra = ra*180./np.pi
+# ################################################################################
+# def ra_to_hours(ra):
+#     ra = ra*180./np.pi
+#
+#     if ra < 0 :
+#         ra += 360
+#
+#     ra = ra*(24./360.)
+#
+#     return ra
+# ################################################################################
+# def radians_to_deg(radians):
+#
+#     deg = radians*180./np.pi
+#
+#     return deg
+# ################################################################################
+# def ra_to_hh_mm_ss(ra):
+#     # converts the RA to hh:mm:ss.sss
+#
+#     hrs = ra_to_hours(ra)
+#
+#     hh = int(hrs)
+#
+#     mins = (hrs-hh)*60.
+#     mm = int(mins)
+#
+#     ss = (mins-mm)*60
+#
+#     return hh, mm, ss
+# ################################################################################
+# def dec_to_dd_mm_ss(dec):
+#     # converts the DEC to dd:mm:ss
+#     dec = radians_to_deg(dec)
+#
+#     if dec < 0:
+#        dec_sign = -1
+#        dec = abs(dec)
+#     else:
+#         dec_sign = 1
 
-    if ra < 0 :
-        ra += 360
+    # dd = int(dec)
 
-    ra = ra*(24./360.)
+   #  mins = (dec-dd)*60.
+    # mm = int(mins)
 
-    return ra
-################################################################################
-def radians_to_deg(radians):
+   #  ss = (mins-mm)*60
 
-    deg = radians*180./np.pi
-
-    return deg
-################################################################################
-def ra_to_hh_mm_ss(ra):
-    # converts the RA to hh:mm:ss.sss
-
-    hrs = ra_to_hours(ra)
-
-    hh = int(hrs)
-
-    mins = (hrs-hh)*60.
-    mm = int(mins)
-
-    ss = (mins-mm)*60
-
-    return hh, mm, ss
-################################################################################
-def dec_to_dd_mm_ss(dec):
-    # converts the DEC to dd:mm:ss
-    dec = radians_to_deg(dec)
-
-    if dec < 0:
-       dec_sign = -1
-       dec = abs(dec)
-    else:
-        dec_sign = 1
-
-    dd = int(dec)
-
-    mins = (dec-dd)*60.
-    mm = int(mins)
-
-    ss = (mins-mm)*60
-
-    return dd*dec_sign, mm, ss
-################################################################################
+   #  return dd*dec_sign, mm, ss
+# ################################################################################
 ################################################################################
 def data_formating(date_obj, darksat_latlon, sat_az, sat_alt,
     raSAT_h, raSAT_m, raSAT_s, decSAT_d, decSAT_m, decSAT_s,
@@ -255,17 +257,21 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                 sun_zenith_angle = pyorbital.astronomy.sun_zenith_angle(
                     date_obj, obs_lon, obs_lat)
 
-                sunRA = ra_to_hours(ra=sun_ra)
-                sunDEC = radians_to_deg(radians=sun_dec)
+                # sunRA = ra_to_hours(ra=sun_ra)
+                # sunDEC = radians_to_deg(radians=sun_dec)
+                sunRA = convert.ra_to_hours(ra=sun_ra)
+                sunDEC = convert.radians_to_deg(radians=sun_dec)
 
                 observer.date = ephem.date(date_obj)
                 ra, dec = observer.radec_of(np.radians(sat_az), np.radians(sat_alt))
                 ####################################################################
                 # converts the RA to hh:mm:ss.sss
-                raSAT_h, raSAT_m, raSAT_s = ra_to_hh_mm_ss(ra)
+                # raSAT_h, raSAT_m, raSAT_s = ra_to_hh_mm_ss(ra)
+                raSAT_h, raSAT_m, raSAT_s = convert.ra_to_hh_mm_ss(ra)
                 ####################################################################
                 # converts the DEC to dd:mm:ss
-                decSAT_d, decSAT_m, decSAT_s = dec_to_dd_mm_ss(dec=dec)
+                # decSAT_d, decSAT_m, decSAT_s = dec_to_dd_mm_ss(dec=dec)
+                decSAT_d, decSAT_m, decSAT_s = convert.dec_to_dd_mm_ss(dec=dec)
                 ####################################################################
                 if (sat_alt > sat_alt_lower_bound and
                     (sun_zenith_lower < sun_zenith_angle < sun_zenith_upper)):
