@@ -19,17 +19,14 @@ def output_format(
     ############################################################################
     frame = frame.dropna()
     ############################################################################
-    # [['satellite', 'date[UT]', 'time[UT]', 'SatRA[hr]', 'SatDEC[deg]']]
-    # columns_df = ['satellite',
-    #     'date[UT]', 'time[UT]', 'RA[hh:mm:ss]', 'DEC[hh:mm:ss]']
-    frame['date-time[UT]'] = pd.to_datetime(
+    frame['date[UT]'] = pd.to_datetime(
         frame['date[UT]'] + ' ' + frame['time[UT]'],
         format='%Y-%m-%d %H:%M:%Ss'
         )
 
-    frame.drop(columns=['date[UT]', 'time[UT]'])
+    frame = frame.drop(columns=['time[UT]'])
 
-    sort_time = frame['date-time[UT]'].sort_values().index
+    sort_time = frame['date[UT]'].sort_values().index
 
     if not simple:
         frame.iloc[sort_time].to_csv(
@@ -41,7 +38,7 @@ def output_format(
     ############################################################################
     frame = frame.drop_duplicates('satellite', keep='first')
     frame.index = range(frame.shape[0])
-    sort_time = frame['date-time[UT]'].sort_values().index
+    sort_time = frame['date[UT]'].sort_values().index
 
     frame.iloc[sort_time].to_csv(
         f"{output_directory}/{file_name}.txt",
