@@ -130,7 +130,7 @@ if __name__ == '__main__':
 
     details_name = parser.get('names', 'complete_output')
 
-    observations_df = output_format(data_frame=observations_df,
+    observations_df = output_format(frame=observations_df,
         file_name=details_name,
         simple=False,
         output_directory=data_output_dir)
@@ -145,7 +145,7 @@ if __name__ == '__main__':
 
     visible_name = parser.get('names', 'simple_output')
 
-    observations_df = output_format(data_frame=visible_df,
+    observations_df = output_format(frame=visible_df,
         file_name=visible_name,
         simple=True,
         output_directory=data_output_dir)
