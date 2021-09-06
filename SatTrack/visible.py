@@ -11,7 +11,8 @@ import sys
 import time
 import urllib
 
-from datetime import datetime, timezone
+# from datetime import datetime, timezone
+import datetime
 import ephem
 import numpy as np
 import pyorbital
@@ -63,11 +64,17 @@ def get_observatory_data(observatories:'dict'):
     ############################################################################
     return satellite_track
 ################################################################################
-def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
-    tle_file:'str', year, month, day,
-    sat_alt_lower_bound, sun_zenith_lower, sun_zenith_upper):
+def compute_visible(
+    satellite:'str',
+    window:'str',
+    observatory_data:'dict',
+    tle_file:'str',
+    year,month,day,
+    sat_alt_lower_bound,
+    sun_zenith_lower,
+    sun_zenith_upper
+    ):
 
-    # print(tle_file)
 
     observer = ephem.Observer()
     observer.epoch = '2000'
@@ -88,44 +95,48 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
     ############################################################################
     sat_az0 =0
     sat_alt0 =0
-    hr0 = 0
+    hour0 = 0
     ############################################################################
+    # datetime_object?
     if window=='evening':
-        hours = [hr for hr in range(12, 24)]
-        hours = [hr + obs_tz for hr in hours]
-        hours = [hr-24 if hr>=24 else hr for hr in hours]
-        hours = [hr+24 if hr<0 else hr for hr in hours]
+        hours = [hour for hour in range(12, 24)]
+        hours = [hour + obs_tz for hour in hours]
+        hours = [hour-24 if hour>=24 else hour for hour in hours]
+        hours = [hour+24 if hour<0 else hour for hour in hours]
     elif window=='morning':
-        hours = [hr for hr in range(0, 13)]
-        hours = [hr + obs_tz for hr in hours]
+        hours = [hour for hour in range(0, 13)]
+        hours = [hour + obs_tz for hour in hours]
         if hours[0] < 0:
             day -= 1
-        hours = [hr-24 if hr>=24 else hr for hr in hours]
-        hours = [hr+24 if hr<0 else hr for hr in hours]
+        hours = [hour-24 if hour>=24 else hour for hour in hours]
+        hours = [hour+24 if hour<0 else hour for hour in hours]
     else:
         print(f'window keyword must be of either "morning" or "evening"')
         sys.exit()
     ############################################################################
     write = []
     ############################################################################
-    # pass_loop = False
-    for hr in hours:
+    # date_time = datetime.datetime(
+    #
+    #     )
+    # time_delta = datetime.timedelta(
+    #
+    # )
+    for hour in hours:
         # Check logic with jeremy
-        if  hours[0] != 0 and hr == 0:
+        if  hours[0] != 0 and hour == 0:
             day += 1
 
-        for mn in range(0, 60):
+        for minute in range(0, 60):
 
-            for secs in range(30, 31):
+            for second in range(30, 31):
 
-                date_obj = datetime(year, month, day, hr, mn, secs)
+                date_obj = datetime.datetime(year, month, day, hour, minute, second)
                 # computes the current latitude, longitude of the satellite's
                 #footprint and its current orbital altitude
                 try:
                     darksat_latlon = darksat.get_lonlatalt(date_obj)
-                    # print(f'Something is right, {satellite}, {hr}:{mn}:{secs}')
                 except:
-                    # print(f'Something happened, {satellite}, {hr}:{mn}:{secs}')
                     # return [satellite, 'pyorbital crash', 'pyorbital crash']
                     return None
                     # This is for the data frame
@@ -166,12 +177,12 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                     dalt = (sat_alt - sat_alt0)*3600
                     # difference in time stamps between current and previous
                     # observation in seconds of time
-                    dt = ((hr + mn/60. + secs/3600.) - hr0)*3600.
+                    dt = ((hour + minute/60. + second/3600.) - hour0)*3600.
                     # sets the current sat position and time, as the "previous" for
                     # next observation
                     sat_az0 = sat_az
                     sat_alt0 = sat_alt
-                    hr0 = hr + mn/60. + secs/3600.
+                    hour0 = hour + minute/60. + second/3600.
 
                     ang_motion = np.sqrt(np.power(daz,2) + np.power(dalt,2))/dt
                     # prints out the UT time, and satellite footprint position as well as
@@ -192,7 +203,7 @@ def compute_visible(satellite:'str', window:'str', observatory_data:'dict',
                     # to derive angular speed of the satellite in the AZ,EL frame
                     sat_az0 = sat_az
                     sat_alt0 = sat_alt
-                    hr0 = hr + mn/60. + secs/3600.
+                    hour0 = hour + minute/60. + second/3600.
                     ################################################################
     if len(write) > 0:
 
