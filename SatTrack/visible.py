@@ -21,6 +21,32 @@ from pyorbital.orbital import Orbital
 from SatTrack.format import format
 from SatTrack.units import convert
 ################################################################################
+def loop_computation(
+    year,
+    month,
+    day,
+    hours,
+    ):
+
+    date_obj = datetime.datetime(
+        year,
+        month,
+        day,
+        hours[0],
+        minute=0,
+        second=30
+    )
+
+    # second_delta = datetime.delta(seconds=second_delta)
+    minute_delta = datetime.delta(minutes=1)
+    # hour_delta = datetime.delta(hours=delta)
+    number_iterations = len(hours)* 60 # *60 minutes, no iteration over seconds
+    for time_step in number_iterations:
+        ####################################################################
+        # Do computations
+        ####################################################################
+        # update date_time obj
+        date_obj += minute_delta
 ################################################################################
 ################################################################################
 def get_observatory_data(observatories:'dict'):
@@ -99,10 +125,15 @@ def compute_visible(
     ############################################################################
     # datetime_object?
     if window=='evening':
+        # e.g lasilla tz = 4
         hours = [hour for hour in range(12, 24)]
+        # 12 - 23
         hours = [hour + obs_tz for hour in hours]
+        # 16 - 27
         hours = [hour-24 if hour>=24 else hour for hour in hours]
+        # 16 - 23 and 00 - 03
         hours = [hour+24 if hour<0 else hour for hour in hours]
+        # ??
     elif window=='morning':
         hours = [hour for hour in range(0, 13)]
         hours = [hour + obs_tz for hour in hours]
@@ -115,15 +146,8 @@ def compute_visible(
         sys.exit()
     ############################################################################
     write = []
-    ############################################################################
-    # date_time = datetime.datetime(
-    #
-    #     )
-    # time_delta = datetime.timedelta(
-    #
-    # )
     for hour in hours:
-        # Check logic with jeremy
+        # e.g [22, 23, 0, 1, 2] --> day += 1
         if  hours[0] != 0 and hour == 0:
             day += 1
 
@@ -131,7 +155,14 @@ def compute_visible(
 
             for second in range(30, 31):
 
-                date_obj = datetime.datetime(year, month, day, hour, minute, second)
+                date_obj = datetime.datetime(
+                    year,
+                    month,
+                    day,
+                    hour,
+                    minute,
+                    second
+                )
                 # computes the current latitude, longitude of the satellite's
                 #footprint and its current orbital altitude
                 try:
@@ -197,14 +228,14 @@ def compute_visible(
                         ang_motion)
                     ############################################################
                     write.append([data_str, data_str_simple])
-                    ################################################################
+                ################################################################
                 else:
                     # keeps copy of the current AZ, ALT and time information
                     # to derive angular speed of the satellite in the AZ,EL frame
                     sat_az0 = sat_az
                     sat_alt0 = sat_alt
                     hour0 = hour + minute/60. + second/3600.
-                    ################################################################
+                ################################################################
     if len(write) > 0:
 
         # Return all the times for a satellite
