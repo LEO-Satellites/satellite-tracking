@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 ################################################################################
 from SatTrack.constants import column_headers, observatories
-from SatTrack.visible import get_observatory_data, input_handler
+from SatTrack.visible import get_observatory_data
 from SatTrack.visible import compute_visible
 from SatTrack.output import output_format
 from SatTrack.tle.download import download_tle
@@ -63,13 +63,18 @@ if __name__ == '__main__':
     year = parser.getint('configuration', 'year')
 
     window = parser.get('configuration', 'window')
-    ############################################################################
-    sat_alt_lower_bound = parser.getfloat('satellite observing limits',
-                                        'sat_alt_lower_bound')
 
+    time_delta = parser.getint('configuration', 'delta')
     ############################################################################
-    sun_zenith_range = parser.get('satellite observing limits',
-                                  'sun_zenith_angle_range')
+    sat_alt_lower_bound = parser.getfloat(
+        'satellite observing limits',
+        'sat_alt_lower_bound'
+        )
+    ############################################################################
+    sun_zenith_range = parser.get(
+        'satellite observing limits',
+        'sun_zenith_angle_range'
+        )
 
     sun_zenith_lower, sun_zenith_upper = sun_zenith_range.split(',')
 
@@ -77,13 +82,17 @@ if __name__ == '__main__':
                                             float(sun_zenith_upper))
     ############################################################################
     compute_visible_parallel = partial(compute_visible,
-                                       window=window,
-                                       observatory_data=observatory_data,
-                                       tle_file=tle_file_path,
-                                       year=year, month=month, day=day,
-                                       sat_alt_lower_bound=sat_alt_lower_bound,
-                                       sun_zenith_lower=sun_zenith_lower,
-                                       sun_zenith_upper=sun_zenith_upper)
+        window=window,
+        observatory_data=observatory_data,
+        tle_file=tle_file_path,
+        year=year,
+        month=month,
+        day=day,
+        seconds_delta=time_delta,
+        sat_alt_lower_bound=sat_alt_lower_bound,
+        sun_zenith_lower=sun_zenith_lower,
+        sun_zenith_upper=sun_zenith_upper
+        )
 
     with mp.Pool(processes=None) as pool:
         results = pool.map(compute_visible_parallel, satellites_list)
