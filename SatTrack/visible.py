@@ -71,7 +71,7 @@ def set_window(
     ############################################################################
     if window == 'evening':
 
-        hour = 12 + obs_tz
+        hour = 12 + tz
 
         if hour >= 24:
             hour -= 24
@@ -83,7 +83,7 @@ def set_window(
     ############################################################################
     elif window=='morning':
 
-        hour = 0 + obs_tz
+        hour = 0 + tz
 
         if hour < 0:
             day -= 1
