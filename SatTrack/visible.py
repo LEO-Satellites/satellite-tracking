@@ -76,22 +76,43 @@ def compute_visible(
     sun_zenith_upper:'float'
     )->'list':
 
+    """
+    Computes when a satellite is visible
 
+    PARAMETERS
+
+        satellite:
+        window:
+        observatory_data:
+        tle_file:
+        year:
+        month:
+        day:
+        seconds_delta:
+        sat_alt_lower_bound:
+        sun_zenith_lower:
+        sun_zenith_upper:
+
+    OUTPUT
+
+    """
+    ############################################################################
     observer = ephem.Observer()
     observer.epoch = '2000'
     observer.pressure= 1010
     observer.temp = 15
-    ########################################################################
+    ################################################################
     obs_lat = observatory_data['latitude']
-    obs_lon = observatory_data['longitude']
-    obs_altitude = observatory_data['altitude']/1000. # in km
-    obs_tz = observatory_data['tz']
-    ################################################################################
-    observer.lon = np.radians(obs_lon)
     observer.lat = np.radians(obs_lat)
+    ################################################################
+    obs_lon = observatory_data['longitude']
+    observer.lon = np.radians(obs_lon)
+    ################################################################
+    obs_altitude = observatory_data['altitude']/1000. # in km
     observer.elevation = observatory_data['altitude']# in meters
+    ################################################################
+    obs_tz = observatory_data['tz']
     ############################################################################
-    flag = 0
     darksat = Orbital(satellite, tle_file=f'{tle_file}')
     ############################################################################
     sat_az0 =0
@@ -141,9 +162,7 @@ def compute_visible(
         try:
             darksat_latlon = darksat.get_lonlatalt(date_obj)
         except:
-            # return [satellite, 'pyorbital crash', 'pyorbital crash']
             return None
-            # This is for the data frame
         ####################################################################
         # uses the observer coordinates to compute the satellite azimuth
         # and elevation, negative elevation implies satellite is under
@@ -173,10 +192,7 @@ def compute_visible(
             np.radians(sat_alt)
             )
         ####################################################################
-        # converts the RA to hh:mm:ss.sss
         raSAT_h, raSAT_m, raSAT_s = convert.ra_to_hh_mm_ss(ra)
-        ####################################################################
-        # converts the DEC to dd:mm:ss
         decSAT_d, decSAT_m, decSAT_s = convert.dec_to_dd_mm_ss(dec=dec)
         ####################################################################
         if (
@@ -222,6 +238,7 @@ def compute_visible(
             write.append([data_str, data_str_simple])
         ########################################################################
         else:
+            # REDUNDANT
             # keeps copy of the current AZ, ALT and time information
             # to derive angular speed of the satellite in the AZ,EL frame
             sat_az0 = sat_az
@@ -231,11 +248,5 @@ def compute_visible(
         date_obj += time_delta
     ############################################################################
     if len(write) > 0:
-        # Return all the times for a satellite
-        # [data_str, data_str_simple] = random.choice(write)
-        # print(f'{satellite} is visible')
-        # return [satellite, data_str, data_str_simple]
-        # print(write)
         return [[satellite] + data for data in write]
-        # return write
 ################################################################################
