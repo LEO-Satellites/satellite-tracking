@@ -62,6 +62,44 @@ def get_observatory_data(observatories:'dict'):
     ############################################################################
     return satellite_track
 ################################################################################
+def set_window(
+    day:'int',
+    window:'str',
+    tz
+    ):
+    # datetime_object?
+    ############################################################################
+    if window == 'evening':
+
+        hour = 12 + obs_tz
+
+        if hour >= 24:
+            hour -= 24
+
+        elif hour < 0:
+            hour += 24
+
+        return hour, day
+    ############################################################################
+    elif window=='morning':
+
+        hour = 0 + obs_tz
+
+        if hour < 0:
+            day -= 1
+
+        if hour >= 24:
+            hour -= 24
+
+        elif hour < 0:
+            hour += 24
+
+        return hour, day
+    ############################################################################
+    else:
+        print(f'window keyword must be of either "morning" or "evening"')
+        sys.exit()
+################################################################################
 def compute_visible(
     satellite:'str',
     window:'str',
@@ -119,34 +157,18 @@ def compute_visible(
     sat_alt0 =0
     hour0 = 0
     ############################################################################
-    # datetime_object?
-    if window=='evening':
-        # e.g lasilla tz = 4
-        hours = [hour for hour in range(12, 24)]
-        # 12 - 23
-        hours = [hour + obs_tz for hour in hours]
-        # 16 - 27
-        hours = [hour-24 if hour>=24 else hour for hour in hours]
-        # 16 - 23 and 00 - 03
-        hours = [hour+24 if hour<0 else hour for hour in hours]
-        # ??
-    elif window=='morning':
-        hours = [hour for hour in range(0, 13)]
-        hours = [hour + obs_tz for hour in hours]
-        if hours[0] < 0:
-            day -= 1
-        hours = [hour-24 if hour>=24 else hour for hour in hours]
-        hours = [hour+24 if hour<0 else hour for hour in hours]
-    else:
-        print(f'window keyword must be of either "morning" or "evening"')
-        sys.exit()
+    hour, day = set_window(
+        day = day,
+        window=window,
+        tz=obs_tz
+        )
     ############################################################################
     # if time_delta = 60, then it will move minute by minute
     time_delta = datetime.timedelta(seconds=seconds_delta)
 
     date_obj = datetime.datetime(
         year, month, day,
-        hour=hours[0],
+        hour=hour,
         minute=0,
         second=0
         )
