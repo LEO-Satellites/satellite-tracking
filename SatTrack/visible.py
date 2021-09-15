@@ -4,20 +4,20 @@
 # Written by
 # Edgar Ortiz edgar.ortiz@uamail.cl
 # Jeremy Tregloan-Reed jeremy.tregloan-reed@uda.cl
-##############################################################################
+################################################################################
 import os
 import random
 import sys
 import time
 import urllib
-
+####################################################################
 # from datetime import datetime, timezone
 import datetime
 import ephem
 import numpy as np
 import pyorbital
 from pyorbital.orbital import Orbital
-################################################################################
+####################################################################
 from SatTrack.format import format
 from SatTrack.units import convert
 ################################################################################
