@@ -153,20 +153,17 @@ def compute_visible(
     ############################################################################
     darksat = Orbital(satellite, tle_file=f'{tle_file}')
     ############################################################################
-    hour, day = set_window(
-        day = day,
-        window=window,
-        tz=obs_tz
-        )
+    hour, day = set_window(day=day, window=window, tz=obs_tz)
     ############################################################################
     # if time_delta = 60, then it will move minute by minute
     time_delta = datetime.timedelta(seconds=seconds_delta)
-    date_obj = datetime.datetime(year, month, day, hour, minute=0, second=0)
+    date_time = datetime.datetime(year, month, day, hour, minute=0, second=0)
     ############################################################################
     sat_az0 =0
     sat_alt0 =0
-    # hour0 = 0
-    hour0 = datetime.datetime(year, month, day, hour=0, minute=0, second=0)
+    previous_date_time = datetime.datetime(
+        year, month, day, hour=0, minute=0, second=0
+    )
     ############################################################################
     write = []
     ############################################################################
@@ -178,7 +175,7 @@ def compute_visible(
         # computes the current latitude, longitude of the satellite's
         # footprint and its current orbital altitude
         try:
-            darksat_latlon = darksat.get_lonlatalt(date_obj)
+            darksat_latlon = darksat.get_lonlatalt(date_time)
         except:
             return None
         ####################################################################
@@ -186,17 +183,17 @@ def compute_visible(
         # and elevation, negative elevation implies satellite is under
         # the horizon
         sat_az, sat_alt = darksat.get_observer_look(
-            date_obj,
+            date_time,
             obs_lon,
             obs_lat,
             obs_altitude
         )
         ####################################################################
         # gets the Sun's RA and DEC at the time of observation
-        sun_ra, sun_dec = pyorbital.astronomy.sun_ra_dec(date_obj)
+        sun_ra, sun_dec = pyorbital.astronomy.sun_ra_dec(date_time)
 
         sun_zenith_angle = pyorbital.astronomy.sun_zenith_angle(
-            date_obj,
+            date_time,
             obs_lon,
             obs_lat
         )
@@ -204,11 +201,8 @@ def compute_visible(
         sunRA = convert.ra_to_hours(ra=sun_ra)
         sunDEC = convert.radians_to_deg(radians=sun_dec)
         ####################################################################
-        observer.date = ephem.date(date_obj)
-        ra, dec = observer.radec_of(
-            np.radians(sat_az),
-            np.radians(sat_alt)
-        )
+        observer.date = ephem.date(date_time)
+        ra, dec = observer.radec_of(np.radians(sat_az), np.radians(sat_alt))
         ####################################################################
         raSAT_h, raSAT_m, raSAT_s = convert.ra_to_hh_mm_ss(ra)
         decSAT_d, decSAT_m, decSAT_s = convert.dec_to_dd_mm_ss(dec=dec)
@@ -217,27 +211,22 @@ def compute_visible(
             (sat_alt > sat_alt_lower_bound)
             and
             (sun_zenith_lower < sun_zenith_angle < sun_zenith_upper)
-            ):
+        ):
             ################################################################
             # compute the change in AZ and ALT of the satellite position
             # between current and previous observation
-
             ## difference in azimuth arcsecs
             daz  = (sat_az - sat_az0)*3600
             ## difference in altitude in arcsecs
             dalt = (sat_alt - sat_alt0)*3600
             ## difference in time stamps in seconds
-            # dt = (
-            #     (date_obj.hour + date_obj.minute/60. + date_obj.second/3600.)
-            #     - hour0
-            #     )*3600.
-            dt = date_obj - hour0 # datetime.delta object
+            dt = date_time - previous_date_time # datetime.delta object
             dt = dt.total_seconds()
             ####################################################################
             ang_motion = np.sqrt(daz**2 + dalt**2)/dt
 
             data_str, data_str_simple = format.data_formating(
-                date_obj,
+                date_time,
                 darksat_latlon,
                 sat_az, sat_alt,
                 raSAT_h, raSAT_m, raSAT_s,
@@ -250,9 +239,8 @@ def compute_visible(
         # current position, time as the "previous" for next observation
         sat_az0 = sat_az
         sat_alt0 = sat_alt
-        # hour0 = date_obj.hour + date_obj.minute/60. + date_obj.second/3600.
-        hour0 = date_obj
-        date_obj += time_delta
+        previous_date_time = date_time
+        date_time += time_delta
     ############################################################################
     if len(write) > 0:
         return [[satellite] + data for data in write]
