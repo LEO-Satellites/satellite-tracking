@@ -1,10 +1,12 @@
 import pandas as pd
 
+
 def output_format(
-    frame:'PandasDataFrame',
-    file_name:'str',
-    simple:'bool',
-    output_directory:'str'='./output/output_files/'):
+    frame: "PandasDataFrame",
+    file_name: "str",
+    simple: "bool",
+    output_directory: "str" = "./output/output_files/",
+):
     """
     PARAMETERS
         frame:
@@ -19,65 +21,64 @@ def output_format(
     ############################################################################
     frame = frame.dropna()
     ############################################################################
-    frame['date[UT]'] = pd.to_datetime(
-        frame['date[UT]'] + ' ' + frame['time[UT]'],
-        format='%Y-%m-%d %H:%M:%Ss'
-        )
+    frame["date[UT]"] = pd.to_datetime(
+        frame["date[UT]"] + " " + frame["time[UT]"],
+        format="%Y-%m-%d %H:%M:%Ss",
+    )
 
-    frame = frame.drop(columns=['time[UT]'])
+    frame = frame.drop(columns=["time[UT]"])
 
-    sort_time = frame['date[UT]'].sort_values().index
+    sort_time = frame["date[UT]"].sort_values().index
 
     if not simple:
         frame.iloc[sort_time].to_csv(
-            f"{output_directory}/{file_name}.txt",
-            sep='\t',
-            index=False)
+            f"{output_directory}/{file_name}.txt", sep="\t", index=False
+        )
 
         return frame
     ############################################################################
-    frame = frame.drop_duplicates('satellite', keep='first')
+    frame = frame.drop_duplicates("satellite", keep="first")
     frame.index = range(frame.shape[0])
-    sort_time = frame['date[UT]'].sort_values().index
+    sort_time = frame["date[UT]"].sort_values().index
 
     frame.iloc[sort_time].to_csv(
-        f"{output_directory}/{file_name}.txt",
-        sep='\t',
-        index=False)
+        f"{output_directory}/{file_name}.txt", sep="\t", index=False
+    )
 
     return frame
     ############################################################################
     # observing_time = np.empty(len(visible_satellites))
 
-   #  for idx, visible in enumerate(visible_satellites):
 
-   #      [satellite, str, str_simple] = visible
+#  for idx, visible in enumerate(visible_satellites):
 
-   #      obs_time = str_simple.split('\t')[1].split(':')
+#      [satellite, str, str_simple] = visible
 
-   #      hours = float(obs_time[0])
-    #     if hours < 3:
-    #         hours += 24
+#      obs_time = str_simple.split('\t')[1].split(':')
 
-   #      minutes = float(obs_time[1])/60.
-    #     seconds = float(obs_time[2][:-1])/3600.
+#      hours = float(obs_time[0])
+#     if hours < 3:
+#         hours += 24
 
-   #      obs_time = hours + minutes + seconds
+#      minutes = float(obs_time[1])/60.
+#     seconds = float(obs_time[2][:-1])/3600.
 
-   #      observing_time[idx] = obs_time
+#      obs_time = hours + minutes + seconds
+
+#      observing_time[idx] = obs_time
 ################################################################################
 
-    # obs_time_sort_ids = np.argsort(observing_time)
+# obs_time_sort_ids = np.argsort(observing_time)
 
-    # for sort_id in obs_time_sort_ids:
+# for sort_id in obs_time_sort_ids:
 
-    #     [satellite, str, str_simple] = visible_satellites[sort_id]
+#     [satellite, str, str_simple] = visible_satellites[sort_id]
 
-    #     with open(f'{output_dir}/{output_fname}.txt',
-     #              'a') as file:
-     #        file.write(f'{satellite}\n{str}\n')
+#     with open(f'{output_dir}/{output_fname}.txt',
+#              'a') as file:
+#        file.write(f'{satellite}\n{str}\n')
 
-    #     with open(f'{output_dir}/{output_fname_simple}.txt',
-     #              'a') as file_simple:
-     #        file_simple.write(f'{satellite}\n{str_simple}\n')
+#     with open(f'{output_dir}/{output_fname_simple}.txt',
+#              'a') as file_simple:
+#        file_simple.write(f'{satellite}\n{str_simple}\n')
 ################################################################################
