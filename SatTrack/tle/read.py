@@ -1,15 +1,14 @@
-def get_satellite_from_tle(file_location):
+from collections import defaultdict
+import re
+###############################################################################
+def get_satellites_from_tle(file_location:'str, satellite:'str uppercase'):
     """Read tle file"""
 
-    satellites_list = []
 
     with open(f'{file_location}', 'r') as tle:
 
-        lines_tle = tle.readlines()
+        content = tle.read()
+        pattern = re.compile(f'{satellite}-[0-9]*')
+        satellites = pattern.findall(content)
 
-    for idx, l in enumerate(lines_tle):
-
-        if idx%3==0:
-            satellites_list.append(l.strip())
-
-    pass
+        return satellites
