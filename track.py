@@ -11,12 +11,8 @@ from functools import partial
 import multiprocessing as mp
 import os
 import time
-<<<<<<< HEAD
 
 ################################################################################
-=======
-###############################################################################
->>>>>>> tle-read
 import numpy as np
 import pandas as pd
 
@@ -26,11 +22,8 @@ from SatTrack.visible import get_observatory_data
 from SatTrack.visible import compute_visible
 from SatTrack.output import output_format
 from SatTrack.tle.download import download_tle
-<<<<<<< HEAD
-
-=======
 from SatTrack.tle.read import get_satellites_from_tle
->>>>>>> tle-read
+
 ################################################################################
 if __name__ == "__main__":
     ############################################################################
@@ -53,20 +46,7 @@ if __name__ == "__main__":
     tle_name = download_tle(satellite_brand, tle_directory)
     tle_file_path = f"{tle_directory}/{tle_name}"
 
-<<<<<<< HEAD
-    satellites_list = []
-
-    with open(f"{tle_directory}/{tle_name}", "r") as tle:
-
-        lines_tle = tle.readlines()
-
-        for idx, l in enumerate(lines_tle):
-
-            if idx % 3 == 0:
-                satellites_list.append(l.strip())
-=======
     satellites_list = get_satellites_from_tle(tle_file_path, satellite_brand)
->>>>>>> tle-read
     ############################################################################
     observatories = get_observatory_data(observatories)
     satellite_brand = parser.get("satellite", "satellite")
