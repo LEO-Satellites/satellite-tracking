@@ -1,14 +1,26 @@
 from collections import defaultdict
 import re
 ###############################################################################
-def get_satellites_from_tle(file_location:'str, satellite:'str uppercase'):
-    """Read tle file"""
+def get_satellites_from_tle(tle_location:'str', satellite:'str'):
+    """
+    Read tle file
 
+    PARAMETERS
 
-    with open(f'{file_location}', 'r') as tle:
+    file_location: path of the tle file
+    satellite: Name of the satellite in uppercase, ONEWEB
 
+    RETURNS
+
+    list with all the sattelites available in the tle file
+    """
+
+    satellite = satellite.upper()
+    pattern = re.compile(f'{satellite}-[0-9]*')
+
+    with open(f'{tle_location}', 'r') as tle:
         content = tle.read()
-        pattern = re.compile(f'{satellite}-[0-9]*')
-        satellites = pattern.findall(content)
 
-        return satellites
+    satellites = pattern.findall(content)
+    
+    return satellites
