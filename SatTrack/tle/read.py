@@ -16,11 +16,12 @@ def get_satellites_from_tle(tle_location:'str', satellite:'str'):
     """
 
     satellite = satellite.upper()
-    pattern = re.compile(f'{satellite}-[0-9]*')
+    regular_expression = f'{satellite}-[0-9]*.*\)|{satellite}.[0-9]*'
+    pattern = re.compile(regular_expression)
 
     with open(f'{tle_location}', 'r') as tle:
         content = tle.read()
 
     satellites = pattern.findall(content)
-    
+
     return satellites

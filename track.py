@@ -20,6 +20,7 @@ from SatTrack.visible import get_observatory_data, input_handler
 from SatTrack.visible import compute_visible
 from SatTrack.output import output_format
 from SatTrack.tle.download import download_tle
+from SatTrack.tle.read import get_satellites_from_tle
 ################################################################################
 if __name__ == '__main__':
     ############################################################################
@@ -42,16 +43,7 @@ if __name__ == '__main__':
     tle_fname = download_tle(satellite_brand, tle_dir)
     tle_file_path = f'{tle_dir}/{tle_fname}'
 
-    satellites_list = []
-
-    with open(f'{tle_dir}/{tle_fname}', 'r') as tle:
-
-        lines_tle = tle.readlines()
-
-        for idx, l in enumerate(lines_tle):
-
-            if idx%3==0:
-                satellites_list.append(l.strip())
+    satellites_list = get_satellites_from_tle(tle_file_path, satellite_brand)
     ############################################################################
     observatories = get_observatory_data(observatories)
     satellite_brand = parser.get('configuration', 'satellite_brand')
