@@ -70,7 +70,7 @@ if __name__ == "__main__":
         month=month,
         day=day,
         seconds_delta=time_delta,
-        sat_alt_lower_bound=sat_alt_lower_bound,
+        satellite_altitude_lower_bound=sat_alt_lower_bound,
         sun_zenith_lower=sun_zenith_lower,
         sun_zenith_upper=sun_zenith_upper,
     )

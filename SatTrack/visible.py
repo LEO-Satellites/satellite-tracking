@@ -112,7 +112,7 @@ def compute_visible(
     month: "int",
     day: "int",
     seconds_delta: "int",
-    sat_alt_lower_bound: "float",
+    satellite_altitude_lower_bound: "float",
     sun_zenith_lower: "float",
     sun_zenith_upper: "float",
 ) -> "list":
@@ -122,15 +122,15 @@ def compute_visible(
 
     PARAMETERS
 
-        satellite:
-        window:
+        satellite: satellite type, e.g, oneweb or starlink
+        window: time frame for obsevation, e.g, evening
         observatory_data:
-        tle_file:
-        year:
-        month:
-        day:
-        seconds_delta:
-        sat_alt_lower_bound:
+        tle_file: name of tle file to use for computations
+        year: year of the observation
+        month: month of the observation
+        day: day of the observation
+        seconds_delta: time step to update satellite's dynamics
+        satellite_altitude_lower_bound:
         sun_zenith_lower:
         sun_zenith_upper:
 
@@ -143,27 +143,27 @@ def compute_visible(
     observer.pressure = 1010
     observer.temp = 15
     ################################################################
-    obs_lat = observatory_data["latitude"]
-    observer.lat = np.radians(obs_lat)
+    observatory_latitude = observatory_data["latitude"]
+    observer.lat = np.radians(observatory_latitude)
     ################################################################
-    obs_lon = observatory_data["longitude"]
-    observer.lon = np.radians(obs_lon)
+    observatory_longitude = observatory_data["longitude"]
+    observer.lon = np.radians(observatory_longitude)
     ################################################################
-    obs_altitude = observatory_data["altitude"] / 1000.0  # in km
+    observatory_altitude = observatory_data["altitude"] / 1000.0  # in km
     observer.elevation = observatory_data["altitude"]  # in meters
     ################################################################
-    obs_tz = observatory_data["tz"]
+    observatory_time_zone = observatory_data["tz"]
     ############################################################################
     darksat = Orbital(satellite, tle_file=f"{tle_file}")
     ############################################################################
-    hour, day = set_window(day=day, window=window, tz=obs_tz)
+    hour, day = set_window(day=day, window=window, tz=observatory_time_zone)
     ############################################################################
     # if time_delta = 60, then it will move minute by minute
     time_delta = datetime.timedelta(seconds=seconds_delta)
     date_time = datetime.datetime(year, month, day, hour, minute=0, second=0)
     ############################################################################
-    sat_az0 = 0
-    sat_alt0 = 0
+    satellite_azimuth0 = 0
+    satellite_altitude0 = 0
     ############################################################################
     write = []
     ############################################################################
@@ -175,34 +175,43 @@ def compute_visible(
         # computes the current latitude, longitude of the satellite's
         # footprint and its current orbital altitude
         try:
-            darksat_latlon = darksat.get_lonlatalt(date_time)
+            darksat_latitude_logitude = darksat.get_lonlatalt(date_time)
         except:
             return None
         ####################################################################
         # uses the observer coordinates to compute the satellite azimuth
         # and elevation, negative elevation implies satellite is under
         # the horizon
-        sat_az, sat_alt = darksat.get_observer_look(
-            date_time, obs_lon, obs_lat, obs_altitude
+        satellite_azimuth, satellite_altitude = darksat.get_observer_look(
+            date_time,
+            observatory_longitude,
+            observatory_latitude,
+            observatory_altitude,
         )
         ####################################################################
         # gets the Sun's RA and DEC at the time of observation
         sun_ra, sun_dec = pyorbital.astronomy.sun_ra_dec(date_time)
 
+        sun_RA = convert.ra_to_hours(ra=sun_ra)
+        sun_DEC = convert.radians_to_deg(radians=sun_dec)
+        ####################################################################
         sun_zenith_angle = pyorbital.astronomy.sun_zenith_angle(
-            date_time, obs_lon, obs_lat
+            date_time, observatory_longitude, observatory_latitude
         )
         ####################################################################
-        sunRA = convert.ra_to_hours(ra=sun_ra)
-        sunDEC = convert.radians_to_deg(radians=sun_dec)
-        ####################################################################
         observer.date = ephem.date(date_time)
-        ra, dec = observer.radec_of(np.radians(sat_az), np.radians(sat_alt))
+        ra, dec = observer.radec_of(
+            np.radians(satellite_azimuth), np.radians(satellite_altitude)
+        )
         ####################################################################
-        raSAT_h, raSAT_m, raSAT_s = convert.ra_to_hh_mm_ss(ra)
-        decSAT_d, decSAT_m, decSAT_s = convert.dec_to_dd_mm_ss(dec=dec)
+        ra_satellite_h, ra_satellite_m, ra_satellite_s = convert.ra_to_hh_mm_ss(
+            ra
+        )
+        dec_satellite_d, dec_satellite_m, dec_satellite_s = convert.dec_to_dd_mm_ss(
+            dec=dec
+        )
         ####################################################################
-        visible = (sat_alt > sat_alt_lower_bound) and (
+        visible = (satellite_altitude > satellite_altitude_lower_bound) and (
             sun_zenith_lower < sun_zenith_angle < sun_zenith_upper
         )
 
@@ -211,35 +220,37 @@ def compute_visible(
             # compute the change in AZ and ALT of the satellite position
             # between current and previous observation
             ## difference in azimuth arcsecs
-            daz = (sat_az - sat_az0) * 3600
+            delta_azimuth = (satellite_azimuth - satellite_azimuth0) * 3600
             ## difference in altitude in arcsecs
-            dalt = (sat_alt - sat_alt0) * 3600
+            delta_altitude = (satellite_altitude - satellite_altitude0) * 3600
             ####################################################################
             dt = time_delta.total_seconds()
-            ang_motion = np.sqrt(daz ** 2 + dalt ** 2) / dt
+            angular_velocity = (
+                np.sqrt(delta_azimuth ** 2 + delta_altitude ** 2) / dt
+            )
 
             data_str, data_str_simple = format.data_formating(
                 date_time,
-                darksat_latlon,
-                sat_az,
-                sat_alt,
-                raSAT_h,
-                raSAT_m,
-                raSAT_s,
-                decSAT_d,
-                decSAT_m,
-                decSAT_s,
-                sunRA,
-                sunDEC,
+                darksat_latitude_logitude,
+                satellite_azimuth,
+                satellite_altitude,
+                ra_satellite_h,
+                ra_satellite_m,
+                ra_satellite_s,
+                dec_satellite_d,
+                dec_satellite_m,
+                dec_satellite_s,
+                sun_RA,
+                sun_DEC,
                 sun_zenith_angle,
-                ang_motion,
+                angular_velocity,
             )
             ####################################################################
             write.append([data_str, data_str_simple])
         ########################################################################
         # current position, time as the "previous" for next observation
-        sat_az0 = sat_az
-        sat_alt0 = sat_alt
+        satellite_azimuth0 = satellite_azimuth
+        satellite_altitude0 = satellite_altitude
         date_time += time_delta
     ############################################################################
     if len(write) > 0:

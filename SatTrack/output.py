@@ -82,3 +82,84 @@ def output_format(
 #              'a') as file_simple:
 #        file_simple.write(f'{satellite}\n{str_simple}\n')
 ################################################################################
+    # # Prepare data for DataFrame
+    # columns_df = ["satellite"]
+    #
+    # columns_df = columns_df + [
+    #     header.strip() for header in column_headers.split(",")
+    # ]
+    # # all columns nan except the satellite column
+    # orbital_library_crash = [np.nan for _ in columns_df[:-1]]
+    # ############################################################################
+    # data_crash_satellites = []
+    # data_simple_crash_satellites = []
+    # visible_satellites = []
+    #
+    # for satellite in results:
+    #
+    #     if satellite == None:
+    #
+    #         satellite_name = ["crash"]
+    #         data_crash_satellites.append(
+    #             satellite_name + orbital_library_crash
+    #         )
+    #         data_simple_crash_satellites.append(
+    #             satellite_name + orbital_library_crash[:4]
+    #         )
+    #     else:
+    #
+    #         visible_satellites.append(satellite)
+    # ############################################################################
+    # # Prepare visible satellites data frame
+    # data_visible_satellites = []
+    # data_simple_visible_satellites = []
+    #
+    # for visible in visible_satellites:
+    #
+    #     for visible_ in visible:
+    #
+    #         [satellite, data, data_simple] = visible_
+    #         data_visible_satellites.append([satellite] + data)
+    #         data_simple_visible_satellites.append([satellite] + data_simple)
+    # ############################################################################
+    # data_output_directory = parser.get("directories", "data_output")
+    #
+    # if not os.path.exists(data_output_directory):
+    #     os.makedirs(data_output_directory)
+    # ############################################################################
+    # # create DataFrame all data
+    # data_df = data_visible_satellites + data_crash_satellites
+    # observations_df = pd.DataFrame(columns=columns_df, data=data_df)
+    #
+    # details_name = parser.get("names", "complete")
+    #
+    # observations_df = output_format(
+    #     frame=observations_df,
+    #     file_name=details_name,
+    #     simple=False,
+    #     output_directory=data_output_directory,
+    # )
+    # ############################################################################
+    # # create DataFrame simple data
+    # columns_df = [
+    #     "satellite",
+    #     "date[UT]",
+    #     "time[UT]",
+    #     "RA[hh:mm:ss]",
+    #     "DEC[hh:mm:ss]",
+    # ]
+    #
+    # data_df = data_simple_visible_satellites  # + data_simple_crash_satellites
+    #
+    # visible_df = pd.DataFrame(columns=columns_df, data=data_df)
+    #
+    # visible_name = parser.get("names", "simple")
+    #
+    # observations_df = output_format(
+    #     frame=visible_df,
+    #     file_name=visible_name,
+    #     simple=True,
+    #     output_directory=data_output_directory,
+    # )
+    # # Modify output such I only use the df with all data :)
+    # ################################################################################
