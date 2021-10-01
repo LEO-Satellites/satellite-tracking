@@ -68,15 +68,6 @@ if __name__ == "__main__":
     sun_zenith_lower = parser.getfloat("satellite", "sun_zenith_lower")
     sun_zenith_upper = parser.getfloat("satellite", "sun_zenith_upper")
 
-    # sun_zenith_range = parser.get(
-    #     'satellite observing limits',
-    #     'sun_zenith_angle_range'
-    #     )
-
-    #  sun_zenith_lower, sun_zenith_upper = sun_zenith_range.split(',')
-
-    #  (sun_zenith_lower, sun_zenith_upper) = (float(sun_zenith_lower),
-    #                                         float(sun_zenith_upper))
     ############################################################################
     compute_visible_parallel = partial(
         compute_visible,
