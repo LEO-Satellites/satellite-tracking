@@ -42,7 +42,6 @@ if __name__ == "__main__":
     satellites_list = get_satellites_from_tle(tle_file_path, satellite_brand)
     ############################################################################
     observatories = get_observatory_data(observatories)
-    satellite_brand = parser.get("satellite", "satellite")
     observatory = parser.get("configuration", "observatory")
     observatory_data = observatories[observatory]
     ############################################################################
