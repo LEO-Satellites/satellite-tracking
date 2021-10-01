@@ -1,10 +1,3 @@
-##############################################################################
-# Satellite tracking code using TLE data from Celestrak to calculate times
-# and positions of LEOsats to plan observations.
-# Written by
-# Edgar Ortiz edgar.ortiz@uamail.cl
-# Jeremy Tregloan-Reed jeremy.tregloan-reed@uda.cl
-##############################################################################
 #! /usr/bin/env python3
 from configparser import ConfigParser, ExtendedInterpolation
 from functools import partial
