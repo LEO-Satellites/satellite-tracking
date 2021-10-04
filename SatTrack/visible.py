@@ -13,7 +13,9 @@ from SatTrack.units import convert
 def get_observatory_data(observatories: "dict") -> "dict":
     """
     Process observatory data to have in the format ???
-    INPUTS
+
+    PARAMETERS
+
         observatories: A dictionary with the structure
             {
                 "kpno":
@@ -26,7 +28,9 @@ def get_observatory_data(observatories: "dict") -> "dict":
                 },
             ...
             }
+
     OUTPUTS
+
         Returns dictionary with data converted to ???
     """
 
@@ -69,7 +73,19 @@ def get_observatory_data(observatories: "dict") -> "dict":
 
 
 ###############################################################################
-def set_window(day: "int", window: "str", tz):
+def set_window(day: "int", window: "str", tz)-> "int, int":
+    """
+    Set day and  hour of observation according to time zone
+
+    PARAMETERS
+
+        day: day of observation
+        window: specifies if observation is either morning or evening
+
+    OUTPUTS
+
+        hour, day: set according to time window and time zone
+    """
     # datetime_object?
     ###########################################################################
     if window == "evening":
@@ -102,7 +118,6 @@ def set_window(day: "int", window: "str", tz):
     else:
         print(f'window keyword must be of either "morning" or "evening"')
         sys.exit()
-
 
 ###############################################################################
 def compute_visible(
