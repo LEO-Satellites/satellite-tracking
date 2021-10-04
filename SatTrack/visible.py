@@ -1,31 +1,16 @@
-##############################################################################
-# Satellite tracking code using TLE data from Celestrak to calculate times
-# and positions of LEOsats to plan observations.
-# Written by
-# Edgar Ortiz edgar.ortiz@uamail.cl
-# Jeremy Tregloan-Reed jeremy.tregloan-reed@uda.cl
-################################################################################
-import os
-import random
 import sys
-import time
-import urllib
 
-####################################################################
-# from datetime import datetime, timezone
 import datetime
 import ephem
 import numpy as np
 import pyorbital
 from pyorbital.orbital import Orbital
 
-####################################################################
 from SatTrack.format import format
 from SatTrack.units import convert
 
-################################################################################
-def get_observatory_data(observatories: "dict"):
-    # converts to format used by otarola
+###############################################################################
+def get_observatory_data(observatories: "dict")-> "dict":
 
     satellite_track = {}
     ############################################################################
