@@ -1,6 +1,5 @@
 import pandas as pd
-
-
+pd.options.mode.chained_assignment = None  # default='warn'
 def output_format(
     frame: "PandasDataFrame",
     file_name: "str",
