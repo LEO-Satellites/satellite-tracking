@@ -11,19 +11,37 @@ from SatTrack.units import convert
 
 ###############################################################################
 def get_observatory_data(observatories: "dict")-> "dict":
+    """
+    Process observatory data to have in the format ???
+    INPUTS
+        observatories: A dictionary with the structure
+            {
+                "kpno":
+                {
+                    "name": "Kitt Peak National Observatory",
+                    "longitude": [111, 36.0],
+                    "latitude": [31, 57.8],
+                    "altitude": 2120.0,
+                    "tz": 7,
+                },
+            ...
+            }
+    OUTPUTS
+        Returns dictionary with data converted to ???
+    """
 
     satellite_track = {}
     ############################################################################
     for observatory, data in observatories.items():
 
         otarola_format = {}
-        ########################################################################
+        #######################################################################
         for key, val in data.items():
 
             if type(val) == type([]):
                 signo = 1
                 otarola_format[key] = 0
-                ################################################################
+                ###############################################################
                 for idx, f in enumerate(val):
 
                     if f < 0:
@@ -31,7 +49,7 @@ def get_observatory_data(observatories: "dict")-> "dict":
                         f = abs(f)
 
                     otarola_format[key] += f / 60 ** idx
-                ################################################################
+                ###############################################################
                 otarola_format[key] = signo * otarola_format[key]
 
             else:
@@ -46,15 +64,12 @@ def get_observatory_data(observatories: "dict")-> "dict":
                     otarola_format[key] = -otarola_format[key]
 
         satellite_track[observatory] = otarola_format
-        ########################################################################
-    ############################################################################
+    ###########################################################################
     return satellite_track
-
-
-################################################################################
+###############################################################################
 def set_window(day: "int", window: "str", tz):
     # datetime_object?
-    ############################################################################
+    ###########################################################################
     if window == "evening":
 
         hour = 12 + tz
@@ -66,7 +81,7 @@ def set_window(day: "int", window: "str", tz):
             hour += 24
 
         return hour, day
-    ############################################################################
+    ###########################################################################
     elif window == "morning":
 
         hour = 0 + tz
@@ -81,13 +96,11 @@ def set_window(day: "int", window: "str", tz):
             hour += 24
 
         return hour, day
-    ############################################################################
+    ###########################################################################
     else:
         print(f'window keyword must be of either "morning" or "evening"')
         sys.exit()
-
-
-################################################################################
+###############################################################################
 def compute_visible(
     satellite: "str",
     window: "str",
