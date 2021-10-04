@@ -10,7 +10,7 @@ from SatTrack.format import format
 from SatTrack.units import convert
 
 ###############################################################################
-def get_observatory_data(observatories: "dict")-> "dict":
+def get_observatory_data(observatories: "dict") -> "dict":
     """
     Process observatory data to have in the format ???
     INPUTS
@@ -66,6 +66,8 @@ def get_observatory_data(observatories: "dict")-> "dict":
         satellite_track[observatory] = otarola_format
     ###########################################################################
     return satellite_track
+
+
 ###############################################################################
 def set_window(day: "int", window: "str", tz):
     # datetime_object?
@@ -100,6 +102,8 @@ def set_window(day: "int", window: "str", tz):
     else:
         print(f'window keyword must be of either "morning" or "evening"')
         sys.exit()
+
+
 ###############################################################################
 def compute_visible(
     satellite: "str",
