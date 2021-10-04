@@ -1,5 +1,8 @@
+import os
 import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
+
+##############################################################################
 def output_format(
     frame: "PandasDataFrame",
     file_name: "str",
@@ -17,9 +20,12 @@ def output_format(
     OUTPUTS
         frame:
     """
-    ############################################################################
+    ###########################################################################
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+    ###########################################################################
     frame = frame.dropna()
-    ############################################################################
+    ###########################################################################
     frame["date[UT]"] = pd.to_datetime(
         frame["date[UT]"] + " " + frame["time[UT]"],
         format="%Y-%m-%d %H:%M:%Ss",

@@ -119,9 +119,6 @@ if __name__ == "__main__":
             data_simple_visible_satellites.append([satellite] + data_simple)
     ############################################################################
     data_output_directory = parser.get("directories", "data_output")
-
-    if not os.path.exists(data_output_directory):
-        os.makedirs(data_output_directory)
     ############################################################################
     # create DataFrame all data
     data_df = data_visible_satellites + data_crash_satellites
