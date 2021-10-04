@@ -36,7 +36,9 @@ def data_formating(
         f"{darksat_latlon[2]:5.2f}",
         f"{sat_az:06.3f}",
         f"{sat_alt:06.3f}",
-        f"{raSAT_h:02d}h{raSAT_m:02d}m{raSAT_s:05.3f}s",
+        # f"{raSAT_h:02d}h{raSAT_m:02d}m{raSAT_s:05.3f}s",
+        # f"{decSAT_d:03d}:{decSAT_m:02d}:{decSAT_s:05.3f}",
+        f"{raSAT_h:02d}:{raSAT_m:02d}:{raSAT_s:05.3f}",
         f"{decSAT_d:03d}:{decSAT_m:02d}:{decSAT_s:05.3f}",
         f"{sunRA:09.7f}",
         f"{sunDEC:09.7f}",
@@ -47,7 +49,8 @@ def data_formating(
     data_simple = [
         f"{date}",
         f"{time}",
-        f"{raSAT_h:02d}h{raSAT_m:02d}m{raSAT_s:05.3f}s",
+        # f"{raSAT_h:02d}h{raSAT_m:02d}m{raSAT_s:05.3f}s",
+        f"{raSAT_h:02d}:{raSAT_m:02d}:{raSAT_s:05.3f}",
         f"{decSAT_d:03d}:{decSAT_m:02d}:{decSAT_s:05.3f}",
     ]
 
