@@ -3,6 +3,7 @@ from configparser import ConfigParser, ExtendedInterpolation
 from functools import partial
 import multiprocessing as mp
 import os
+import sys
 import time
 
 ################################################################################
@@ -14,8 +15,9 @@ from SatTrack.constants import column_headers, observatories
 from SatTrack.visible import get_observatory_data
 from SatTrack.visible import compute_visible
 from SatTrack.output import output_format
-from SatTrack.tle.download import download_tle
-from SatTrack.tle.read import get_satellites_from_tle
+# from SatTrack.tle.download import download_tle
+# from SatTrack.tle.read import get_satellites_from_tle
+from SatTrack.tle import TLE
 
 ################################################################################
 if __name__ == "__main__":
@@ -25,21 +27,30 @@ if __name__ == "__main__":
     parser = ConfigParser(interpolation=ExtendedInterpolation())
     parser.read("track.ini")
     ############################################################################
-    # writing results
-    ############################################################################
     # downloading tle file
     ## update this block to use pandas DataFrame :)
     satellite_brand = parser.get("satellite", "satellite")
 
     tle_directory = parser.get("directories", "tle")
 
-    if not os.path.exists(tle_directory):
-        os.makedirs(tle_directory)
+    tle = TLE(
+        satellite_brand=satellite_brand,
+        directory=tle_directory,
+        file_name= "str",
+    )
 
-    tle_name = download_tle(satellite_brand, tle_directory)
+    download = parser.getboolean("tle", "download")
+    if download:
+        tle_name = tle.download()
+    else:
+        tle_name = parser.get("tle", "name")
+
     tle_file_path = f"{tle_directory}/{tle_name}"
+    satellites_list = tle.get_satellites_from_tle(f"{tle_file_path}")
+    # print(satellites_list)
+    # sys.exit()
 
-    satellites_list = get_satellites_from_tle(tle_file_path, satellite_brand)
+    # satellites_list = get_satellites_from_tle(tle_file_path, satellite_brand)
     ############################################################################
     observatories = get_observatory_data(observatories)
     observatory = parser.get("configuration", "observatory")
