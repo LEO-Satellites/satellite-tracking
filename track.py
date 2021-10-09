@@ -10,18 +10,15 @@ import time
 import numpy as np
 import pandas as pd
 
-################################################################################
-from SatTrack.constants import column_headers, observatories
+###############################################################################
+from SatTrack.constants import observatories
 from SatTrack.visible import get_observatory_data
 from SatTrack.visible import compute_visible
-from SatTrack.output import output_format
 
-# from SatTrack.tle.download import download_tle
-# from SatTrack.tle.read import get_satellites_from_tle
 from SatTrack.tle import TLE
 from SatTrack.output import OutputFile
+###############################################################################
 
-################################################################################
 if __name__ == "__main__":
     ############################################################################
     ti = time.time()
@@ -81,12 +78,13 @@ if __name__ == "__main__":
         sun_zenith_upper=sun_zenith_upper,
     )
 
-    with mp.Pool(processes=None) as pool:
+    number_processes = parser.getint("parameters", "processes")
+    with mp.Pool(processes=number_processes) as pool:
         results = pool.map(compute_visible_parallel, satellites_list)
 
     ###########################################################################
-    output_directory = parser.get("directories", "output")
-    output = OutputFile(results, )
+    output_directory = parser.get("directories", "data_output")
+    output = OutputFile(results, output_directory)
     details_name = parser.get("names", "complete")
     visible_name = parser.get("names", "simple")
     output.save_data(simple_name=visible_name, full_name=details_name)

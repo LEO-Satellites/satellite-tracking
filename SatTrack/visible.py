@@ -191,6 +191,8 @@ def compute_visible(
     number_iterations = (12 * 60 * 60) / seconds_delta
     number_iterations = range(int(number_iterations))
 
+    print(f"Compute visibility of: {satellite}", end="\r")
+    # Add precentage :)
     for time_step in number_iterations:
         ####################################################################
         # computes the current latitude, longitude of the satellite's

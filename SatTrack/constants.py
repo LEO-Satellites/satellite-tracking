@@ -5,16 +5,6 @@
 # Edgar Ortiz edgar.ortiz@uamail.cl
 # Jeremy Tregloan-Reed jeremy.tregloan-reed@uda.cl
 ################################################################################
-# Note the angular speed of the satellite is in the AZ,EL (or AZ,ALT) frame
-ut_time = "date[UT], time[UT]"
-lla_sat = "SatLon[deg], SatLat[deg], SatAlt[km]"
-angular_sat = "SatAzimuth[deg], SatElevation[deg], SatRA[hr], SatDEC[deg]"
-angular_sun = "SunRA[hr], SunDEC[deg], SunZenithAngle[deg]"
-speed_sat = "SatAngularSpeed[arcsecs/sec]"
-
-column_headers = (
-    f"{ut_time}, {lla_sat}, {angular_sat}, " f"{angular_sun}, {speed_sat}"
-)
 ################################################################################
 # observatory - abbreviated observatory name
 # name - full observatory name
