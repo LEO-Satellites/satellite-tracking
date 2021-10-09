@@ -73,7 +73,7 @@ def get_observatory_data(observatories: "dict") -> "dict":
 
 
 ###############################################################################
-def set_window(day: "int", window: "str", time_zone: "int")-> "int, int":
+def set_window(day: "int", window: "str", time_zone: "int") -> "int, int":
     """
     Set day and  hour of observation according to time zone
 
@@ -119,6 +119,7 @@ def set_window(day: "int", window: "str", time_zone: "int")-> "int, int":
     else:
         print(f'window keyword must be of either "morning" or "evening"')
         sys.exit()
+
 
 ###############################################################################
 def compute_visible(
@@ -175,10 +176,8 @@ def compute_visible(
     darksat = Orbital(satellite, tle_file=f"{tle_file}")
     ############################################################################
     hour, day = set_window(
-                            day=day,
-                            window=window,
-                            time_zone=observatory_time_zone
-                        )
+        day=day, window=window, time_zone=observatory_time_zone
+    )
     ############################################################################
     # if time_delta = 60, then it will move minute by minute
     time_delta = datetime.timedelta(seconds=seconds_delta)
