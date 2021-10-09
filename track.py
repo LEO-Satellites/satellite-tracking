@@ -19,6 +19,7 @@ from SatTrack.output import output_format
 # from SatTrack.tle.download import download_tle
 # from SatTrack.tle.read import get_satellites_from_tle
 from SatTrack.tle import TLE
+from SatTrack.output import OutputFile
 
 ################################################################################
 if __name__ == "__main__":
@@ -99,6 +100,7 @@ if __name__ == "__main__":
     data_simple_crash_satellites = []
     visible_satellites = []
 
+
     for satellite in results:
 
         if satellite == None:
@@ -113,6 +115,13 @@ if __name__ == "__main__":
         else:
 
             visible_satellites.append(satellite)
+
+
+    output = OutputFile()
+
+    visible_class = output.get_visible_satellites(results)
+    print(f"Normal: {len(visible_satellites)} \n Improved: {len(visible_class)}")
+    sys.exit()
     ############################################################################
     # Prepare visible satellites data frame
     data_visible_satellites = []

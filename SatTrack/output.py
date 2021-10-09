@@ -3,7 +3,93 @@ import pandas as pd
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
-##############################################################################
+###############################################################################
+# CONSTANTS
+# Note angular speed of the satellite is in the AZ,EL (or AZ,ALT) frame
+
+COLUMN_NAMES = [
+  'satellite',
+  'date[UT]',
+  'time[UT]',
+  'SatLon[deg]',
+  'SatLat[deg]',
+  'SatAlt[km]',
+  'SatAzimuth[deg]',
+  'SatElevation[deg]',
+  'SatRA[hr]',
+  'SatDEC[deg]',
+  'SunRA[hr]',
+  'SunDEC[deg]',
+  'SunZenithAngle[deg]',
+  'SatAngularSpeed[arcsecs/sec]'
+]
+###############################################################################
+class OutputFile:
+    def __init__(self
+        # directory: "str",
+
+    ):
+
+        # self.directory = directory
+        pass
+    ###########################################################################
+    def get_visible_satellites(self, results: "list")->"":
+        """
+        Get visible satellites from computations
+
+        PARAMETERS
+            results: list from parallel computation.
+                Visible satellites are a list, non visible is None
+
+        OUTPUTS
+            returns list with visible satellites
+        """
+
+        visible_satellites = list(filter(lambda x: x!=None, results))
+
+        return visible_satellites
+    ###########################################################################
+    def _check_directory(self, directory: "str", exit: "bool")-> "None":
+        """
+        Check if a directory exists and depending on exit parameter,
+        it creates the derectory or exits the program because the
+        directory is necessary for computations.
+
+        PARAMETERS
+            directory: directory location
+            exit: if False, it creates the directory
+        """
+
+        if not os.path.exists(directory):
+
+            if exit:
+                sys.exit()
+
+            os.makedirs(directory)
+
+    ###########################################################################
+    def _check_file(self, file_location: "str", exit: "bool")->"None":
+        """
+        Check if a file exists and depending on exit parameter, it exits
+        the program because the file is necessary for computations.
+
+        PARAMETERS
+
+            file_location: file location with extension
+                example: /home/john/data/data.txt
+
+            exit: if True, it exits the program
+        """
+
+        if not os.path.exists(file_location):
+
+            if exit:
+                print(f"NOT FOUND: {file_location}")
+                print(f"Program cannot execute width out this file")
+                sys.exit()
+
+    ###########################################################################
+###############################################################################
 def output_format(
     frame: "PandasDataFrame",
     file_name: "str",
