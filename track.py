@@ -45,12 +45,9 @@ if __name__ == "__main__":
     else:
         tle_name = parser.get("tle", "name")
 
-    tle_file_path = f"{tle_directory}/{tle_name}"
-    satellites_list = tle.get_satellites_from_tle(f"{tle_file_path}")
-    # print(satellites_list)
-    # sys.exit()
+    tle_file_location = f"{tle_directory}/{tle_name}"
+    satellites_list = tle.get_satellites_from_tle(f"{tle_file_location}")
 
-    # satellites_list = get_satellites_from_tle(tle_file_path, satellite_brand)
     ############################################################################
     observatories = get_observatory_data(observatories)
     observatory = parser.get("configuration", "observatory")
@@ -76,7 +73,7 @@ if __name__ == "__main__":
         compute_visible,
         window=window,
         observatory_data=observatory_data,
-        tle_file=tle_file_path,
+        tle_file=tle_file_location,
         year=year,
         month=month,
         day=day,
