@@ -9,11 +9,7 @@ import urllib
 TLE_URL = f"https://celestrak.com/NORAD/elements/supplemental"
 ###############################################################################
 class TLE:
-    def __init__(
-        self,
-        satellite_brand: "str",
-        directory: "str",
-    ):
+    def __init__(self, satellite_brand: "str", directory: "str"):
         """
         Handles tle files
 
@@ -25,7 +21,7 @@ class TLE:
         self.directory = directory
 
     ###########################################################################
-    def download(self)-> "str":
+    def download(self) -> "str":
         """
         Downloads the tle_file pass in the costructor from
         TLE_URL = f"https://celestrak.com/NORAD/elements/supplemental"
@@ -80,7 +76,7 @@ class TLE:
         return satellites
 
     ###########################################################################
-    def _get_time_stamp(self)-> "str":
+    def _get_time_stamp(self) -> "str":
         """
         Returns time stamp for tle file download: "2021-10-09 16:18:16"
         """
@@ -91,7 +87,7 @@ class TLE:
         return time_stamp
 
     ###########################################################################
-    def _check_directory(self, directory: "str", exit: "bool")-> "None":
+    def _check_directory(self, directory: "str", exit: "bool") -> "None":
         """
         Check if a directory exists and depending on exit parameter,
         it creates the derectory or exits the program because the
@@ -110,7 +106,7 @@ class TLE:
             os.makedirs(directory)
 
     ###########################################################################
-    def _check_file(self, file_location: "str", exit: "bool")->"None":
+    def _check_file(self, file_location: "str", exit: "bool") -> "None":
         """
         Check if a file exists and depending on exit parameter, it exits
         the program because the file is necessary for computations.

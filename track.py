@@ -35,10 +35,7 @@ if __name__ == "__main__":
 
     tle_directory = parser.get("directories", "tle")
 
-    tle = TLE(
-        satellite_brand=satellite_brand,
-        directory=tle_directory,
-    )
+    tle = TLE(satellite_brand=satellite_brand, directory=tle_directory)
 
     download = parser.getboolean("tle", "download")
     if download:
@@ -86,92 +83,13 @@ if __name__ == "__main__":
 
     with mp.Pool(processes=None) as pool:
         results = pool.map(compute_visible_parallel, satellites_list)
-    ############################################################################
-    # Prepare data for DataFrame
-    columns_df = ["satellite"]
 
-    columns_df = columns_df + [
-        header.strip() for header in column_headers.split(",")
-    ]
-    # all columns nan except the satellite column
-    orbital_library_crash = [np.nan for _ in columns_df[:-1]]
-    ############################################################################
-    data_crash_satellites = []
-    data_simple_crash_satellites = []
-    visible_satellites = []
-
-
-    for satellite in results:
-
-        if satellite == None:
-
-            satellite_name = ["crash"]
-            data_crash_satellites.append(
-                satellite_name + orbital_library_crash
-            )
-            data_simple_crash_satellites.append(
-                satellite_name + orbital_library_crash[:4]
-            )
-        else:
-
-            visible_satellites.append(satellite)
-
-
-    output = OutputFile()
-
-    visible_class = output.get_visible_satellites(results)
-    print(f"Normal: {len(visible_satellites)} \n Improved: {len(visible_class)}")
-    sys.exit()
-    ############################################################################
-    # Prepare visible satellites data frame
-    data_visible_satellites = []
-    data_simple_visible_satellites = []
-
-    for visible in visible_satellites:
-
-        for visible_ in visible:
-
-            [satellite, data, data_simple] = visible_
-            data_visible_satellites.append([satellite] + data)
-            data_simple_visible_satellites.append([satellite] + data_simple)
-    ############################################################################
-    data_output_directory = parser.get("directories", "data_output")
-    ############################################################################
-    # create DataFrame all data
-    data_df = data_visible_satellites + data_crash_satellites
-    observations_df = pd.DataFrame(columns=columns_df, data=data_df)
-
+    ###########################################################################
+    output_directory = parser.get("directories", "output")
+    output = OutputFile(results, )
     details_name = parser.get("names", "complete")
-
-    observations_df = output_format(
-        frame=observations_df,
-        file_name=details_name,
-        simple=False,
-        output_directory=data_output_directory,
-    )
-    ############################################################################
-    # create DataFrame simple data
-    columns_df = [
-        "satellite",
-        "date[UT]",
-        "time[UT]",
-        "RA[hh:mm:ss]",
-        "DEC[hh:mm:ss]",
-    ]
-
-    data_df = data_simple_visible_satellites  # + data_simple_crash_satellites
-
-    visible_df = pd.DataFrame(columns=columns_df, data=data_df)
-
     visible_name = parser.get("names", "simple")
-
-    observations_df = output_format(
-        frame=visible_df,
-        file_name=visible_name,
-        simple=True,
-        output_directory=data_output_directory,
-    )
-    # Modify output such I only use the df with all data :)
-    ################################################################################
+    output.save_data(simple_name=visible_name, full_name=details_name)
+    ###########################################################################
     tf = time.time()
     print(f"Running time: {tf-ti:.2} [s]")
