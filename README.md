@@ -12,3 +12,5 @@ After setting the observing parameters in the config file (track.ini) the code c
 Written by
 Edgar Ortiz, Universidad de Antofagasta: ed.ortizm@gmail.com, edgar.ortiz@ua.cl and
 Jeremy Tregloan-Reed, Univerisdad de Atacama: jeremy.tregloan-reed@uda.cl
+
+Origonal core code to detemine satellite positional data from operator released TLEs writtern by Ángel Otarola.
