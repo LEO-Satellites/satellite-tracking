@@ -7,7 +7,8 @@ import pyorbital
 from pyorbital.orbital import Orbital
 
 from SatTrack.format import format
-from SatTrack.units import convert
+# from SatTrack.units import convert
+from SatTrack.units.convert import ConvertUnits
 
 ###############################################################################
 def get_observatory_data(observatories: "dict") -> "dict":
@@ -156,6 +157,7 @@ def compute_visible(
     OUTPUT
 
     """
+    convert = ConvertUnits()
     ############################################################################
     observer = ephem.Observer()
     observer.epoch = "2000"
@@ -215,8 +217,10 @@ def compute_visible(
         # gets the Sun's RA and DEC at the time of observation
         sun_ra, sun_dec = pyorbital.astronomy.sun_ra_dec(date_time)
 
-        sun_RA = convert.ra_to_hours(ra=sun_ra)
-        sun_DEC = convert.radians_to_deg(radians=sun_dec)
+        # sun_RA = convert.ra_to_hours(ra=sun_ra)
+        # sun_DEC = convert.radians_to_deg(radians=sun_dec)
+        sun_RA = convert.RA_in_radians_to_hours(RA=sun_ra)
+        sun_DEC = convert.radians_to_degrees(radians=sun_dec)
         ####################################################################
         sun_zenith_angle = pyorbital.astronomy.sun_zenith_angle(
             date_time, observatory_longitude, observatory_latitude
@@ -226,14 +230,25 @@ def compute_visible(
         ra, dec = observer.radec_of(
             np.radians(satellite_azimuth), np.radians(satellite_altitude)
         )
-        ####################################################################
-        ra_satellite_h, ra_satellite_m, ra_satellite_s = convert.ra_to_hh_mm_ss(
-            ra
-        )
-        dec_satellite_d, dec_satellite_m, dec_satellite_s = convert.dec_to_dd_mm_ss(
-            dec=dec
-        )
-        ####################################################################
+        #######################################################################
+        # ra_satellite_h, ra_satellite_m, ra_satellite_s = convert.ra_to_hh_mm_ss(
+        #     ra
+        # )
+        # dec_satellite_d, dec_satellite_m, dec_satellite_s = convert.dec_to_dd_mm_ss(
+        #     dec=dec
+        # )
+        [
+            ra_satellite_h,
+            ra_satellite_m,
+            ra_satellite_s
+        ]= convert.RA_in_radians_to_hh_mm_ss(RA=ra)
+
+        [
+            dec_satellite_d,
+            dec_satellite_m,
+            dec_satellite_s
+        ]= convert.DEC_in_radians_to_dd_mm_ss(DEC=dec)
+        #######################################################################
         visible = (satellite_altitude > satellite_altitude_lower_bound) and (
             sun_zenith_lower < sun_zenith_angle < sun_zenith_upper
         )

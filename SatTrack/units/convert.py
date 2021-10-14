@@ -3,10 +3,11 @@ import numpy as np
 ###############################################################################
 """
 RA: right ascention
-DEc: declination
+DEC: declination
 """
 ###############################################################################
 class ConvertUnits:
+    """Convert units"""
     def __init__(self):
         pass
 
@@ -61,6 +62,38 @@ class ConvertUnits:
         ss = (minutes - mm) * 60
 
         return [hh, mm, ss]
+
+
+    ###########################################################################
+    def DEC_in_radians_to_dd_mm_ss(self, DEC: "float")->"list":
+        """
+        Converts DEC in radians to dd:mm:ss.sss
+
+        PARAMETERS
+
+        OUTPUTS
+            [dd, mm, ss]
+                dd: int value of degrees
+                mm: int value of minutes
+                ss: int value of seconds
+        """
+        DEC_in_degrees = self.radians_to_degrees(DEC)
+
+        if DEC_in_degrees < 0:
+            DEC_sign = -1
+            DEC_in_degrees = abs(DEC_in_degrees)
+        else:
+            DEC_sign = 1
+
+        dd = int(DEC_in_degrees)
+
+        minutes = (DEC_in_degrees - dd) * 60.0
+        mm = int(minutes)
+
+        ss = (minutes - mm) * 60
+
+        return [dd * DEC_sign, mm, ss]
+
 ###############################################################################
 def ra_to_hours(ra):
     ra = ra * 180.0 / np.pi
