@@ -7,8 +7,7 @@ import pyorbital
 from pyorbital.orbital import Orbital
 
 from SatTrack.format import format
-# from SatTrack.units import convert
-from SatTrack.units.convert import ConvertUnits
+from SatTrack.units import ConvertUnits
 
 ###############################################################################
 def get_observatory_data(observatories: "dict") -> "dict":

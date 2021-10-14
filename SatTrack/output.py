@@ -28,7 +28,7 @@ COLUMN_NAMES_SIMPLE = [
     "date[UT]",
     "time[UT]",
     "RA[hh:mm:ss]",
-    "DEC[hh:mm:ss]",
+    "DEC[dd:mm:ss]",
 ]
 ###############################################################################
 class OutputFile:
