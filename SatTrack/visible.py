@@ -27,7 +27,8 @@ class Compute:
     def __init__(self,
         day: "int",
         window: "str",
-        time_zone: "int"
+        time_zone: "int",
+        observatory_data: "dict",
         ):
         """
         PARAMETERS
@@ -46,6 +47,35 @@ class Compute:
             print(f'window keyword must be of either "morning" or "evening"')
             sys.exit()
 
+        self.observer = None
+
+
+    ###########################################################################
+    def set_observer(self):
+
+        self.observer = ephem.Observer()
+        self.observer.epoch = "2000"
+        self.observer.pressure = 1010
+        self.observer.temp = 15
+        # observatory_latitude = observatory_data["latitude"]
+        # observer.lat = np.radians(observatory_latitude)
+        # ################################################################
+        # observatory_longitude = observatory_data["longitude"]
+        # observer.lon = np.radians(observatory_longitude)
+        # ################################################################
+        # observatory_altitude = observatory_data["altitude"] / 1000.0  # in km
+        # observer.elevation = observatory_data["altitude"]  # in meters
+        pass
+    ###########################################################################
+    def set_observatory(self):
+        pass
+    ###########################################################################
+    def update_observer(self):
+        # observer.date = ephem.date(date_time)
+        # ra, dec = observer.radec_of(
+        #     np.radians(satellite_azimuth), np.radians(satellite_altitude)
+        # )
+        pass
     ###########################################################################
     def set_window(self)-> "list":
         """
@@ -86,55 +116,6 @@ class Compute:
 
         return hour
     ###########################################################################
-
-###############################################################################
-def set_window(day: "int", window: "str", time_zone: "int") -> "int, int":
-    """
-    Set day and  hour of observation according to time zone
-
-    PARAMETERS
-
-        day: day of observation
-        window: specifies if observation is either morning or evening
-        time_zone: time zone of the observatory
-
-    OUTPUTS
-
-        hour, day: set according to time window and time zone
-    """
-    # datetime_object?
-    ###########################################################################
-    if window == "evening":
-
-        hour = 12 + time_zone
-
-        if hour >= 24:
-            hour -= 24
-
-        elif hour < 0:
-            hour += 24
-
-        return hour, day
-    ###########################################################################
-    elif window == "morning":
-
-        hour = 0 + time_zone
-
-        if hour < 0:
-            day -= 1
-
-        if hour >= 24:
-            hour -= 24
-
-        elif hour < 0:
-            hour += 24
-
-        return hour, day
-    ###########################################################################
-    else:
-        print(f'window keyword must be of either "morning" or "evening"')
-        sys.exit()
-
 
 ###############################################################################
 def compute_visible(
@@ -191,10 +172,12 @@ def compute_visible(
     ############################################################################
     darksat = Orbital(satellite, tle_file=f"{tle_file}")
     ############################################################################
-    # hour, day = set_window(
-    #     day=day, window=window, time_zone=observatory_time_zone
-    # )
-    compute_class = Compute(day=day, window=window, time_zone=observatory_time_zone)
+    compute_class = Compute(
+        day=day,
+        window=window,
+        time_zone=observatory_time_zone
+        )
+
     [hour, day] = compute_class.set_window()
     ############################################################################
     # if time_delta = 60, then it will move minute by minute
@@ -233,8 +216,6 @@ def compute_visible(
         # gets the Sun's RA and DEC at the time of observation
         sun_ra, sun_dec = pyorbital.astronomy.sun_ra_dec(date_time)
 
-        # sun_RA = convert.ra_to_hours(ra=sun_ra)
-        # sun_DEC = convert.radians_to_deg(radians=sun_dec)
         sun_RA = convert.RA_in_radians_to_hours(RA=sun_ra)
         sun_DEC = convert.radians_to_degrees(radians=sun_dec)
         ####################################################################
@@ -247,12 +228,6 @@ def compute_visible(
             np.radians(satellite_azimuth), np.radians(satellite_altitude)
         )
         #######################################################################
-        # ra_satellite_h, ra_satellite_m, ra_satellite_s = convert.ra_to_hh_mm_ss(
-        #     ra
-        # )
-        # dec_satellite_d, dec_satellite_m, dec_satellite_s = convert.dec_to_dd_mm_ss(
-        #     dec=dec
-        # )
         [
             ra_satellite_h,
             ra_satellite_m,
@@ -309,6 +284,5 @@ def compute_visible(
     ############################################################################
     if len(write) > 0:
         return [[satellite] + data for data in write]
-
 
 ################################################################################
