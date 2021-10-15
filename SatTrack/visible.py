@@ -1,6 +1,7 @@
 import sys
-
 import datetime
+import multiprocessing as mp
+
 import ephem
 import numpy as np
 import pyorbital
@@ -8,69 +9,83 @@ from pyorbital.orbital import Orbital
 
 from SatTrack.format import format
 from SatTrack.units import ConvertUnits
-
+from SatTrack.observatory import get_observatory_data
 ###############################################################################
-def get_observatory_data(observatories: "dict") -> "dict":
+def init_download_worker(input_counter):
     """
-    Process observatory data to have in the format ???
-
+    Initialize worker for download
     PARAMETERS
-
-        observatories: A dictionary with the structure
-            {
-                "kpno":
-                {
-                    "name": "Kitt Peak National Observatory",
-                    "longitude": [111, 36.0],
-                    "latitude": [31, 57.8],
-                    "altitude": 2120.0,
-                    "tz": 7,
-                },
-            ...
-            }
-
-    OUTPUTS
-
-        Returns dictionary with data converted to ???
+    counter:
     """
+    global counter
 
-    satellite_track = {}
-    ############################################################################
-    for observatory, data in observatories.items():
+    counter = input_counter
+###############################################################################
+class Compute:
+    """Class to compute whether a satellite is visible or not"""
 
-        otarola_format = {}
-        #######################################################################
-        for key, val in data.items():
+    def __init__(self,
+        day: "int",
+        window: "str",
+        time_zone: "int"
+        ):
+        """
+        PARAMETERS
 
-            if type(val) == type([]):
-                signo = 1
-                otarola_format[key] = 0
-                ###############################################################
-                for idx, f in enumerate(val):
+            day: day of observation
+            window: specifies if observation is either morning or evening
+            time_zone: time zone of the observatory
 
-                    if f < 0:
-                        signo = -1
-                        f = abs(f)
 
-                    otarola_format[key] += f / 60 ** idx
-                ###############################################################
-                otarola_format[key] = signo * otarola_format[key]
+        """
+        self.day = day
+        self.window = window
+        self.time_zone = time_zone
 
-            else:
-                otarola_format[key] = val
+        if self.window not in ["morning", "evening"]:
+            print(f'window keyword must be of either "morning" or "evening"')
+            sys.exit()
 
-            if key == "longitude":
-
-                if otarola_format[key] > 180.0:
-                    otarola_format[key] = 360 - otarola_format[key]
-
-                else:
-                    otarola_format[key] = -otarola_format[key]
-
-        satellite_track[observatory] = otarola_format
     ###########################################################################
-    return satellite_track
+    def set_window(self)-> "list":
+        """
+        Set day and  hour of observation according to time zone
 
+        OUTPUTS
+
+            [hour: "int", day: "int"]:
+                set according to time window and time zone
+
+                hour:
+                day:
+        """
+
+        if (self.window == "morning") and (self.time_zone < 0):
+
+            self.day -= 1
+
+        hour = self._set_hour()
+
+        return [hour, self.day]
+    ###########################################################################
+    def _set_hour(self)-> "int":
+
+        if self.window == "evening":
+
+            hour = 12 + self.time_zone
+
+        elif self.window == "morning":
+
+            hour = 0 + self.time_zone
+
+        if hour >= 24:
+            hour -= 24
+
+        elif hour < 0:
+            hour += 24
+
+        return hour
+    ###########################################################################
 
 ###############################################################################
 def set_window(day: "int", window: "str", time_zone: "int") -> "int, int":
@@ -176,9 +191,11 @@ def compute_visible(
     ############################################################################
     darksat = Orbital(satellite, tle_file=f"{tle_file}")
     ############################################################################
-    hour, day = set_window(
-        day=day, window=window, time_zone=observatory_time_zone
-    )
+    # hour, day = set_window(
+    #     day=day, window=window, time_zone=observatory_time_zone
+    # )
+    compute_class = Compute(day=day, window=window, time_zone=observatory_time_zone)
+    [hour, day] = compute_class.set_window()
     ############################################################################
     # if time_delta = 60, then it will move minute by minute
     time_delta = datetime.timedelta(seconds=seconds_delta)

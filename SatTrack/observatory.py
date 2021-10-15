@@ -1,10 +1,3 @@
-##############################################################################
-# Satellite tracking code using TLE data from Celestrak to calculate times
-# and positions of LEOsats to plan observations.
-# Written by
-# Edgar Ortiz edgar.ortiz@uamail.cl
-# Jeremy Tregloan-Reed jeremy.tregloan-reed@uda.cl
-################################################################################
 ################################################################################
 # observatory - abbreviated observatory name
 # name - full observatory name
@@ -325,3 +318,65 @@ observatories = {
         "tz": -1,
     },
 }
+
+###############################################################################
+def get_observatory_data(observatories: "dict") -> "dict":
+    """
+    Process observatory data to have in the format ???
+
+    PARAMETERS
+
+        observatories: A dictionary with the structure
+            {
+                "kpno":
+                {
+                    "name": "Kitt Peak National Observatory",
+                    "longitude": [111, 36.0],
+                    "latitude": [31, 57.8],
+                    "altitude": 2120.0,
+                    "tz": 7,
+                },
+            ...
+            }
+
+    OUTPUTS
+
+        Returns dictionary with data converted to ???
+    """
+
+    satellite_track = {}
+    ###########################################################################
+    for observatory, data in observatories.items():
+
+        otarola_format = {}
+        #######################################################################
+        for key, val in data.items():
+
+            if type(val) == type([]):
+                signo = 1
+                otarola_format[key] = 0
+                ###############################################################
+                for idx, f in enumerate(val):
+
+                    if f < 0:
+                        signo = -1
+                        f = abs(f)
+
+                    otarola_format[key] += f / 60 ** idx
+                ###############################################################
+                otarola_format[key] = signo * otarola_format[key]
+
+            else:
+                otarola_format[key] = val
+
+            if key == "longitude":
+
+                if otarola_format[key] > 180.0:
+                    otarola_format[key] = 360 - otarola_format[key]
+
+                else:
+                    otarola_format[key] = -otarola_format[key]
+
+        satellite_track[observatory] = otarola_format
+    ###########################################################################
+    return satellite_track

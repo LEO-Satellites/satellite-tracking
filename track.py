@@ -11,10 +11,8 @@ import numpy as np
 import pandas as pd
 
 ###############################################################################
-from SatTrack.constants import observatories
-from SatTrack.visible import get_observatory_data
+from SatTrack.observatory import get_observatory_data, observatories
 from SatTrack.visible import compute_visible
-
 from SatTrack.tle import TLE
 from SatTrack.output import OutputFile
 ###############################################################################
