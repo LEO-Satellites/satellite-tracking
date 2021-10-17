@@ -25,10 +25,9 @@ class Compute:
     """Class to compute whether a satellite is visible or not"""
 
     def __init__(self,
-        day: "int",
-        window: "str",
+        time_parameters: "dictionary",
         time_zone: "int",
-        observatory_data: "dict",
+        # observatory_data: "dict",
         ):
         """
         PARAMETERS
@@ -39,8 +38,8 @@ class Compute:
 
 
         """
-        self.day = day
-        self.window = window
+        self.day = time_parameters["day"]
+        self.window = time_parameters["window"]
         self.time_zone = time_zone
 
         if self.window not in ["morning", "evening"]:
