@@ -27,7 +27,7 @@ class Compute:
     def __init__(self,
         time_parameters: "dictionary",
         time_zone: "int",
-        # observatory_data: "dict",
+        observatory_data: "dictionary",
         ):
         """
         PARAMETERS
@@ -46,7 +46,9 @@ class Compute:
             sys.exit()
 
         self.time_zone = time_zone
-        
+
+        self.observatory_data = self._set_observatory_data(observatory_data)
+
         self.observer = None
 
 
@@ -67,8 +69,66 @@ class Compute:
         # observer.elevation = observatory_data["altitude"]  # in meters
         pass
     ###########################################################################
-    def set_observatory(self):
-        pass
+    def _set_observatory_data(self, data_observatory: "dictionary"):
+        """
+        Transform data from observatories.txt file at home.
+        Degrees are positive to the east and negative to the west
+
+        PARAMETERS
+            observatory_data: contains parameters of observatory
+            {
+                'name': 'European Southern Observatory, La Silla',
+                'longitude': [70, 43.8], # entries for [deg, ', ']
+                'latitude': [-29, 15.4],
+                'altitude': 2347.0, # in meters above sea level
+                'tz': 4
+            }
+
+        OUTPUTS
+            update_observatory_data: update parameters of observatory
+            {
+                'name': 'European Southern Observatory, La Silla',
+                'longitude': -70.73,
+                'latitude': -29.256666666666668,
+                'altitude': 2347.0,
+                'tz': 4
+            }
+        """
+        update_format = {}
+        #######################################################################
+        for parameter_observatory, parameters_values in data_observatory.items():
+
+            if type(parameters_values) == list:
+                sign = 1 # negative to the west and positive to the east
+                update_format[parameter_observatory] = 0
+                ###############################################################
+                for idx, parameter in enumerate(parameters_values):
+
+                    # parameter will be in degrees, minutes and seconds
+                    # idx=0 -> degrees
+                    # idx=1 -> minutes
+                    # idx=2 -> seconds
+                    # maybe a lamda function with map?
+                    if parameter < 0:
+                        sign = -1
+                        parameter = abs(parameter)
+
+                    update_format[parameter_observatory] += parameter / (60 ** idx)
+                ###############################################################
+                update_format[parameter_observatory] = sign * update_format[parameter_observatory]
+
+            else:
+                update_format[parameter_observatory] = parameters_values
+
+            if parameter_observatory == "longitude":
+
+                if update_format[parameter_observatory] > 180.0:
+                    update_format[parameter_observatory] = 360 - update_format[parameter_observatory]
+
+                else:
+                    update_format[parameter_observatory] = -update_format[parameter_observatory]
+
+        return update_format
     ###########################################################################
     def update_observer(self):
         # observer.date = ephem.date(date_time)
@@ -173,9 +233,15 @@ def compute_visible(
     darksat = Orbital(satellite, tle_file=f"{tle_file}")
     ############################################################################
     time_parameters = {"day": day, "window": window}
+    test_observatory = {'name': 'European Southern Observatory, La Silla',
+        'longitude': [70, 43.8],
+        'latitude': [-29, 15.4],
+        'altitude': 2347.0,
+        'tz': 4}
     compute_class = Compute(
         time_parameters,
-        time_zone=observatory_time_zone
+        time_zone=observatory_time_zone,
+        observatory_data=test_observatory,
         )
 
     [hour, day] = compute_class.set_window()
