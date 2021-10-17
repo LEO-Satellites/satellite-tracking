@@ -40,12 +40,13 @@ class Compute:
         """
         self.day = time_parameters["day"]
         self.window = time_parameters["window"]
-        self.time_zone = time_zone
 
         if self.window not in ["morning", "evening"]:
             print(f'window keyword must be of either "morning" or "evening"')
             sys.exit()
 
+        self.time_zone = time_zone
+        
         self.observer = None
 
 
@@ -171,9 +172,9 @@ def compute_visible(
     ############################################################################
     darksat = Orbital(satellite, tle_file=f"{tle_file}")
     ############################################################################
+    time_parameters = {"day": day, "window": window}
     compute_class = Compute(
-        day=day,
-        window=window,
+        time_parameters,
         time_zone=observatory_time_zone
         )
 

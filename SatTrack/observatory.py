@@ -344,39 +344,48 @@ def get_observatory_data(observatories: "dict") -> "dict":
         Returns dictionary with data converted to ???
     """
 
-    satellite_track = {}
+    observatories_update = {}
     ###########################################################################
-    for observatory, data in observatories.items():
+    for name_observatory, data_observatory in observatories.items():
 
-        otarola_format = {}
+        update_format = {}
         #######################################################################
-        for key, val in data.items():
+        for parameter_observatory, parameters_values in data_observatory.items():
+            # parameter_observatory:
+            # "name", "longitude", "latitude", "altitude", "tz"
+            #  parameters values: longitude and latitude format are
+            #     [degree, minute, second] up to 360 to the west
 
-            if type(val) == type([]):
-                signo = 1
-                otarola_format[key] = 0
+            if type(parameters_values) == list:
+                sign = 1 # negative to the west and positive to the east
+                update_format[parameter_observatory] = 0
                 ###############################################################
-                for idx, f in enumerate(val):
+                for idx, parameter in enumerate(parameters_values):
 
-                    if f < 0:
-                        signo = -1
-                        f = abs(f)
+                    # parameter will be in degrees, minutes and seconds
+                    # idx=0 -> degrees
+                    # idx=1 -> minutes
+                    # idx=2 -> seconds
+                    # maybe a lamda function with map?
+                    if parameter < 0:
+                        sign = -1
+                        parameter = abs(parameter)
 
-                    otarola_format[key] += f / 60 ** idx
+                    update_format[parameter_observatory] += parameter / (60 ** idx)
                 ###############################################################
-                otarola_format[key] = signo * otarola_format[key]
+                update_format[parameter_observatory] = sign * update_format[parameter_observatory]
 
             else:
-                otarola_format[key] = val
+                update_format[parameter_observatory] = parameters_values
 
-            if key == "longitude":
+            if parameter_observatory == "longitude":
 
-                if otarola_format[key] > 180.0:
-                    otarola_format[key] = 360 - otarola_format[key]
+                if update_format[parameter_observatory] > 180.0:
+                    update_format[parameter_observatory] = 360 - update_format[parameter_observatory]
 
                 else:
-                    otarola_format[key] = -otarola_format[key]
+                    update_format[parameter_observatory] = -update_format[parameter_observatory]
 
-        satellite_track[observatory] = otarola_format
+        observatories_update[name_observatory] = update_format
     ###########################################################################
-    return satellite_track
+    return observatories_update
