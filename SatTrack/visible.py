@@ -25,9 +25,10 @@ class Compute:
     """Class to compute whether a satellite is visible or not"""
 
     def __init__(self,
+        satellite: "str",
         time_parameters: "dictionary",
-        time_zone: "int",
         observatory_data: "dictionary",
+        tle_file_location: "str",
         ):
         """
         PARAMETERS
@@ -38,36 +39,81 @@ class Compute:
 
 
         """
-        self.day = time_parameters["day"]
-        self.window = time_parameters["window"]
+        window = time_parameters["window"]
 
-        if self.window not in ["morning", "evening"]:
+        if window not in ["morning", "evening"]:
             print(f'window keyword must be of either "morning" or "evening"')
             sys.exit()
 
-        self.time_zone = time_zone
+        self.satellite = satellite
+        # self.window = time_parameters["window"]
+        self.time_parameters = self.set_time_parameters(time_parameters)
+
 
         self.observatory_data = self._set_observatory_data(observatory_data)
 
-        self.observer = None
+        self.tle_file_location = tle_file_location
+
+        # self.observer = None
 
 
     ###########################################################################
+    def compute_visibility_of_satellite(self):
+
+        # if time_delta = 60, then it will move minute by minute
+        delta_in_seconds = self.time_parameters["delta"]
+        time_delta_in_seconds = datetime.timedelta(seconds=delta_in_seconds)
+
+        [hour, day] = self.set_window()
+
+        date_time = datetime.datetime(
+            year=self.time_parameters["year"],
+            month=self.time_parameters["month"],
+            day=day,
+            hour=hour,
+            minute=0,
+            second=0
+        )
+
+        return [time_delta_in_seconds, date_time]
+    ###########################################################################
+    def set_time_parameters(self, time_parameters: "dictionary"):
+
+        time_parameters["year"] = int(time_parameters["year"])
+        time_parameters["month"] = int(time_parameters["month"])
+        time_parameters["day"] = int(time_parameters["day"])
+        time_parameters["delta"] = float(time_parameters["delta"])
+
+        return time_parameters
+    ###########################################################################
+    ###########################################################################
+    def set_dark_satellite(self):
+
+        dark_satellite = Orbital(
+                                    self.satellite,
+                                    tle_file=self.tle_file_location
+                                )
+
+        return dark_satellite
+    ###########################################################################
     def set_observer(self):
 
-        self.observer = ephem.Observer()
-        self.observer.epoch = "2000"
-        self.observer.pressure = 1010
-        self.observer.temp = 15
-        # observatory_latitude = observatory_data["latitude"]
-        # observer.lat = np.radians(observatory_latitude)
-        # ################################################################
-        # observatory_longitude = observatory_data["longitude"]
-        # observer.lon = np.radians(observatory_longitude)
-        # ################################################################
-        # observatory_altitude = observatory_data["altitude"] / 1000.0  # in km
-        # observer.elevation = observatory_data["altitude"]  # in meters
-        pass
+        observer = ephem.Observer()
+        observer.epoch = "2000"
+        observer.pressure = 1010
+        observer.temp = 15
+        observatory_latitude = self.observatory_data["latitude"] # degrees
+        observer.lat = np.radians(observatory_latitude)
+        #######################################################################
+        observatory_longitude = self.observatory_data["longitude"] # degrees
+        observer.lon = np.radians(observatory_longitude)
+        #######################################################################
+        # observatory_altitude = self.observatory_data["altitude"] / 1000.0  # in km
+        observer.elevation = self.observatory_data["altitude"]  # in meters
+        # observatory_time_zone = observatory_data["tz"]
+        self.observer = observer
+
+        return self.observer
     ###########################################################################
     def _set_observatory_data(self, data_observatory: "dictionary"):
         """
@@ -150,23 +196,27 @@ class Compute:
                 day:
         """
 
-        if (self.window == "morning") and (self.time_zone < 0):
+        window = self.time_parameters["window"]
+        day = self.time_parameters["day"]
+        observatory_time_zone = self.observatory_data["tz"]
 
-            self.day -= 1
+        if (window == "morning") and (observatory_time_zone < 0):
 
-        hour = self._set_hour()
+            day -= 1
 
-        return [hour, self.day]
+        hour = self._set_hour(window,observatory_time_zone)
+
+        return [hour, day]
     ###########################################################################
-    def _set_hour(self)-> "int":
+    def _set_hour(self, window: "str",observatory_time_zone: "int")-> "int":
 
-        if self.window == "evening":
+        if window == "evening":
 
-            hour = 12 + self.time_zone
+            hour = 12 + observatory_time_zone
 
-        elif self.window == "morning":
+        elif window == "morning":
 
-            hour = 0 + self.time_zone
+            hour = 0 + observatory_time_zone
 
         if hour >= 24:
             hour -= 24
@@ -214,41 +264,47 @@ def compute_visible(
     """
     convert = ConvertUnits()
     ############################################################################
-    observer = ephem.Observer()
-    observer.epoch = "2000"
-    observer.pressure = 1010
-    observer.temp = 15
+    # observer = ephem.Observer()
+    # observer.epoch = "2000"
+    # observer.pressure = 1010
+    # observer.temp = 15
     ################################################################
     observatory_latitude = observatory_data["latitude"]
-    observer.lat = np.radians(observatory_latitude)
+    # observer.lat = np.radians(observatory_latitude)
     ################################################################
     observatory_longitude = observatory_data["longitude"]
-    observer.lon = np.radians(observatory_longitude)
+    # observer.lon = np.radians(observatory_longitude)
     ################################################################
     observatory_altitude = observatory_data["altitude"] / 1000.0  # in km
-    observer.elevation = observatory_data["altitude"]  # in meters
+    # observer.elevation = observatory_data["altitude"]  # in meters
     ################################################################
     observatory_time_zone = observatory_data["tz"]
     ############################################################################
-    darksat = Orbital(satellite, tle_file=f"{tle_file}")
+    # darksat = Orbital(satellite, tle_file=f"{tle_file}")
     ############################################################################
-    time_parameters = {"day": day, "window": window}
+    time_parameters = {
+        "year": year, "month": month, "day": day,
+        "delta": 60, "window": window}
     test_observatory = {'name': 'European Southern Observatory, La Silla',
         'longitude': [70, 43.8],
         'latitude': [-29, 15.4],
         'altitude': 2347.0,
         'tz': 4}
     compute_class = Compute(
+        satellite,
         time_parameters,
-        time_zone=observatory_time_zone,
-        observatory_data=test_observatory,
+        test_observatory,
+        tle_file,
         )
 
-    [hour, day] = compute_class.set_window()
+    # [hour, day] = compute_class.set_window()
+    darksat = compute_class.set_dark_satellite()
+    observer = compute_class.set_observer()
     ############################################################################
     # if time_delta = 60, then it will move minute by minute
-    time_delta = datetime.timedelta(seconds=seconds_delta)
-    date_time = datetime.datetime(year, month, day, hour, minute=0, second=0)
+    # time_delta = datetime.timedelta(seconds=seconds_delta)
+    # date_time = datetime.datetime(year, month, day, hour, minute=0, second=0)
+    [time_delta, date_time] = compute_class.compute_visibility_of_satellite()
     ############################################################################
     satellite_azimuth0 = 0
     satellite_altitude0 = 0

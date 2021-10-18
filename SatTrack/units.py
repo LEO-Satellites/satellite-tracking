@@ -34,7 +34,8 @@ class ConvertUnits:
     def radians_to_degrees(self, radians: "float")->"float":
         """Convert radians to degrees"""
 
-        degrees = radians * 180.0 / np.pi
+        # degrees = radians * 180.0 / np.pi
+        degrees = np.rad2deg(radians)
 
         return degrees
 
