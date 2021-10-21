@@ -7,21 +7,24 @@ import numpy as np
 import pyorbital
 from pyorbital.orbital import Orbital
 
+from SatTrack.superclasses import FileDirectory
 from SatTrack.format import format
 from SatTrack.units import ConvertUnits
 from SatTrack.observatory import get_observatory_data
 ###############################################################################
-def init_download_worker(input_counter):
+def init_compute_visibility_worker(input_counter: "mp.Value"):
     """
-    Initialize worker for download
+    Initialize worker for compute or be simulate
+
     PARAMETERS
-    counter:
+        counter: counter with locl method to keep track of satellite
+            visibility computation
     """
     global counter
 
     counter = input_counter
 ###############################################################################
-class Compute:
+class ComputeVisibility(FileDirectory):
     """Class to compute whether a satellite is visible or not"""
 
     def __init__(self,
@@ -388,7 +391,7 @@ def compute_visible(
         'latitude': [-29, 15.4],
         'altitude': 2347.0,
         'tz': 4}
-    compute_class = Compute(
+    compute_class = ComputeVisibility(
         satellite,
         time_parameters,
         test_observatory,
