@@ -55,33 +55,34 @@ class ComputeVisibility(FileDirectory):
 
 
     ###########################################################################
-    # def compute_visibility_of_satellite(self):
+    def compute_visibility_of_satellite(self, satellite):
 
         # if time_delta = 60, then it will move minute by minute
-        # time_step_in_seconds = self.time_parameters["delta"]
-        # # time_delta_in_seconds = datetime.timedelta(seconds=time_step_in_seconds)
+        time_step_in_seconds = self.time_parameters["delta"]
 
-        # [hour, day] = self.set_window()
+        time_delta_in_seconds = \
+            datetime.timedelta(seconds=time_step_in_seconds)
 
-        # date_time = datetime.datetime(
-            # year=self.time_parameters["year"],
-            # month=self.time_parameters["month"],
-            # day=day,
-            # hour=hour,
-            # minute=0,
-            # second=0
-        # )
+        [hour, day] = self.set_window()
 
-       #  previous_satellite_azimuth = 0
-        # previous_satellite_altitude = 0
-        #######################################################################
-        # visible_satellite_data = []
-        #######################################################################
-        # number_iterations = (12 * 60 * 60) / time_step_in_seconds
-        # number_iterations = range(int(number_iterations))
-        # time_range = np.linspace()
+        date_time = datetime.datetime(
+            year=self.time_parameters["year"],
+            month=self.time_parameters["month"],
+            day=day,
+            hour=hour,
+            minute=0,
+            second=0
+        )
 
-        # print(f"Compute visibility of: {self.satellite}", end="\r")
+        previous_satellite_azimuth = 0
+        previous_satellite_altitude = 0
+        ######################################################################
+        visible_satellite_data = []
+        ######################################################################
+        number_iterations = (12 * 60 * 60) / time_step_in_seconds
+        number_iterations = range(int(number_iterations))
+
+        print(f"Compute visibility of: {satellite}", end="\r")
 
         # for time_step in number_iterations:
         #     ###################################################################
@@ -277,30 +278,30 @@ class ComputeVisibility(FileDirectory):
         # observer.date = ephem.date(date_time)
         # return observer
     ###########################################################################
-    # def set_window(self)-> "list":
-    #     """
-    #     Set day and  hour of observation according to time zone
-    #
-    #     OUTPUTS
-    #
-    #         [hour: "int", day: "int"]:
-    #             set according to time window and time zone
-    #
-    #             hour:
-    #             day:
-    #     """
-    #
-    #     window = self.time_parameters["window"]
-    #     day = self.time_parameters["day"]
-    #     observatory_time_zone = self.observatory_data["tz"]
-    #
-    #     if (window == "morning") and (observatory_time_zone < 0):
-    #
-    #         day -= 1
-    #
-    #     hour = self._set_hour(window,observatory_time_zone)
-    #
-    #     return [hour, day]
+    def set_window(self)-> "list":
+        """
+        Set day and  hour of observation according to time zone
+
+        OUTPUTS
+
+            [hour: "int", day: "int"]:
+                set according to time window and time zone
+
+                hour:
+                day:
+        """
+
+        window = self.time_parameters["window"]
+        day = self.time_parameters["day"]
+        observatory_time_zone = self.observatory_data["tz"]
+
+        if (window == "morning") and (observatory_time_zone < 0):
+
+            day -= 1
+
+        hour = self._set_hour(window,observatory_time_zone)
+
+        return [hour, day]
     ###########################################################################
     def _set_hour(self, window: "str",observatory_time_zone: "int")-> "int":
 
