@@ -49,10 +49,11 @@ if __name__ == "__main__":
     observatory_name = parser.get("observation", "observatory")
     observatory_data = observatories[f"{observatory_name}"]
 
-    compute_visivility = ComputeVisibility(
+    compute_visibility = ComputeVisibility(
         time_parameters=time_parameters,
         observatory_data=observatory_data,
         tle_file_location=tle_file_location,
         )
 
-    compute_visivility.set_observer()
+    compute_visibility._set_observer()
+    compute_visibility._set_dark_satellite(satellite="ONEWEB-0008")

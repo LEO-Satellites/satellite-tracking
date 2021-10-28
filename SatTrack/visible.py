@@ -184,16 +184,16 @@ class ComputeVisibility(FileDirectory):
 
         return time_parameters
     ###########################################################################
-    # def set_dark_satellite(self):
-    #
-    #     dark_satellite = Orbital(
-    #                                 self.satellite,
-    #                                 tle_file=self.tle_file_location
-    #                             )
-    #
-    #     return dark_satellite
+    def _set_dark_satellite(self, satellite):
+
+        dark_satellite = Orbital(
+                                    satellite,
+                                    tle_file=self.tle_file_location
+                                )
+
+        return dark_satellite
     ###########################################################################
-    def set_observer(self):
+    def _set_observer(self):
 
         observatory_name = self.observatory_data["name"]
         print(f"Set observer: {observatory_name}")
