@@ -131,24 +131,40 @@ class ComputeVisibility(FileDirectory):
                 )
             ###################################################################
             self._update_observer_date(date_time)
-            
-            ra, dec = self.observer.radec_of(
-                np.radians(satellite_azimuth),
-                np.radians(satellite_altitude)
-            )
+
+            [
+                [
+                    ra_satellite_h,
+                    ra_satellite_m,
+                    ra_satellite_s
+                ],
+                [
+                    dec_satellite_d,
+                    dec_satellite_m,
+                    dec_satellite_s
+                ]
+            ] = self._get_satellite_RA_DEC_from_azimuth_and_altitude(
+                    satellite_azimuth,
+                    satellite_altitude
+                )
+            #
+            # RA_satellite, DEC_satellite = self.observer.radec_of(
+            #     np.radians(satellite_azimuth),
+            #     np.radians(satellite_altitude)
+            # )
+            # ##################################################################
+            # [
+            #     ra_satellite_h,
+            #     ra_satellite_m,
+            #     ra_satellite_s
+            # ]= convert.RA_in_radians_to_hh_mm_ss(RA=RA_satellite)
+            #
+            # [
+            #     dec_satellite_d,
+            #     dec_satellite_m,
+            #     dec_satellite_s
+            # ]= convert.DEC_in_radians_to_dd_mm_ss(DEC=DEC_satellite)
             ###################################################################
-        #     [
-        #         ra_satellite_h,
-        #         ra_satellite_m,
-        #         ra_satellite_s
-        #     ]= convert.RA_in_radians_to_hh_mm_ss(RA=ra)
-        #
-        #     [
-        #         dec_satellite_d,
-        #         dec_satellite_m,
-        #         dec_satellite_s
-        #     ]= convert.DEC_in_radians_to_dd_mm_ss(DEC=dec)
-        #     ###################################################################
         #     visible = (satellite_altitude > satellite_altitude_lower_bound) and (
         #         sun_zenith_lower < sun_zenith_angle < sun_zenith_upper
         #     )
@@ -194,6 +210,41 @@ class ComputeVisibility(FileDirectory):
         # if len(visible_satellite_data) > 0:
         #     return [[satellite] + data for data in visible_satellite_data]
         # return [time_delta_in_seconds, date_time]
+    ###########################################################################
+    def _get_satellite_RA_DEC_from_azimuth_and_altitude(self,
+        satellite_azimuth,
+        satellite_altitude
+        ):
+
+        RA_satellite, DEC_satellite = self.observer.radec_of(
+            np.radians(satellite_azimuth),
+            np.radians(satellite_altitude)
+        )
+        ##################################################################
+        [
+            ra_satellite_h,
+            ra_satellite_m,
+            ra_satellite_s
+        ]= convert.RA_in_radians_to_hh_mm_ss(RA=RA_satellite)
+
+        [
+            dec_satellite_d,
+            dec_satellite_m,
+            dec_satellite_s
+        ]= convert.DEC_in_radians_to_dd_mm_ss(DEC=DEC_satellite)
+
+        return [
+            [
+                ra_satellite_h,
+                ra_satellite_m,
+                ra_satellite_s
+            ],
+            [
+                dec_satellite_d,
+                dec_satellite_m,
+                dec_satellite_s
+            ]
+        ]
     ###########################################################################
     def _set_time_parameters(self, time_parameters: "dictionary"):
 
