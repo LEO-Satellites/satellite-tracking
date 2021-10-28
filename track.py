@@ -58,4 +58,4 @@ if __name__ == "__main__":
         tle_file_location=tle_file_location,
         )
 
-    compute_visibility.compute_visibility_of_satellite(satellite="ONEWEB-0008")
+    results = compute_visibility.compute_visibility_of_satellite(satellite="ONEWEB-0008")
