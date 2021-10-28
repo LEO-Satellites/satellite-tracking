@@ -57,6 +57,10 @@ class ComputeVisibility(FileDirectory):
     ###########################################################################
     def compute_visibility_of_satellite(self, satellite):
 
+        ######################################################################
+        self._set_observer()
+        satellite = self._set_dark_satellite(satellite)
+        ######################################################################
         # if time_delta = 60, then it will move minute by minute
         time_step_in_seconds = self.time_parameters["delta"]
 
@@ -82,27 +86,30 @@ class ComputeVisibility(FileDirectory):
         number_iterations = (12 * 60 * 60) / time_step_in_seconds
         number_iterations = range(int(number_iterations))
 
-        print(f"Compute visibility of: {satellite}", end="\r")
+        # print(f"Compute visibility of: {satellite}", end="\r")
+        print(f"Compute visibility of: {satellite}")
 
-        # for time_step in number_iterations:
-        #     ###################################################################
-        #     # computes the current latitude, longitude of the satellite's
-        #     # footprint and its current orbital altitude
-        #     try:
-        #         darksat_latitude_logitude = darksat.get_lonlatalt(date_time)
-        #     except:
-        #         return None
-        #     ###################################################################
-        #     # uses the observer coordinates to compute the satellite azimuth
-        #     # and elevation, negative elevation implies satellite is under
-        #     # the horizon
-        #     satellite_azimuth, satellite_altitude = darksat.get_observer_look(
-        #         date_time,
-        #         observatory_longitude,
-        #         observatory_latitude,
-        #         observatory_altitude,
-        #     )
-        #     ###################################################################
+        for time_step in number_iterations:
+            ###################################################################
+            # computes the current latitude, longitude of the satellite's
+            # footprint and its current orbital altitude
+            try:
+                satellite_latitude_logitude = \
+                    satellite.get_lonlatalt(date_time)
+            except:
+                return None
+            ###################################################################
+            # uses the observer coordinates to compute the satellite azimuth
+            # and elevation, negative elevation implies satellite is under
+            # the horizon
+            satellite_azimuth, satellite_altitude = \
+                dark_satellite.get_observer_look(
+                    date_time,
+                    observatory_longitude,
+                    observatory_latitude,
+                    observatory_altitude,
+                )
+            ###################################################################
         #     # gets the Sun's RA and DEC at the time of observation
         #     sun_ra, sun_dec = pyorbital.astronomy.sun_ra_dec(date_time)
         #
