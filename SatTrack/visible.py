@@ -28,7 +28,6 @@ class ComputeVisibility(FileDirectory):
     """Class to compute whether a satellite is visible or not"""
 
     def __init__(self,
-        satellite: "str",
         time_parameters: "dictionary",
         observatory_data: "dictionary",
         tle_file_location: "str",
@@ -36,61 +35,56 @@ class ComputeVisibility(FileDirectory):
         """
         PARAMETERS
 
-            day: day of observation
-            window: specifies if observation is either morning or evening
-            time_zone: time zone of the observatory
-
-
         """
+    ###########################################################################
         window = time_parameters["window"]
 
         if window not in ["morning", "evening"]:
             print(f'window keyword must be of either "morning" or "evening"')
             sys.exit()
+    ###########################################################################
 
-        self.satellite = satellite
-        # self.window = time_parameters["window"]
-        self.time_parameters = self.set_time_parameters(time_parameters)
+        self.time_parameters = self._set_time_parameters(time_parameters)
 
 
         self.observatory_data = self._set_observatory_data(observatory_data)
 
         self.tle_file_location = tle_file_location
 
-        # self.observer = None
+        self.observer = None
 
 
     ###########################################################################
     def compute_visibility_of_satellite(self):
 
         # if time_delta = 60, then it will move minute by minute
-        time_step_in_seconds = self.time_parameters["delta"]
-        time_delta_in_seconds = datetime.timedelta(seconds=time_step_in_seconds)
+        # time_step_in_seconds = self.time_parameters["delta"]
+        # # time_delta_in_seconds = datetime.timedelta(seconds=time_step_in_seconds)
 
-        [hour, day] = self.set_window()
+        # [hour, day] = self.set_window()
 
-        date_time = datetime.datetime(
-            year=self.time_parameters["year"],
-            month=self.time_parameters["month"],
-            day=day,
-            hour=hour,
-            minute=0,
-            second=0
-        )
+        # date_time = datetime.datetime(
+            # year=self.time_parameters["year"],
+            # month=self.time_parameters["month"],
+            # day=day,
+            # hour=hour,
+            # minute=0,
+            # second=0
+        # )
 
-        previous_satellite_azimuth = 0
-        previous_satellite_altitude = 0
+       #  previous_satellite_azimuth = 0
+        # previous_satellite_altitude = 0
         #######################################################################
-        visible_satellite_data = []
+        # visible_satellite_data = []
         #######################################################################
-        number_iterations = (12 * 60 * 60) / time_step_in_seconds
-        number_iterations = range(int(number_iterations))
+        # number_iterations = (12 * 60 * 60) / time_step_in_seconds
+        # number_iterations = range(int(number_iterations))
         # time_range = np.linspace()
 
-        print(f"Compute visibility of: {self.satellite}", end="\r")
+        # print(f"Compute visibility of: {self.satellite}", end="\r")
 
         # for time_step in number_iterations:
-        #     ####################################################################
+        #     ###################################################################
         #     # computes the current latitude, longitude of the satellite's
         #     # footprint and its current orbital altitude
         #     try:
@@ -169,7 +163,7 @@ class ComputeVisibility(FileDirectory):
         #             sun_zenith_angle,
         #             angular_velocity,
         #         )
-        #         ####################################################################
+        #         ###################################################################
         #         visible_satellite_data.append([data_str, data_str_simple])
         #     ########################################################################
         #     # current position, time as the "previous" for next observation
@@ -179,9 +173,9 @@ class ComputeVisibility(FileDirectory):
         # ############################################################################
         # if len(visible_satellite_data) > 0:
         #     return [[satellite] + data for data in visible_satellite_data]
-        return [time_delta_in_seconds, date_time]
+        # return [time_delta_in_seconds, date_time]
     ###########################################################################
-    def set_time_parameters(self, time_parameters: "dictionary"):
+    def _set_time_parameters(self, time_parameters: "dictionary"):
 
         time_parameters["year"] = int(time_parameters["year"])
         time_parameters["month"] = int(time_parameters["month"])
@@ -190,34 +184,33 @@ class ComputeVisibility(FileDirectory):
 
         return time_parameters
     ###########################################################################
-    ###########################################################################
-    def set_dark_satellite(self):
-
-        dark_satellite = Orbital(
-                                    self.satellite,
-                                    tle_file=self.tle_file_location
-                                )
-
-        return dark_satellite
+    # def set_dark_satellite(self):
+    #
+    #     dark_satellite = Orbital(
+    #                                 self.satellite,
+    #                                 tle_file=self.tle_file_location
+    #                             )
+    #
+    #     return dark_satellite
     ###########################################################################
     def set_observer(self):
 
+        observatory_name = self.observatory_data["name"]
+        print(f"Set observer: {observatory_name}")
         observer = ephem.Observer()
         observer.epoch = "2000"
         observer.pressure = 1010
         observer.temp = 15
+        #######################################################################
         observatory_latitude = self.observatory_data["latitude"] # degrees
         observer.lat = np.radians(observatory_latitude)
         #######################################################################
         observatory_longitude = self.observatory_data["longitude"] # degrees
         observer.lon = np.radians(observatory_longitude)
         #######################################################################
-        # observatory_altitude = self.observatory_data["altitude"] / 1000.0  # in km
         observer.elevation = self.observatory_data["altitude"]  # in meters
-        # observatory_time_zone = observatory_data["tz"]
         self.observer = observer
 
-        return self.observer
     ###########################################################################
     def _set_observatory_data(self, data_observatory: "dictionary"):
         """
@@ -280,34 +273,34 @@ class ComputeVisibility(FileDirectory):
 
         return update_format
     ###########################################################################
-    def update_observer_date(self, observer, date_time):
-        observer.date = ephem.date(date_time)
-        return observer
+    # def update_observer_date(self, observer, date_time):
+        # observer.date = ephem.date(date_time)
+        # return observer
     ###########################################################################
-    def set_window(self)-> "list":
-        """
-        Set day and  hour of observation according to time zone
-
-        OUTPUTS
-
-            [hour: "int", day: "int"]:
-                set according to time window and time zone
-
-                hour:
-                day:
-        """
-
-        window = self.time_parameters["window"]
-        day = self.time_parameters["day"]
-        observatory_time_zone = self.observatory_data["tz"]
-
-        if (window == "morning") and (observatory_time_zone < 0):
-
-            day -= 1
-
-        hour = self._set_hour(window,observatory_time_zone)
-
-        return [hour, day]
+    # def set_window(self)-> "list":
+    #     """
+    #     Set day and  hour of observation according to time zone
+    #
+    #     OUTPUTS
+    #
+    #         [hour: "int", day: "int"]:
+    #             set according to time window and time zone
+    #
+    #             hour:
+    #             day:
+    #     """
+    #
+    #     window = self.time_parameters["window"]
+    #     day = self.time_parameters["day"]
+    #     observatory_time_zone = self.observatory_data["tz"]
+    #
+    #     if (window == "morning") and (observatory_time_zone < 0):
+    #
+    #         day -= 1
+    #
+    #     hour = self._set_hour(window,observatory_time_zone)
+    #
+    #     return [hour, day]
     ###########################################################################
     def _set_hour(self, window: "str",observatory_time_zone: "int")-> "int":
 

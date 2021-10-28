@@ -50,12 +50,9 @@ if __name__ == "__main__":
     observatory_data = observatories[f"{observatory_name}"]
 
     compute_visivility = ComputeVisibility(
-        satellite_brand=satellite_brand,
-        list_satellites=satellites_list,
         time_parameters=time_parameters,
         observatory_data=observatory_data,
         tle_file_location=tle_file_location,
         )
 
-    darksat = compute_visivility.set_dark_satellite()
-    observer = compute_visivility.set_observer()
+    compute_visivility.set_observer()
