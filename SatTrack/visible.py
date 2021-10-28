@@ -24,6 +24,8 @@ def init_compute_visibility_worker(input_counter: "mp.Value"):
 
     counter = input_counter
 ###############################################################################
+convert = ConvertUnits()
+
 class ComputeVisibility(FileDirectory):
     """Class to compute whether a satellite is visible or not"""
 
@@ -94,28 +96,33 @@ class ComputeVisibility(FileDirectory):
             # computes the current latitude, longitude of the satellite's
             # footprint and its current orbital altitude
             try:
-                satellite_latitude_logitude = \
+                satellite_latitude_longitude = \
                     satellite.get_lonlatalt(date_time)
             except:
                 return None
             ###################################################################
             # uses the observer coordinates to compute the satellite azimuth
             # and elevation, negative elevation implies satellite is under
-            # the horizon
+            # the horizon. altitude must be in kilometers
+
+            observatory_longitude = self.observatory_data["longitude"]
+            observatory_latitude = self.observatory_data["latitude"]
+            observatory_altitude = self.observatory_data["altitude"] / 1000.
+
             satellite_azimuth, satellite_altitude = \
-                dark_satellite.get_observer_look(
+                satellite.get_observer_look(
                     date_time,
                     observatory_longitude,
                     observatory_latitude,
                     observatory_altitude,
                 )
             ###################################################################
-        #     # gets the Sun's RA and DEC at the time of observation
-        #     sun_ra, sun_dec = pyorbital.astronomy.sun_ra_dec(date_time)
-        #
-        #     sun_RA = convert.RA_in_radians_to_hours(RA=sun_ra)
-        #     sun_DEC = convert.radians_to_degrees(radians=sun_dec)
-        #     ###################################################################
+            # gets the Sun's RA and DEC at the time of observation
+            sun_RA, sun_DEC = pyorbital.astronomy.sun_ra_dec(date_time)
+
+            sun_RA = convert.RA_in_radians_to_hours(RA=sun_RA)
+            sun_DEC = convert.radians_to_degrees(radians=sun_DEC)
+            ###################################################################
         #     sun_zenith_angle = pyorbital.astronomy.sun_zenith_angle(
         #         date_time, observatory_longitude, observatory_latitude
         #     )
