@@ -123,10 +123,13 @@ class ComputeVisibility(FileDirectory):
             sun_RA = convert.RA_in_radians_to_hours(RA=sun_RA)
             sun_DEC = convert.radians_to_degrees(radians=sun_DEC)
             ###################################################################
-        #     sun_zenith_angle = pyorbital.astronomy.sun_zenith_angle(
-        #         date_time, observatory_longitude, observatory_latitude
-        #     )
-        #     ##################################################################
+            sun_zenith_angle = \
+                pyorbital.astronomy.sun_zenith_angle(
+                    date_time,
+                    observatory_longitude,
+                    observatory_latitude
+                )
+            ##################################################################
         #     observer.date = ephem.date(date_time)
         #     ra, dec = observer.radec_of(
         #         np.radians(satellite_azimuth), np.radians(satellite_altitude)
