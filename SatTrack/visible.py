@@ -55,7 +55,7 @@ class ComputeVisibility(FileDirectory):
 
 
     ###########################################################################
-    def compute_visibility_of_satellite(self):
+    # def compute_visibility_of_satellite(self):
 
         # if time_delta = 60, then it will move minute by minute
         # time_step_in_seconds = self.time_parameters["delta"]
@@ -91,7 +91,7 @@ class ComputeVisibility(FileDirectory):
         #         darksat_latitude_logitude = darksat.get_lonlatalt(date_time)
         #     except:
         #         return None
-        #     ####################################################################
+        #     ###################################################################
         #     # uses the observer coordinates to compute the satellite azimuth
         #     # and elevation, negative elevation implies satellite is under
         #     # the horizon
@@ -101,22 +101,22 @@ class ComputeVisibility(FileDirectory):
         #         observatory_latitude,
         #         observatory_altitude,
         #     )
-        #     ####################################################################
+        #     ###################################################################
         #     # gets the Sun's RA and DEC at the time of observation
         #     sun_ra, sun_dec = pyorbital.astronomy.sun_ra_dec(date_time)
         #
         #     sun_RA = convert.RA_in_radians_to_hours(RA=sun_ra)
         #     sun_DEC = convert.radians_to_degrees(radians=sun_dec)
-        #     ####################################################################
+        #     ###################################################################
         #     sun_zenith_angle = pyorbital.astronomy.sun_zenith_angle(
         #         date_time, observatory_longitude, observatory_latitude
         #     )
-        #     ####################################################################
+        #     ##################################################################
         #     observer.date = ephem.date(date_time)
         #     ra, dec = observer.radec_of(
         #         np.radians(satellite_azimuth), np.radians(satellite_altitude)
         #     )
-        #     #######################################################################
+        #     ##################################################################
         #     [
         #         ra_satellite_h,
         #         ra_satellite_m,
@@ -128,7 +128,7 @@ class ComputeVisibility(FileDirectory):
         #         dec_satellite_m,
         #         dec_satellite_s
         #     ]= convert.DEC_in_radians_to_dd_mm_ss(DEC=dec)
-        #     #######################################################################
+        #     ###################################################################
         #     visible = (satellite_altitude > satellite_altitude_lower_bound) and (
         #         sun_zenith_lower < sun_zenith_angle < sun_zenith_upper
         #     )
@@ -141,7 +141,7 @@ class ComputeVisibility(FileDirectory):
         #         delta_azimuth = (satellite_azimuth - previous_satellite_azimuth) * 3600
         #         ## difference in altitude in arcsecs
         #         delta_altitude = (satellite_altitude - previous_satellite_altitude) * 3600
-        #         ####################################################################
+        #         ###################################################################
         #         dt = time_delta.total_seconds()
         #         angular_velocity = (
         #             np.sqrt(delta_azimuth ** 2 + delta_altitude ** 2) / dt
@@ -165,12 +165,12 @@ class ComputeVisibility(FileDirectory):
         #         )
         #         ###################################################################
         #         visible_satellite_data.append([data_str, data_str_simple])
-        #     ########################################################################
+        #     ###################################################################
         #     # current position, time as the "previous" for next observation
         #     previous_satellite_azimuth = satellite_azimuth
         #     previous_satellite_altitude = satellite_altitude
         #     date_time += time_delta
-        # ############################################################################
+        # #####################################################################
         # if len(visible_satellite_data) > 0:
         #     return [[satellite] + data for data in visible_satellite_data]
         # return [time_delta_in_seconds, date_time]

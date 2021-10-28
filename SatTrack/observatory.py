@@ -1,13 +1,13 @@
-################################################################################
+###############################################################################
 # observatory - abbreviated observatory name
 # name - full observatory name
 # longitude - observatory longitude in degrees *west*
 # latitude - observatory latitude in degrees
 # altitude - observatory altitude in meters above sea level
 # tz - time zone, number of hours *west* of Greenwich
-################################################################################
+###############################################################################
 # Details taken from the IDL script observatories.pro
-################################################################################
+###############################################################################
 observatories = {
     "kpno": {
         "name": "Kitt Peak National Observatory",
