@@ -32,6 +32,7 @@ class ComputeVisibility(FileDirectory):
     def __init__(self,
         time_parameters: "dictionary",
         observatory_data: "dictionary",
+        observations_constraints: "dictionary",
         tle_file_location: "str",
         ):
         """
@@ -50,6 +51,8 @@ class ComputeVisibility(FileDirectory):
 
 
         self.observatory_data = self._set_observatory_data(observatory_data)
+
+        self.constraints = observations_constraints
 
         self.tle_file_location = tle_file_location
 
@@ -140,6 +143,7 @@ class ComputeVisibility(FileDirectory):
                     satellite_altitude
                 )
             ###################################################################
+            lowest_altitude_satellite = self.constraints[""]
         #     visible = (satellite_altitude > satellite_altitude_lower_bound) and (
         #         sun_zenith_lower < sun_zenith_angle < sun_zenith_upper
         #     )

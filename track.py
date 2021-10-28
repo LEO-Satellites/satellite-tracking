@@ -25,7 +25,7 @@ if __name__ == "__main__":
     parser.read("track.ini")
     ###########################################################################
     # downloading tle file
-    satellite_brand = parser.get("satellite", "satellite")
+    satellite_brand = parser.get("observation", "satellite")
     tle_directory = parser.get("directories", "tle")
 
     tle = TLE(
@@ -49,9 +49,12 @@ if __name__ == "__main__":
     observatory_name = parser.get("observation", "observatory")
     observatory_data = observatories[f"{observatory_name}"]
 
+    observations_constraints = dict(parser.items("observation"))
+
     compute_visibility = ComputeVisibility(
         time_parameters=time_parameters,
         observatory_data=observatory_data,
+        observations_constraints = observations_constraints
         tle_file_location=tle_file_location,
         )
 
