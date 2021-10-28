@@ -126,13 +126,6 @@ class ComputeVisibility(FileDirectory):
             sun_RA = convert.RA_in_radians_to_hours(RA=sun_RA)
             sun_DEC = convert.radians_to_degrees(radians=sun_DEC)
             ###################################################################
-            sun_zenith_angle = \
-                pyorbital.astronomy.sun_zenith_angle(
-                    date_time,
-                    observatory_longitude,
-                    observatory_latitude
-                )
-            ###################################################################
             self._update_observer_date(date_time)
 
             [
@@ -143,13 +136,28 @@ class ComputeVisibility(FileDirectory):
                     satellite_altitude
                 )
             ###################################################################
-            lowest_altitude_satellite = self.constraints[""]
-        #     visible = (satellite_altitude > satellite_altitude_lower_bound) and (
-        #         sun_zenith_lower < sun_zenith_angle < sun_zenith_upper
-        #     )
-        #
-        #     if visible:
-        #         ################################################################
+            lowest_altitude_satellite = \
+                float(self.constraints["lowest_altitude_satellite"])
+
+            ###################################################################
+            sun_zenith_angle = pyorbital.astronomy.sun_zenith_angle(
+                date_time,
+                observatory_longitude,
+                observatory_latitude
+            )
+
+            sun_zenith_highest = float(self.constraints["sun_zenith_highest"])
+            sun_zenith_lowest = float(self.constraints["sun_zenith_lowest"])
+            ###################################################################
+
+            satellite_is_visible = \
+                (satellite_altitude > lowest_altitude_satellite) \
+                and \
+                (sun_zenith_lowest < sun_zenith_angle < sun_zenith_highest)
+
+            if satellite_is_visible:
+                print(f"{satellite} is visible")
+                ################################################################
         #         # compute the change in AZ and ALT of the satellite position
         #         # between current and previous observation
         #         ## difference in azimuth arcsecs
