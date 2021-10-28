@@ -129,12 +129,14 @@ class ComputeVisibility(FileDirectory):
                     observatory_longitude,
                     observatory_latitude
                 )
-            ##################################################################
-        #     observer.date = ephem.date(date_time)
-        #     ra, dec = observer.radec_of(
-        #         np.radians(satellite_azimuth), np.radians(satellite_altitude)
-        #     )
-        #     ##################################################################
+            ###################################################################
+            self._update_observer_date(date_time)
+            
+            ra, dec = self.observer.radec_of(
+                np.radians(satellite_azimuth),
+                np.radians(satellite_altitude)
+            )
+            ###################################################################
         #     [
         #         ra_satellite_h,
         #         ra_satellite_m,
@@ -291,9 +293,9 @@ class ComputeVisibility(FileDirectory):
 
         return update_format
     ###########################################################################
-    # def update_observer_date(self, observer, date_time):
-        # observer.date = ephem.date(date_time)
-        # return observer
+    def _update_observer_date(self, date_time):
+
+        self.observer.date = ephem.date(date_time)
     ###########################################################################
     def set_window(self)-> "list":
         """
