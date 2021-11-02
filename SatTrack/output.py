@@ -86,27 +86,26 @@ class OutputFile:
 
         data_frame.drop(columns=["time[UT]"], inplace=True)
 
-        sort_time = data_frame["date[UT]"].sort_values().index
         #######################################################################
         # drop duplicates
-        data_frame = data_frame.drop_duplicates("satellite", keep="first")
+        # data_frame.sort_values(
+        # by= ["satellite", "date[UT]"],
+        # inplace=True
+        # )
 
-        data_frame.sort_values(
-            by= ["date[UT]"],
-            inplace=True
+        data_frame = data_frame.sample(frac=1)
+
+        data_frame = data_frame.drop_duplicates(
+            subset="satellite",
+            keep="first"
         )
+
 
         data_frame.to_csv(
             f"{self.directory}/{file_name}.txt",
             sep="\t",
             index=False
         )
-        # data_frame.index = range(data_frame.shape[0])
-        # sort_time = data_frame["date[UT]"].sort_values().index
-        #
-        # data_frame.iloc[sort_time].to_csv(
-        #     f"{self.directory}/{file_name}.txt", sep="\t", index=False
-        # )
 
     ###########################################################################
     def _save_output(self, file_name) -> "None":
@@ -138,11 +137,6 @@ class OutputFile:
             sep="\t",
             index=False
         )
-        # sort_time = data_frame["date[UT]"].sort_values().index
-
-        # data_frame.iloc[sort_time].to_csv(
-        #     f"{self.directory}/{file_name}.txt", sep="\t", index=False
-        # )
 
     ###########################################################################
     def _get_data(self) -> "None":
