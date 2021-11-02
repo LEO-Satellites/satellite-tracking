@@ -88,18 +88,21 @@ class OutputFile:
 
         #######################################################################
         # drop duplicates
-        # data_frame.sort_values(
-        # by= ["satellite", "date[UT]"],
-        # inplace=True
-        # )
 
-        data_frame = data_frame.sample(frac=1)
+        data_frame = data_frame.sample(
+            frac=1,
+            random_state=0,
+        )
 
         data_frame = data_frame.drop_duplicates(
             subset="satellite",
             keep="first"
         )
 
+        data_frame.sort_values(
+        by= ["date[UT]", "satellite"],
+        inplace=True
+        )
 
         data_frame.to_csv(
             f"{self.directory}/{file_name}.txt",
