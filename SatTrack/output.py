@@ -1,8 +1,6 @@
 import os
 import pandas as pd
 
-pd.options.mode.chained_assignment = None  # default='warn'
-
 ###############################################################################
 # CONSTANTS
 # Note angular speed of the satellite is in the AZ,EL (or AZ,ALT) frame
