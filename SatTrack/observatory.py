@@ -350,14 +350,17 @@ def get_observatory_data(observatories: "dict") -> "dict":
 
         update_format = {}
         #######################################################################
-        for parameter_observatory, parameters_values in data_observatory.items():
+        for (
+            parameter_observatory,
+            parameters_values,
+        ) in data_observatory.items():
             # parameter_observatory:
             # "name", "longitude", "latitude", "altitude", "tz"
             #  parameters values: longitude and latitude format are
             #     [degree, minute, second] up to 360 to the west
 
             if type(parameters_values) == list:
-                sign = 1 # negative to the west and positive to the east
+                sign = 1  # negative to the west and positive to the east
                 update_format[parameter_observatory] = 0
                 ###############################################################
                 for idx, parameter in enumerate(parameters_values):
@@ -371,9 +374,13 @@ def get_observatory_data(observatories: "dict") -> "dict":
                         sign = -1
                         parameter = abs(parameter)
 
-                    update_format[parameter_observatory] += parameter / (60 ** idx)
+                    update_format[parameter_observatory] += parameter / (
+                        60 ** idx
+                    )
                 ###############################################################
-                update_format[parameter_observatory] = sign * update_format[parameter_observatory]
+                update_format[parameter_observatory] = (
+                    sign * update_format[parameter_observatory]
+                )
 
             else:
                 update_format[parameter_observatory] = parameters_values
@@ -381,10 +388,14 @@ def get_observatory_data(observatories: "dict") -> "dict":
             if parameter_observatory == "longitude":
 
                 if update_format[parameter_observatory] > 180.0:
-                    update_format[parameter_observatory] = 360 - update_format[parameter_observatory]
+                    update_format[parameter_observatory] = (
+                        360 - update_format[parameter_observatory]
+                    )
 
                 else:
-                    update_format[parameter_observatory] = -update_format[parameter_observatory]
+                    update_format[parameter_observatory] = -update_format[
+                        parameter_observatory
+                    ]
 
         observatories_update[name_observatory] = update_format
     ###########################################################################

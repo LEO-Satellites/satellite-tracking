@@ -15,6 +15,7 @@ from observatories import observatories
 from SatTrack.visible import ComputeVisibility
 from SatTrack.tle import TLE
 from SatTrack.output import OutputFile
+
 ###############################################################################
 
 if __name__ == "__main__":
@@ -28,10 +29,7 @@ if __name__ == "__main__":
     satellite_brand = parser.get("observation", "satellite")
     tle_directory = parser.get("directories", "tle")
 
-    tle = TLE(
-                satellite_brand=satellite_brand,
-                directory=tle_directory
-                )
+    tle = TLE(satellite_brand=satellite_brand, directory=tle_directory)
 
     download_tle = parser.getboolean("tle", "download")
 
@@ -54,8 +52,10 @@ if __name__ == "__main__":
     compute_visibility = ComputeVisibility(
         time_parameters=time_parameters,
         observatory_data=observatory_data,
-        observations_constraints = observations_constraints,
+        observations_constraints=observations_constraints,
         tle_file_location=tle_file_location,
-        )
+    )
 
-    results = compute_visibility.compute_visibility_of_satellite(satellite="ONEWEB-0008")
+    results = compute_visibility.compute_visibility_of_satellite(
+        satellite="ONEWEB-0008"
+    )

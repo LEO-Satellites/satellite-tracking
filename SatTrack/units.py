@@ -8,10 +8,11 @@ DEC: declination
 ###############################################################################
 class ConvertUnits:
     """Convert units"""
+
     def __init__(self):
         pass
 
-    def RA_in_radians_to_hours(self, RA: "float")->"float":
+    def RA_in_radians_to_hours(self, RA: "float") -> "float":
         """
         Converts RA from degress to hours
 
@@ -30,8 +31,9 @@ class ConvertUnits:
         RA_in_hours = RA_in_degrees * (24.0 / 360.0)
 
         return RA_in_hours
+
     ###########################################################################
-    def radians_to_degrees(self, radians: "float")->"float":
+    def radians_to_degrees(self, radians: "float") -> "float":
         """Convert radians to degrees"""
 
         # degrees = radians * 180.0 / np.pi
@@ -40,7 +42,7 @@ class ConvertUnits:
         return degrees
 
     ###########################################################################
-    def RA_in_radians_to_hh_mm_ss(self, RA: "float")->"list":
+    def RA_in_radians_to_hh_mm_ss(self, RA: "float") -> "list":
         """
         Converts RA in radians to hh:mm:ss.sss
 
@@ -64,9 +66,8 @@ class ConvertUnits:
 
         return [hh, mm, ss]
 
-
     ###########################################################################
-    def DEC_in_radians_to_dd_mm_ss(self, DEC: "float")->"list":
+    def DEC_in_radians_to_dd_mm_ss(self, DEC: "float") -> "list":
         """
         Converts DEC in radians to dd:mm:ss.sss
 
@@ -94,5 +95,6 @@ class ConvertUnits:
         ss = (minutes - mm) * 60
 
         return [dd * DEC_sign, mm, ss]
+
 
 ###############################################################################

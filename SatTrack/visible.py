@@ -11,44 +11,46 @@ from SatTrack.superclasses import FileDirectory
 from SatTrack.format import format
 from SatTrack.units import ConvertUnits
 from SatTrack.observatory import get_observatory_data
+
 ###############################################################################
-def init_compute_visibility_worker(input_counter: "mp.Value"):
-    """
-    Initialize worker for compute or be simulate
-
-    PARAMETERS
-        counter: counter with locl method to keep track of satellite
-            visibility computation
-    """
-    global counter
-
-    counter = input_counter
+# def init_compute_visibility_worker(input_counter: mp.Value):
+#     """
+#     Initialize worker for compute or be simulate
+#
+#     PARAMETERS
+#         counter: counter with locl method to keep track of satellite
+#             visibility computation
+#     """
+#     global counter
+#
+#     counter = input_counter
 ###############################################################################
 convert = ConvertUnits()
+
 
 class ComputeVisibility(FileDirectory):
     """Class to compute whether a satellite is visible or not"""
 
-    def __init__(self,
-        time_parameters: "dictionary",
-        observatory_data: "dictionary",
-        observations_constraints: "dictionary",
-        tle_file_location: "str",
-        ):
+    def __init__(
+        self,
+        time_parameters: dict,
+        observatory_data: dict,
+        observations_constraints: dict,
+        tle_file_location: str,
+    ):
         """
         PARAMETERS
 
         """
-    ###########################################################################
+        #######################################################################
         window = time_parameters["window"]
 
         if window not in ["morning", "evening"]:
             print(f'window keyword must be of either "morning" or "evening"')
             sys.exit()
-    ###########################################################################
+        #######################################################################
 
         self.time_parameters = self._set_time_parameters(time_parameters)
-
 
         self.observatory_data = self._set_observatory_data(observatory_data)
 
@@ -58,9 +60,15 @@ class ComputeVisibility(FileDirectory):
 
         self.observer = None
 
-
     ###########################################################################
-    def compute_visibility_of_satellite(self, satellite):
+    def compute_visibility_of_satellite(self, satellite: str) -> list:
+        """
+        PARAMETERS
+            satellite: name of a satellite, eg, "ONEWEB-0008"
+
+        OUTPUT
+            list with visible satellites data ?
+        """
 
         ######################################################################
         self._set_observer()
@@ -69,8 +77,9 @@ class ComputeVisibility(FileDirectory):
         # if time_delta = 60, then it will move minute by minute
         time_step_in_seconds = self.time_parameters["delta"]
 
-        time_delta_in_seconds = \
-            datetime.timedelta(seconds=time_step_in_seconds)
+        time_delta_in_seconds = datetime.timedelta(
+            seconds=time_step_in_seconds
+        )
 
         [hour, day] = self.set_window()
 
@@ -80,7 +89,7 @@ class ComputeVisibility(FileDirectory):
             day=day,
             hour=hour,
             minute=0,
-            second=0
+            second=0,
         )
 
         previous_satellite_azimuth = 0
@@ -99,8 +108,9 @@ class ComputeVisibility(FileDirectory):
             # computes the current latitude, longitude of the satellite's
             # footprint and its current orbital altitude
             try:
-                satellite_latitude_longitude = \
-                    satellite.get_lonlatalt(date_time)
+                satellite_latitude_longitude = satellite.get_lonlatalt(
+                    date_time
+                )
             except:
                 return None
             ###################################################################
@@ -110,15 +120,14 @@ class ComputeVisibility(FileDirectory):
 
             observatory_longitude = self.observatory_data["longitude"]
             observatory_latitude = self.observatory_data["latitude"]
-            observatory_altitude = self.observatory_data["altitude"] / 1000.
+            observatory_altitude = self.observatory_data["altitude"] / 1000.0
 
-            satellite_azimuth, satellite_altitude = \
-                satellite.get_observer_look(
-                    date_time,
-                    observatory_longitude,
-                    observatory_latitude,
-                    observatory_altitude,
-                )
+            satellite_azimuth, satellite_altitude = satellite.get_observer_look(
+                date_time,
+                observatory_longitude,
+                observatory_latitude,
+                observatory_altitude,
+            )
             ###################################################################
             # gets the Sun's RA and DEC at the time of observation
             sun_RA, sun_DEC = pyorbital.astronomy.sun_ra_dec(date_time)
@@ -130,40 +139,41 @@ class ComputeVisibility(FileDirectory):
 
             [
                 [ra_satellite_h, ra_satellite_m, ra_satellite_s],
-                [dec_satellite_d, dec_satellite_m, dec_satellite_s]
+                [dec_satellite_d, dec_satellite_m, dec_satellite_s],
             ] = self._get_satellite_RA_DEC_from_azimuth_and_altitude(
-                    satellite_azimuth,
-                    satellite_altitude
-                )
+                satellite_azimuth, satellite_altitude
+            )
             ###################################################################
-            lowest_altitude_satellite = \
-                float(self.constraints["lowest_altitude_satellite"])
+            lowest_altitude_satellite = float(
+                self.constraints["lowest_altitude_satellite"]
+            )
 
             ###################################################################
             sun_zenith_angle = pyorbital.astronomy.sun_zenith_angle(
-                date_time,
-                observatory_longitude,
-                observatory_latitude
+                date_time, observatory_longitude, observatory_latitude
             )
 
             sun_zenith_highest = float(self.constraints["sun_zenith_highest"])
             sun_zenith_lowest = float(self.constraints["sun_zenith_lowest"])
             ###################################################################
 
-            satellite_is_visible = \
-                (satellite_altitude > lowest_altitude_satellite) \
-                and \
-                (sun_zenith_lowest < sun_zenith_angle < sun_zenith_highest)
+            satellite_is_visible = (
+                satellite_altitude > lowest_altitude_satellite
+            ) and (sun_zenith_lowest < sun_zenith_angle < sun_zenith_highest)
 
             if satellite_is_visible:
-                print(f"{satellite} is visible"*100)
+                print(f"{satellite} is visible")
                 ###############################################################
                 # compute the change in AZ and ALT of the satellite position
                 # between current and previous observation
                 ## difference in azimuth arcsecs
-                delta_azimuth = (satellite_azimuth - previous_satellite_azimuth) * 3600
+                delta_azimuth = (
+                    satellite_azimuth - previous_satellite_azimuth
+                ) * 3600
                 ## difference in altitude in arcsecs
-                delta_altitude = (satellite_altitude - previous_satellite_altitude) * 3600
+                delta_altitude = (
+                    satellite_altitude - previous_satellite_altitude
+                ) * 3600
                 ###############################################################
                 dt = time_delta_in_seconds.total_seconds()
                 angular_velocity = (
@@ -197,35 +207,54 @@ class ComputeVisibility(FileDirectory):
         if len(visible_satellite_data) > 0:
             return [[satellite] + data for data in visible_satellite_data]
         return [time_delta_in_seconds, date_time]
+
     ###########################################################################
-    def _get_satellite_RA_DEC_from_azimuth_and_altitude(self,
-        satellite_azimuth,
-        satellite_altitude
-        ):
+    def _get_satellite_RA_DEC_from_azimuth_and_altitude(
+        self, satellite_azimuth: float, satellite_altitude: float
+    ) -> list:
+        """
+        PARAMETERS
+            satellite_azimuth:
+            satellite_altitude:
+
+        OUTPUTS
+            [
+                [ra_satellite_h, ra_satellite_m, ra_satellite_s],
+                [dec_satellite_d, dec_satellite_m, dec_satellite_s]
+            ]
+
+        """
 
         RA_satellite, DEC_satellite = self.observer.radec_of(
-            np.radians(satellite_azimuth),
-            np.radians(satellite_altitude)
+            np.radians(satellite_azimuth), np.radians(satellite_altitude)
         )
         ##################################################################
         [
             ra_satellite_h,
             ra_satellite_m,
-            ra_satellite_s
-        ]= convert.RA_in_radians_to_hh_mm_ss(RA=RA_satellite)
+            ra_satellite_s,
+        ] = convert.RA_in_radians_to_hh_mm_ss(RA=RA_satellite)
 
         [
             dec_satellite_d,
             dec_satellite_m,
-            dec_satellite_s
-        ]= convert.DEC_in_radians_to_dd_mm_ss(DEC=DEC_satellite)
+            dec_satellite_s,
+        ] = convert.DEC_in_radians_to_dd_mm_ss(DEC=DEC_satellite)
 
         return [
             [ra_satellite_h, ra_satellite_m, ra_satellite_s],
-            [dec_satellite_d, dec_satellite_m, dec_satellite_s]
+            [dec_satellite_d, dec_satellite_m, dec_satellite_s],
         ]
+
     ###########################################################################
-    def _set_time_parameters(self, time_parameters: "dictionary"):
+    def _set_time_parameters(self, time_parameters: dict) -> dict:
+
+        """
+        PARAMETERS
+            time_parameters
+        OUTPUTS
+            time_parameters
+        """
 
         time_parameters["year"] = int(time_parameters["year"])
         time_parameters["month"] = int(time_parameters["month"])
@@ -233,15 +262,14 @@ class ComputeVisibility(FileDirectory):
         time_parameters["delta"] = float(time_parameters["delta"])
 
         return time_parameters
-    ###########################################################################
-    def _set_dark_satellite(self, satellite):
 
-        dark_satellite = Orbital(
-                                    satellite,
-                                    tle_file=self.tle_file_location
-                                )
+    ###########################################################################
+    def _set_dark_satellite(self, satellite: str) -> Orbital:
+
+        dark_satellite = Orbital(satellite, tle_file=self.tle_file_location)
 
         return dark_satellite
+
     ###########################################################################
     def _set_observer(self):
 
@@ -252,17 +280,17 @@ class ComputeVisibility(FileDirectory):
         observer.pressure = 1010
         observer.temp = 15
         #######################################################################
-        observatory_latitude = self.observatory_data["latitude"] # degrees
+        observatory_latitude = self.observatory_data["latitude"]  # degrees
         observer.lat = np.radians(observatory_latitude)
         #######################################################################
-        observatory_longitude = self.observatory_data["longitude"] # degrees
+        observatory_longitude = self.observatory_data["longitude"]  # degrees
         observer.lon = np.radians(observatory_longitude)
         #######################################################################
         observer.elevation = self.observatory_data["altitude"]  # in meters
         self.observer = observer
 
     ###########################################################################
-    def _set_observatory_data(self, data_observatory: "dictionary"):
+    def _set_observatory_data(self, data_observatory: dict):
         """
         Transform data from observatories.txt file at home.
         Degrees are positive to the east and negative to the west
@@ -289,10 +317,13 @@ class ComputeVisibility(FileDirectory):
         """
         update_format = {}
         #######################################################################
-        for parameter_observatory, parameters_values in data_observatory.items():
+        for (
+            parameter_observatory,
+            parameters_values,
+        ) in data_observatory.items():
 
             if type(parameters_values) == list:
-                sign = 1 # negative to the west and positive to the east
+                sign = 1  # negative to the west and positive to the east
                 update_format[parameter_observatory] = 0
                 ###############################################################
                 for idx, parameter in enumerate(parameters_values):
@@ -306,9 +337,13 @@ class ComputeVisibility(FileDirectory):
                         sign = -1
                         parameter = abs(parameter)
 
-                    update_format[parameter_observatory] += parameter / (60 ** idx)
+                    update_format[parameter_observatory] += parameter / (
+                        60 ** idx
+                    )
                 ###############################################################
-                update_format[parameter_observatory] = sign * update_format[parameter_observatory]
+                update_format[parameter_observatory] = (
+                    sign * update_format[parameter_observatory]
+                )
 
             else:
                 update_format[parameter_observatory] = parameters_values
@@ -316,18 +351,24 @@ class ComputeVisibility(FileDirectory):
             if parameter_observatory == "longitude":
 
                 if update_format[parameter_observatory] > 180.0:
-                    update_format[parameter_observatory] = 360 - update_format[parameter_observatory]
+                    update_format[parameter_observatory] = (
+                        360 - update_format[parameter_observatory]
+                    )
 
                 else:
-                    update_format[parameter_observatory] = -update_format[parameter_observatory]
+                    update_format[parameter_observatory] = -update_format[
+                        parameter_observatory
+                    ]
 
         return update_format
+
     ###########################################################################
     def _update_observer_date(self, date_time):
 
         self.observer.date = ephem.date(date_time)
+
     ###########################################################################
-    def set_window(self)-> "list":
+    def set_window(self) -> list:
         """
         Set day and  hour of observation according to time zone
 
@@ -348,11 +389,12 @@ class ComputeVisibility(FileDirectory):
 
             day -= 1
 
-        hour = self._set_hour(window,observatory_time_zone)
+        hour = self._set_hour(window, observatory_time_zone)
 
         return [hour, day]
+
     ###########################################################################
-    def _set_hour(self, window: "str",observatory_time_zone: "int")-> "int":
+    def _set_hour(self, window: str, observatory_time_zone: int) -> int:
 
         if window == "evening":
 
@@ -369,6 +411,5 @@ class ComputeVisibility(FileDirectory):
             hour += 24
 
         return hour
-    ###########################################################################
 
-##########################################################################################################################################################
+    ###########################################################################
