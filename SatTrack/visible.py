@@ -35,12 +35,50 @@ class ComputeVisibility(FileDirectory):
         self,
         time_parameters: dict,
         observatory_data: dict,
-        observations_constraints: dict,
+        observation_constraints: dict,
         tle_file_location: str,
     ):
         """
         PARAMETERS
 
+            time_parameters: contains parameters of the observation date
+                {
+                    'year': str -> year of observation, eg, '2021'
+                    'month': str -> month of observation, eg, '11'
+                    'day': str -> day of observation, eg, '25'
+                    'delta': str -> time delta for computation in seconds, eg,
+                        '60'
+                    'window': str -> observation done either 'morning'
+                        or 'evening'
+                }
+
+            observatory_data: contains parameters of observatory
+                {
+                    'name': 'European Southern Observatory, La Silla',
+                    'longitude': [70, 43.8], # entries for [deg, ', ']
+                    'latitude': [-29, 15.4],
+                    'altitude': 2347.0, # in meters above sea level
+                    'tz': 4
+                }
+
+            observation_constraints: constrains for visibility of a satellite
+                {
+                    'observatory': 'lasilla'
+                    'satellite': 'oneweb'
+
+                    # lower bound for altitude of satellite to be
+                    # considered visible, in [units]
+
+                    'lowest_altitude_satellite': '30'
+
+                    # if sun zenith is between these bounds satelite
+                    # is considered baseurl
+
+                    'sun_zenith_lowest': '97'
+                    'sun_zenith_highest': '114'
+                }
+
+            tle_file_location: path to tle file used to compute visibility
         """
         #######################################################################
         window = time_parameters["window"]
@@ -54,7 +92,7 @@ class ComputeVisibility(FileDirectory):
 
         self.observatory_data = self._set_observatory_data(observatory_data)
 
-        self.constraints = observations_constraints
+        self.constraints = observation_constraints
 
         self.tle_file_location = tle_file_location
 
