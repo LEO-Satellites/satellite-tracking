@@ -82,7 +82,7 @@ class ComputeVisibility(FileDirectory):
         """
         #######################################################################
         window = time_parameters["window"]
-        
+
         if window not in ["morning", "evening"]:
             print(f'window keyword must be of either "morning" or "evening"')
             sys.exit()
@@ -363,16 +363,17 @@ class ComputeVisibility(FileDirectory):
         self.observer = observer
 
     ###########################################################################
-    def _set_observatory_data(self, data_observatory: dict):
+    def _set_observatory_data(self, data_observatory: dict) -> dict:
         """
-        Transform data from observatories.txt file at home.
-        Degrees are positive to the east and negative to the west
+        Transform data from observatories.txt file at home to degree in float.
+        In the original file, longitude is possitive to the west.
+        In the output, longitude is negative to the west
 
         PARAMETERS
             observatory_data: contains parameters of observatory
             {
                 'name': 'European Southern Observatory, La Silla',
-                'longitude': [70, 43.8], # entries for [deg, ', ']
+                'longitude': [70, 43.8],
                 'latitude': [-29, 15.4],
                 'altitude': 2347.0, # in meters above sea level
                 'tz': 4
@@ -436,7 +437,7 @@ class ComputeVisibility(FileDirectory):
         return update_format
 
     ###########################################################################
-    def _update_observer_date(self, date_time):
+    def _update_observer_date(self, date_time: datetime.datetime) -> None:
 
         self.observer.date = ephem.date(date_time)
 
@@ -447,11 +448,7 @@ class ComputeVisibility(FileDirectory):
 
         OUTPUTS
 
-            [hour: "int", day: "int"]:
-                set according to time window and time zone
-
-                hour:
-                day:
+            [hour: int, day: int]:
         """
 
         window = self.time_parameters["window"]
@@ -468,6 +465,18 @@ class ComputeVisibility(FileDirectory):
 
     ###########################################################################
     def _set_hour(self, window: str, observatory_time_zone: int) -> int:
+
+        """
+        Set hour of observation according to the time zone of the observer
+        and the time window in wchich the observation will be made
+
+        PARAMETERS
+            window: either 'evening' or 'morning'
+            observatory_time_zone: time zone of observatory
+
+        OUTPUTS
+            hour
+        """
 
         if window == "evening":
 
