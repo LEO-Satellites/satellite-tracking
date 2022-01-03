@@ -135,15 +135,15 @@ class ComputeVisibility(FileDirectory):
         ######################################################################
         visible_satellite_data = []
         ######################################################################
+        # 12 because time windows are of 12 hours
         number_iterations = (12 * 60 * 60) / time_step_in_seconds
         number_iterations = range(int(number_iterations))
 
-        # print(f"Compute visibility of: {satellite}", end="\r")
         print(f"Compute visibility of: {satellite}")
 
         for time_step in number_iterations:
             ###################################################################
-            # computes the current latitude, longitude of the satellite's
+            # compute current latitude, longitude of the satellite's
             # footprint and its current orbital altitude
             try:
                 satellite_latitude_longitude = satellite.get_lonlatalt(
@@ -199,7 +199,7 @@ class ComputeVisibility(FileDirectory):
                 satellite_altitude > lowest_altitude_satellite
             ) and (sun_zenith_lowest < sun_zenith_angle < sun_zenith_highest)
 
-            if satellite_is_visible:
+            if satellite_is_visible is True:
                 print(f"{satellite} is visible")
                 ###############################################################
                 # compute the change in AZ and ALT of the satellite position
@@ -246,6 +246,42 @@ class ComputeVisibility(FileDirectory):
             return [[satellite] + data for data in visible_satellite_data]
         return [time_delta_in_seconds, date_time]
 
+    ###########################################################################
+    def output_data(self,
+        satellite: str,
+        date_time:datetime.datetime,
+        satellite_longitude_latitude_altitude: tuple,
+        satellite_azimuth: float,
+        satellite_elevation: float, # satellite_altitude before XD
+        sun_zenith_angle: float,
+        angular_velocity: float,
+    ):
+        """
+        Get output data for dataframe
+
+        PARAMETERS
+
+            satellite: str,
+            date_time:datetime.datetime,
+            satellite_longitude_latitude_altitude: tuple,
+            satellite_azimuth: float,
+            satellite_elevation: float,
+            sun_zenith_angle: float,
+            angular_velocity: float,
+
+        """
+        # can be obtained with satellite_longitude_latitude_altitude
+        # ra_satellite_h,
+        # ra_satellite_m,
+        # ra_satellite_s,
+        # dec_satellite_d,
+        # dec_satellite_m,
+        # dec_satellite_s,
+
+        # can be obtained with datetime
+        # sun_RA,
+        # sun_DEC,
+    pass
     ###########################################################################
     def _get_satellite_RA_DEC_from_azimuth_and_altitude(
         self, satellite_azimuth: float, satellite_altitude: float
