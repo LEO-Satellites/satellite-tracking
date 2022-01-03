@@ -52,7 +52,7 @@ if __name__ == "__main__":
     compute_visibility = ComputeVisibility(
         time_parameters=time_parameters,
         observatory_data=observatory_data,
-        observations_constraints=observations_constraints,
+        observation_constraints=observations_constraints,
         tle_file_location=tle_file_location,
     )
 

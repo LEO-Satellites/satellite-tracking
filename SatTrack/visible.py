@@ -43,12 +43,12 @@ class ComputeVisibility(FileDirectory):
 
             time_parameters: contains parameters of the observation date
                 {
-                    'year': str -> year of observation, eg, '2021'
-                    'month': str -> month of observation, eg, '11'
-                    'day': str -> day of observation, eg, '25'
-                    'delta': str -> time delta for computation in seconds, eg,
+                    'year': year of observation, eg, '2021'
+                    'month': month of observation, eg, '11'
+                    'day': day of observation, eg, '25'
+                    'delta': time delta for computation in seconds, eg,
                         '60'
-                    'window': str -> observation done either 'morning'
+                    'window': observation done either 'morning'
                         or 'evening'
                 }
 
@@ -69,20 +69,20 @@ class ComputeVisibility(FileDirectory):
                     # lower bound for altitude of satellite to be
                     # considered visible, in [units]
 
-                    'lowest_altitude_satellite': '30'
+                    'lowest_altitude_satellite': '30' # degree
 
                     # if sun zenith is between these bounds satelite
                     # is considered baseurl
 
-                    'sun_zenith_lowest': '97'
-                    'sun_zenith_highest': '114'
+                    'sun_zenith_lowest': '97' # degree
+                    'sun_zenith_highest': '114' # degree
                 }
 
             tle_file_location: path to tle file used to compute visibility
         """
         #######################################################################
         window = time_parameters["window"]
-
+        
         if window not in ["morning", "evening"]:
             print(f'window keyword must be of either "morning" or "evening"')
             sys.exit()
@@ -251,9 +251,12 @@ class ComputeVisibility(FileDirectory):
         self, satellite_azimuth: float, satellite_altitude: float
     ) -> list:
         """
+        Compute satellite RA [hh, mm, ss] and DEC [dd, mm, ss] using
+        satellite's azimuth and altitude in degrees.
+
         PARAMETERS
-            satellite_azimuth:
-            satellite_altitude:
+            satellite_azimuth: [degree]
+            satellite_altitude: [degree]
 
         OUTPUTS
             [
@@ -286,12 +289,27 @@ class ComputeVisibility(FileDirectory):
 
     ###########################################################################
     def _set_time_parameters(self, time_parameters: dict) -> dict:
-
         """
+        Convert strings to numeric values in time parameters dictionary
+
         PARAMETERS
-            time_parameters
+            time_parameters: contains parameters of the observation date
+                {
+                    'year': '2021'
+                    'month': '11'
+                    'day': '25'
+                    'delta': '60'
+                    'window': either 'morning' or 'evening'
+                }
         OUTPUTS
-            time_parameters
+            time_parameters: contains parameters of the observation date
+                {
+                    'year': 2021
+                    'month': 11
+                    'day': 25
+                    'delta': 60
+                    'window': either 'morning' or 'evening'
+                }
         """
 
         time_parameters["year"] = int(time_parameters["year"])
@@ -303,13 +321,30 @@ class ComputeVisibility(FileDirectory):
 
     ###########################################################################
     def _set_dark_satellite(self, satellite: str) -> Orbital:
+        """
+        Set dark satellite object for orbital computations
+
+        PARAMETERS
+            satellite: name of the satellite to work on that is present
+                the tle_file provided for the computations, eg, "ONEWEB-0008"
+
+        OUTPUTS
+            dark_satellite: instance of class pyorbital.orbital.Orbital
+
+        """
 
         dark_satellite = Orbital(satellite, tle_file=self.tle_file_location)
 
         return dark_satellite
 
     ###########################################################################
-    def _set_observer(self):
+    def _set_observer(self) -> None:
+        """
+        Set location on earth from which the observation of dark satellites
+        will be made. The observe, an instance of ephem.Observer, allows
+        to compute the position of celestial bodies from the selected
+        location, in this case, the observatory location
+        """
 
         observatory_name = self.observatory_data["name"]
         print(f"Set observer: {observatory_name}")
