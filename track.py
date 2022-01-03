@@ -26,6 +26,8 @@ if __name__ == "__main__":
     parser.read("track.ini")
     ###########################################################################
     # downloading tle file
+    print("Fetch TLE file", end="\n")
+
     satellite_brand = parser.get("observation", "satellite")
     tle_directory = parser.get("directories", "tle")
 
@@ -56,6 +58,8 @@ if __name__ == "__main__":
         tle_file_location=tle_file_location,
     )
 
+    print("Compute visibility of satellite")
+    
     results = compute_visibility.compute_visibility_of_satellite(
         satellite="ONEWEB-0008"
     )
