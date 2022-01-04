@@ -34,7 +34,7 @@ COLUMN_NAMES_SIMPLE = [
 class OutputFile:
     """Handles data output for visible satellites"""
 
-    def __init__(self, results: "list", directory: "str"):
+    def __init__(self, results: list, directory: str):
         """
         PARAMETERS
 
@@ -50,7 +50,7 @@ class OutputFile:
         self.simple_data = None
 
     ###########################################################################
-    def save_data(self, simple_name, full_name) -> "None":
+    def save_data(self, simple_name, full_name) -> None:
         """
         Process and save relevant data for observers in the directory
         passed to the constructor of the class

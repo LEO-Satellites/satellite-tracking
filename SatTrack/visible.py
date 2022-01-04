@@ -247,42 +247,6 @@ class ComputeVisibility(FileDirectory):
         return [time_delta_in_seconds, date_time]
 
     ###########################################################################
-    def output_data(self,
-        satellite: str,
-        date_time:datetime.datetime,
-        satellite_longitude_latitude_altitude: tuple,
-        satellite_azimuth: float,
-        satellite_elevation: float, # satellite_altitude before XD
-        sun_zenith_angle: float,
-        angular_velocity: float,
-    ):
-        """
-        Get output data for dataframe
-
-        PARAMETERS
-
-            satellite: str,
-            date_time:datetime.datetime,
-            satellite_longitude_latitude_altitude: tuple,
-            satellite_azimuth: float,
-            satellite_elevation: float,
-            sun_zenith_angle: float,
-            angular_velocity: float,
-
-        """
-        # can be obtained with satellite_longitude_latitude_altitude
-        # ra_satellite_h,
-        # ra_satellite_m,
-        # ra_satellite_s,
-        # dec_satellite_d,
-        # dec_satellite_m,
-        # dec_satellite_s,
-
-        # can be obtained with datetime
-        # sun_RA,
-        # sun_DEC,
-    pass
-    ###########################################################################
     def _get_satellite_RA_DEC_from_azimuth_and_altitude(
         self, satellite_azimuth: float, satellite_altitude: float
     ) -> list:
