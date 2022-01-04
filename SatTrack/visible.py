@@ -146,7 +146,7 @@ class ComputeVisibility(FileDirectory):
             # compute current latitude, longitude of the satellite's
             # footprint and its current orbital altitude
             try:
-                satellite_latitude_longitude = satellite.get_lonlatalt(
+                satellite_lon_lat_alt = satellite.get_lonlatalt(
                     date_time
                 )
             except:
@@ -220,7 +220,7 @@ class ComputeVisibility(FileDirectory):
 
                 data_str, data_str_simple = format.data_formating(
                     date_time,
-                    satellite_latitude_longitude,
+                    satellite_lon_lat_alt,
                     satellite_azimuth,
                     satellite_altitude,
                     ra_satellite_h,
