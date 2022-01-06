@@ -65,9 +65,18 @@ if __name__ == "__main__":
     # )
 
     number_processes = parser.getint("parameters", "processes")
-    
+
     with mp.Pool(processes=number_processes) as pool:
         results = pool.map(
         compute_visibility.compute_visibility_of_satellite,
         satellites_list
     )
+
+    output_directory = parser.get("directories", "data_output")
+    output = OutputFile(results, output_directory)
+    details_name = parser.get("names", "complete")
+    visible_name = parser.get("names", "simple")
+    output.save_data(simple_name=visible_name, full_name=details_name)
+    ###########################################################################
+    tf = time.time()
+    print(f"Running time: {tf-ti:.2} [s]")
