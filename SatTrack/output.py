@@ -1,8 +1,6 @@
 import os
 import pandas as pd
 
-pd.options.mode.chained_assignment = None  # default='warn'
-
 ###############################################################################
 # CONSTANTS
 # Note angular speed of the satellite is in the AZ,EL (or AZ,ALT) frame
@@ -80,22 +78,36 @@ class OutputFile:
         )
         #######################################################################
         # Change output format in compute visible to avoid this line of code
+
         data_frame["date[UT]"] = pd.to_datetime(
             data_frame["date[UT]"] + " " + data_frame["time[UT]"],
             format="%Y-%m-%d %H:%M:%Ss",
         )
 
-        data_frame = data_frame.drop(columns=["time[UT]"])
+        data_frame.drop(columns=["time[UT]"], inplace=True)
 
-        sort_time = data_frame["date[UT]"].sort_values().index
         #######################################################################
         # drop duplicates
-        data_frame = data_frame.drop_duplicates("satellite", keep="first")
-        data_frame.index = range(data_frame.shape[0])
-        sort_time = data_frame["date[UT]"].sort_values().index
 
-        data_frame.iloc[sort_time].to_csv(
-            f"{self.directory}/{file_name}.txt", sep="\t", index=False
+        data_frame = data_frame.sample(
+            frac=1,
+            random_state=0,
+        )
+
+        data_frame = data_frame.drop_duplicates(
+            subset="satellite",
+            keep="first"
+        )
+
+        data_frame.sort_values(
+        by= ["date[UT]", "satellite"],
+        inplace=True
+        )
+
+        data_frame.to_csv(
+            f"{self.directory}/{file_name}.txt",
+            sep="\t",
+            index=False
         )
 
     ###########################################################################
@@ -108,20 +120,25 @@ class OutputFile:
         """
 
         data_frame = pd.DataFrame(columns=COLUMN_NAMES, data=self.data)
-        ###########################################################################
+        #######################################################################
         data_frame = data_frame.dropna()
-        ###########################################################################
+        #######################################################################
         data_frame["date[UT]"] = pd.to_datetime(
             data_frame["date[UT]"] + " " + data_frame["time[UT]"],
             format="%Y-%m-%d %H:%M:%Ss",
         )
 
-        data_frame = data_frame.drop(columns=["time[UT]"])
+        data_frame.drop(columns=["time[UT]"], inplace=True)
 
-        sort_time = data_frame["date[UT]"].sort_values().index
+        data_frame.sort_values(
+            by= ["satellite", "date[UT]"],
+            inplace=True
+        )
 
-        data_frame.iloc[sort_time].to_csv(
-            f"{self.directory}/{file_name}.txt", sep="\t", index=False
+        data_frame.to_csv(
+            f"{self.directory}/{file_name}.txt",
+            sep="\t",
+            index=False
         )
 
     ###########################################################################
