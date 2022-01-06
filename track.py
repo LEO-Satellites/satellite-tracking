@@ -59,7 +59,7 @@ if __name__ == "__main__":
     )
 
     print("Compute visibility of satellite")
-    
+
     results = compute_visibility.compute_visibility_of_satellite(
-        satellite="ONEWEB-0008"
+        satellite_name="ONEWEB-0231"
     )

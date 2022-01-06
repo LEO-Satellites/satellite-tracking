@@ -99,7 +99,7 @@ class ComputeVisibility(FileDirectory):
         self.observer = None
 
     ###########################################################################
-    def compute_visibility_of_satellite(self, satellite: str) -> list:
+    def compute_visibility_of_satellite(self, satellite_name: str) -> list:
         """
         PARAMETERS
             satellite: name of a satellite, eg, "ONEWEB-0008"
@@ -110,7 +110,7 @@ class ComputeVisibility(FileDirectory):
 
         ######################################################################
         self._set_observer()
-        satellite = self._set_dark_satellite(satellite)
+        satellite = self._set_dark_satellite(satellite_name)
         ######################################################################
         # if time_delta = 60, then it will move minute by minute
         time_step_in_seconds = self.time_parameters["delta"]
@@ -139,7 +139,7 @@ class ComputeVisibility(FileDirectory):
         number_iterations = (12 * 60 * 60) / time_step_in_seconds
         number_iterations = range(int(number_iterations))
 
-        print(f"Compute visibility of: {satellite}")
+        print(f"Compute visibility of: {satellite_name}")
 
         for time_step in number_iterations:
             ###################################################################
@@ -195,12 +195,15 @@ class ComputeVisibility(FileDirectory):
             sun_zenith_lowest = float(self.constraints["sun_zenith_lowest"])
             ###################################################################
 
-            satellite_is_visible = (
-                satellite_altitude > lowest_altitude_satellite
-            ) and (sun_zenith_lowest < sun_zenith_angle < sun_zenith_highest)
+            check_altitude = satellite_altitude > lowest_altitude_satellite
+            check_sun_zenith = sun_zenith_lowest < sun_zenith_angle
+            check_sun_zenith *= sun_zenith_angle < sun_zenith_highest
+            # Add bool() to avoid having np.bool_ type. This way, I can have
+            # if satellite_is_visible is True:
+            satellite_visibility = bool(check_altitude and check_sun_zenith)
 
-            if satellite_is_visible is True:
-                print(f"{satellite} is visible")
+            if satellite_visibility is True:
+                print(f"{satellite_name} is visible")
                 ###############################################################
                 # compute the change in AZ and ALT of the satellite position
                 # between current and previous observation
