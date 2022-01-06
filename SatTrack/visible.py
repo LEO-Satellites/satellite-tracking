@@ -97,6 +97,7 @@ class ComputeVisibility(FileDirectory):
         self.tle_file_location = tle_file_location
 
         self.observer = None
+        # self._set_observer()
 
     ###########################################################################
     def compute_visibility_of_satellite(self, satellite_name: str) -> list:
@@ -109,6 +110,11 @@ class ComputeVisibility(FileDirectory):
         """
 
         ######################################################################
+        # I have to set the observer per satelitte inside this function,
+        # otherwise with mp.pool the line:
+        # observer = ephem.Observer()
+        # cannot be serialized avoiding the parallel computation.
+        # Therefore in parallel the observer will be set over and over
         self._set_observer()
         satellite = self._set_dark_satellite(satellite_name)
         ######################################################################
@@ -139,7 +145,7 @@ class ComputeVisibility(FileDirectory):
         number_iterations = (12 * 60 * 60) / time_step_in_seconds
         number_iterations = range(int(number_iterations))
 
-        print(f"Compute visibility of: {satellite_name}")
+        print(f"Compute visibility of: {satellite_name}", end="\r")
 
         for time_step in number_iterations:
             ###################################################################
@@ -203,7 +209,7 @@ class ComputeVisibility(FileDirectory):
             satellite_visibility = bool(check_altitude and check_sun_zenith)
 
             if satellite_visibility is True:
-                print(f"{satellite_name} is visible")
+                print(f"{satellite_name} is visible", end="\r")
                 ###############################################################
                 # compute the change in AZ and ALT of the satellite position
                 # between current and previous observation
@@ -350,7 +356,7 @@ class ComputeVisibility(FileDirectory):
         """
 
         observatory_name = self.observatory_data["name"]
-        print(f"Set observer: {observatory_name}")
+        # print(f"Set observer: {observatory_name}")
         observer = ephem.Observer()
         observer.epoch = "2000"
         observer.pressure = 1010

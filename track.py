@@ -58,8 +58,16 @@ if __name__ == "__main__":
         tle_file_location=tle_file_location,
     )
 
-    print("Compute visibility of satellite")
+    # print("Compute visibility of satellite")
+    #
+    # results = compute_visibility.compute_visibility_of_satellite(
+    #     satellite_name="ONEWEB-0231"
+    # )
 
-    results = compute_visibility.compute_visibility_of_satellite(
-        satellite_name="ONEWEB-0231"
+    number_processes = parser.getint("parameters", "processes")
+    
+    with mp.Pool(processes=number_processes) as pool:
+        results = pool.map(
+        compute_visibility.compute_visibility_of_satellite,
+        satellites_list
     )
