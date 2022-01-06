@@ -71,7 +71,7 @@ class ComputeVisibility(FileDirectory):
 
                     'lowest_altitude_satellite': '30' # degree
 
-                    # if sun zenith is between these bounds satelite
+                    # if sun zenith is between these bounds satellite
                     # is considered baseurl
 
                     'sun_zenith_lowest': '97' # degree
@@ -252,8 +252,8 @@ class ComputeVisibility(FileDirectory):
             date_time += time_delta_in_seconds
         #####################################################################
         if len(visible_satellite_data) > 0:
-            return [[satellite] + data for data in visible_satellite_data]
-        return [time_delta_in_seconds, date_time]
+            return [[satellite_name] + data for data in visible_satellite_data]
+        # return [time_delta_in_seconds, date_time]
 
     ###########################################################################
     def _get_satellite_RA_DEC_from_azimuth_and_altitude(

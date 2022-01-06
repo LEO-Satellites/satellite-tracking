@@ -63,7 +63,7 @@ if __name__ == "__main__":
     # results = compute_visibility.compute_visibility_of_satellite(
     #     satellite_name="ONEWEB-0231"
     # )
-
+    # print(results[0])
     number_processes = parser.getint("parameters", "processes")
 
     with mp.Pool(processes=number_processes) as pool:
