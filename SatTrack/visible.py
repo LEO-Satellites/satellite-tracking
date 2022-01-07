@@ -8,13 +8,12 @@ import pyorbital
 from pyorbital.orbital import Orbital
 
 from SatTrack.units import ConvertUnits
-from SatTrack.superclasses import FileDirectory
 from SatTrack import output
 
 ###############################################################################
 convert = ConvertUnits()
 
-class ComputeVisibility(FileDirectory):
+class ComputeVisibility():
     """Class to compute whether a satellite is visible or not"""
 
     def __init__(

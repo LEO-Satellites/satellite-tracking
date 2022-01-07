@@ -10,8 +10,8 @@ class FileDirectory:
 
     ###########################################################################
     def check_directory(
-        self, directory: "str", exit: "bool" = False
-    ) -> "None":
+        self, directory: str, exit: bool = False
+    ) -> None:
         """
         Check if a directory exists, if not it creates it or
         exits depending on the value of exit
@@ -27,7 +27,7 @@ class FileDirectory:
             os.makedirs(directory)
 
     ###########################################################################
-    def file_exists(self, location: "str", exit: "bool" = False) -> "bool":
+    def file_exists(self, location: str, exit: bool = False) -> bool:
         """
         Check if a location is a file, if not exits depending
         on the value of exit
