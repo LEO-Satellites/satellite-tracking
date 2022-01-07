@@ -13,7 +13,8 @@ from SatTrack import output
 ###############################################################################
 convert = ConvertUnits()
 
-class ComputeVisibility():
+
+class ComputeVisibility:
     """Class to compute whether a satellite is visible or not"""
 
     def __init__(
@@ -137,9 +138,7 @@ class ComputeVisibility():
             # compute current latitude, longitude of the satellite's
             # footprint and its current orbital altitude
             try:
-                satellite_lon_lat_alt = satellite.get_lonlatalt(
-                    date_time
-                )
+                satellite_lon_lat_alt = satellite.get_lonlatalt(date_time)
             except:
                 return None
             ###################################################################
