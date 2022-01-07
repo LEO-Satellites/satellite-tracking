@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 
+from SatTrack.superclasses import FileDirectory
+
 ###############################################################################
 # CONSTANTS
 # Note angular speed of the satellite is in the AZ,EL (or AZ,ALT) frame
@@ -29,7 +31,7 @@ COLUMN_NAMES_SIMPLE = [
     "DEC[dd:mm:ss]",
 ]
 ###############################################################################
-class OutputFile:
+class OutputFile(FileDirectory):
     """Handles data output for visible satellites"""
 
     def __init__(self, results: list, directory: str):
@@ -48,7 +50,7 @@ class OutputFile:
         self.simple_data = None
 
     ###########################################################################
-    def save_data(self, simple_name, full_name) -> None:
+    def save_data(self, simple_name: str, full_name: str) -> None:
         """
         Process and save relevant data for observers in the directory
         passed to the constructor of the class
@@ -60,12 +62,12 @@ class OutputFile:
 
         print("Save data")
         self._get_data()
-        self._check_directory(self.directory, exit=False)
+        super().check_directory(self.directory, exit=False)
         self._save_simple_output(simple_name)
         self._save_output(full_name)
 
     ###########################################################################
-    def _save_simple_output(self, file_name) -> "None":
+    def _save_simple_output(self, file_name: str) -> None:
         """
         Process and save data with simple obsevation details
 
@@ -89,29 +91,20 @@ class OutputFile:
         #######################################################################
         # drop duplicates
 
-        data_frame = data_frame.sample(
-            frac=1,
-            random_state=0,
-        )
+        data_frame = data_frame.sample(frac=1, random_state=0)
 
         data_frame = data_frame.drop_duplicates(
-            subset="satellite",
-            keep="first"
+            subset="satellite", keep="first"
         )
 
-        data_frame.sort_values(
-        by= ["date[UT]", "satellite"],
-        inplace=True
-        )
+        data_frame.sort_values(by=["date[UT]", "satellite"], inplace=True)
 
         data_frame.to_csv(
-            f"{self.directory}/{file_name}.txt",
-            sep="\t",
-            index=False
+            f"{self.directory}/{file_name}.txt", sep="\t", index=False
         )
 
     ###########################################################################
-    def _save_output(self, file_name) -> "None":
+    def _save_output(self, file_name: str) -> None:
         """
         Process and save data with simple obsevation details
 
@@ -130,19 +123,14 @@ class OutputFile:
 
         data_frame.drop(columns=["time[UT]"], inplace=True)
 
-        data_frame.sort_values(
-            by= ["satellite", "date[UT]"],
-            inplace=True
-        )
+        data_frame.sort_values(by=["satellite", "date[UT]"], inplace=True)
 
         data_frame.to_csv(
-            f"{self.directory}/{file_name}.txt",
-            sep="\t",
-            index=False
+            f"{self.directory}/{file_name}.txt", sep="\t", index=False
         )
 
     ###########################################################################
-    def _get_data(self) -> "None":
+    def _get_data(self) -> None:
         """
         Gets list of data from visible satellites.
         Example: self.data = [[satelite, data, data],....]
@@ -164,7 +152,7 @@ class OutputFile:
                 self.simple_data.append([satellite] + simple_data)
 
     ###########################################################################
-    def _get_visible_satellites(self, results: "list") -> "list":
+    def _get_visible_satellites(self, results: list) -> list:
         """
         Get visible satellites from parallel computation
 
@@ -181,46 +169,8 @@ class OutputFile:
         return visible_satellites
 
     ###########################################################################
-    def _check_directory(self, directory: "str", exit: "bool") -> "None":
-        """
-        Check if a directory exists and depending on exit parameter,
-        it creates the derectory or exits the program because the
-        directory is necessary for computations.
 
-        PARAMETERS
-            directory: directory location
-            exit: if False, it creates the directory
-        """
 
-        if not os.path.exists(directory):
-
-            if exit:
-                sys.exit()
-
-            os.makedirs(directory)
-
-    ###########################################################################
-    def _check_file(self, file_location: "str", exit: "bool") -> "None":
-        """
-        Check if a file exists and depending on exit parameter, it exits
-        the program because the file is necessary for computations.
-
-        PARAMETERS
-
-            file_location: file location with extension
-                example: /home/john/data/data.txt
-
-            exit: if True, it exits the program
-        """
-
-        if not os.path.exists(file_location):
-
-            if exit:
-                print(f"NOT FOUND: {file_location}")
-                print(f"Program cannot execute width out this file")
-                sys.exit()
-
-    ###########################################################################
 ###############################################################################
 def data_formating(
     date_obj,
