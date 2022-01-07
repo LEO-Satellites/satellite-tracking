@@ -7,26 +7,12 @@ import numpy as np
 import pyorbital
 from pyorbital.orbital import Orbital
 
-from SatTrack.superclasses import FileDirectory
-from SatTrack.format import format
 from SatTrack.units import ConvertUnits
-from SatTrack.observatory import get_observatory_data
+from SatTrack.superclasses import FileDirectory
+from SatTrack import output
 
-###############################################################################
-# def init_compute_visibility_worker(input_counter: mp.Value):
-#     """
-#     Initialize worker for compute or be simulate
-#
-#     PARAMETERS
-#         counter: counter with locl method to keep track of satellite
-#             visibility computation
-#     """
-#     global counter
-#
-#     counter = input_counter
 ###############################################################################
 convert = ConvertUnits()
-
 
 class ComputeVisibility(FileDirectory):
     """Class to compute whether a satellite is visible or not"""
@@ -227,7 +213,7 @@ class ComputeVisibility(FileDirectory):
                     np.sqrt(delta_azimuth ** 2 + delta_altitude ** 2) / dt
                 )
 
-                data_str, data_str_simple = format.data_formating(
+                data_str, data_str_simple = output.data_formating(
                     date_time,
                     satellite_lon_lat_alt,
                     satellite_azimuth,
