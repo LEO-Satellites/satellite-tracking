@@ -118,29 +118,13 @@ class ComputeVisibility:
         )
 
         date_time = start_date_time
-        ######################################################################
-
-        # day, hour = self._set_day_hour_to_UTC(
-        #     window=self.time_parameters["window"],
-        #     day=self.time_parameters["day"],
-        #     observatory_time_zone=self.observatory_data["tz"]
-        # )
-        #
-        # date_time = datetime.datetime(
-        #     year=self.time_parameters["year"],
-        #     month=self.time_parameters["month"],
-        #     day=day,
-        #     hour=hour,
-        #     minute=0,
-        #     second=0,
-        # )
-
-        ######################################################################
+        time_delta = finish_date_time - start_date_time
+        #######################################################################
         previous_satellite_azimuth = 0
         previous_satellite_altitude = 0
-        ######################################################################
+        #######################################################################
         visible_satellite_data = []
-        ######################################################################
+        #######################################################################
         # 12 because time windows are of 12 hours
         number_iterations = (12 * 60 * 60) / time_step_in_seconds
         number_iterations = range(int(number_iterations))
@@ -248,7 +232,7 @@ class ComputeVisibility:
             previous_satellite_azimuth = satellite_azimuth
             previous_satellite_altitude = satellite_altitude
             date_time += time_delta_in_seconds
-        #####################################################################
+        #######################################################################
         if len(visible_satellite_data) > 0:
             return [[satellite_name] + data for data in visible_satellite_data]
         # return [time_delta_in_seconds, date_time]
@@ -265,52 +249,59 @@ class ComputeVisibility:
             ]
         """
 
+        time_zone = datetime.datetime(hours=4)
+
         if adaptable_window is True:
-
-            start_hour = time_parameters["start_hour"]
-
-            if ( start_hour 
-            start_day, start_hour = self._set_day_hour_to_UTC(
-                window=time_parameters["window"],
-                day=time_parameters["day"],
-                observatory_time_zone=time_zone
+            ###################################################################
+            # define local time
+            start_date_time = datetime.datetime(
+                    year=time_parameters["year"],
+                    month=time_parameters["month"],
+                    day=time_parameters["start_day"],
+                    hour=time_parameters["start_hour"],
+                    minute=time_parameters["start_minute"],
+                    second=time_parameters["start_second"],
             )
 
+            # convert to UTC
+            start_date_time += time_zone
+
+            ###################################################################
+            # define local time
+            finish_date_time = datetime.datetime(
+                    year=time_parameters["year"],
+                    month=time_parameters["month"],
+                    day=time_parameters["finish_day"],
+                    hour=time_parameters["finish_hour"],
+                    minute=time_parameters["finish_minute"],
+                    second=time_parameters["finish_second"],
+            )
+
+            # convert to UTC
+            finish_date_time += time_zone
+
+            return start_date_time, finish_date_time
+
+        #######################################################################
+        else:
+            ###################################################################
+            # define local time
             start_date_time = datetime.datetime(
                 year=time_parameters["year"],
                 month=time_parameters["month"],
-                day=start_day,
-                hour=start_hour,
-                minute=time_parameters["start_minute"],
-                second=time_parameters["start_second"],
-            )
-
-            finish_day, finish_hour = self._set_day_hour_to_UTC(
-                window=time_parameters["window"],
                 day=time_parameters["day"],
-                observatory_time_zone=time_zone
+                hour=time_parameters["hour"],
+                minute=0,
+                second=0,
             )
 
-            start_date_time = datetime.datetime(
-                year=time_parameters["year"],
-                month=time_parameters["month"],
-                day=start_day,
-                hour=start_hour,
-                minute=time_parameters["start_minute"],
-                second=time_parameters["start_second"],
-            )
+            # convert to UTC
+            start_date_time += time_zone
 
+            finish_date_time += datetime.timedelta(hours=12)
 
-        date_time = datetime.datetime(
-            year=self.time_parameters["year"],
-            month=self.time_parameters["month"],
-            day=start_day,
-            hour=start_hour,
-            minute=0,
-            second=0,
-        )
-
-        pass
+            return start_date_time, finish_date_time
+        #######################################################################
     ###########################################################################
     def _get_satellite_RA_DEC_from_azimuth_and_altitude(
         self, satellite_azimuth: float, satellite_altitude: float
@@ -505,61 +496,5 @@ class ComputeVisibility:
     def _update_observer_date(self, date_time: datetime.datetime) -> None:
 
         self.observer.date = ephem.date(date_time)
-
-    ###########################################################################
-    def _set_day_hour_to_UTC(self, window: str, day: int, observatory_time_zone: int) -> list:
-        """
-        Set day and  hour of observation according to UTC
-
-        INPUT
-            window: if evening hour starts at 12, if morning hour starts at 0
-            day: the local day
-                window and day ARE LOCAL
-            observatory_time_zone: time zone to convert local time to UTC
-
-        OUTPUTS
-
-            hour: int, day: int
-                hour and day in UTC
-        """
-
-        if (window == "morning") and (observatory_time_zone < 0):
-
-            day -= 1
-
-        hour = self._set_hour_in_UTC(window, observatory_time_zone)
-
-        return day, hour
-
-    ###########################################################################
-    def _set_hour_in_UTC(self, window: str, observatory_time_zone: int) -> int:
-
-        """
-        Set hour of observation according to the time zone of the observer
-        and the time window in wchich the observation will be made
-
-        PARAMETERS
-            window: either 'evening' or 'morning'
-            observatory_time_zone: time zone of observatory
-
-        OUTPUTS
-            hour
-        """
-
-        if window == "evening":
-
-            hour = 12 + observatory_time_zone
-
-        elif window == "morning":
-
-            hour = 0 + observatory_time_zone
-
-        if hour >= 24:
-            hour -= 24
-
-        elif hour < 0:
-            hour += 24
-
-        return hour
 
     ###########################################################################
