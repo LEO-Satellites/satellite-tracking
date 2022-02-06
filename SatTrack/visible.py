@@ -111,7 +111,11 @@ class ComputeVisibility:
             seconds=time_step_in_seconds
         )
 
-        [hour, day] = self.set_window()
+        window = self.time_parameters["window"]
+        day = self.time_parameters["day"]
+        observatory_time_zone = self.observatory_data["tz"]
+
+        day, hour = self._set_day_hour_to_UTC(window, day, observatory_time_zone)
 
         date_time = datetime.datetime(
             year=self.time_parameters["year"],
@@ -435,29 +439,32 @@ class ComputeVisibility:
         self.observer.date = ephem.date(date_time)
 
     ###########################################################################
-    def set_window(self) -> list:
+    def _set_day_hour_to_UTC(self, window: str, day: int, observatory_time_zone: int) -> list:
         """
-        Set day and  hour of observation according to time zone
+        Set day and  hour of observation according to UTC
+
+        INPUT
+            window: if evening hour starts at 12, if morning hour starts at 0
+            day: the local day
+                window and day ARE LOCAL
+            observatory_time_zone: time zone to convert local time to UTC
 
         OUTPUTS
 
-            [hour: int, day: int]:
+            hour: int, day: int
+                hour and day in UTC
         """
-
-        window = self.time_parameters["window"]
-        day = self.time_parameters["day"]
-        observatory_time_zone = self.observatory_data["tz"]
 
         if (window == "morning") and (observatory_time_zone < 0):
 
             day -= 1
 
-        hour = self._set_hour(window, observatory_time_zone)
+        hour = self._set_hour_in_UTC(window, observatory_time_zone)
 
-        return [hour, day]
+        return day, hour
 
     ###########################################################################
-    def _set_hour(self, window: str, observatory_time_zone: int) -> int:
+    def _set_hour_in_UTC(self, window: str, observatory_time_zone: int) -> int:
 
         """
         Set hour of observation according to the time zone of the observer
