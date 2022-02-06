@@ -111,21 +111,31 @@ class ComputeVisibility:
             seconds=time_step_in_seconds
         )
 
-        window = self.time_parameters["window"]
-        day = self.time_parameters["day"]
-        observatory_time_zone = self.observatory_data["tz"]
-
-        day, hour = self._set_day_hour_to_UTC(window, day, observatory_time_zone)
-
-        date_time = datetime.datetime(
-            year=self.time_parameters["year"],
-            month=self.time_parameters["month"],
-            day=day,
-            hour=hour,
-            minute=0,
-            second=0,
+        ######################################################################
+        start_date_time, finish_date_time = self._get_date_time_object(
+            time_parameters=self.time_parameters,
+            time_zone=self.observatory_data["tz"],
         )
 
+        date_time = start_date_time
+        ######################################################################
+
+        # day, hour = self._set_day_hour_to_UTC(
+        #     window=self.time_parameters["window"],
+        #     day=self.time_parameters["day"],
+        #     observatory_time_zone=self.observatory_data["tz"]
+        # )
+        #
+        # date_time = datetime.datetime(
+        #     year=self.time_parameters["year"],
+        #     month=self.time_parameters["month"],
+        #     day=day,
+        #     hour=hour,
+        #     minute=0,
+        #     second=0,
+        # )
+
+        ######################################################################
         previous_satellite_azimuth = 0
         previous_satellite_altitude = 0
         ######################################################################
@@ -243,6 +253,64 @@ class ComputeVisibility:
             return [[satellite_name] + data for data in visible_satellite_data]
         # return [time_delta_in_seconds, date_time]
 
+    ###########################################################################
+    def _get_date_time_object(self, time_parameters: dict, time_zone: int,
+        adaptable_window: bool
+    ) -> list:
+        """
+        OUTPUTS
+            [
+                start_date_time: datetime.datetime,
+                finish_date_time: datetime.datetime
+            ]
+        """
+
+        if adaptable_window is True:
+
+            start_hour = time_parameters["start_hour"]
+
+            if ( start_hour 
+            start_day, start_hour = self._set_day_hour_to_UTC(
+                window=time_parameters["window"],
+                day=time_parameters["day"],
+                observatory_time_zone=time_zone
+            )
+
+            start_date_time = datetime.datetime(
+                year=time_parameters["year"],
+                month=time_parameters["month"],
+                day=start_day,
+                hour=start_hour,
+                minute=time_parameters["start_minute"],
+                second=time_parameters["start_second"],
+            )
+
+            finish_day, finish_hour = self._set_day_hour_to_UTC(
+                window=time_parameters["window"],
+                day=time_parameters["day"],
+                observatory_time_zone=time_zone
+            )
+
+            start_date_time = datetime.datetime(
+                year=time_parameters["year"],
+                month=time_parameters["month"],
+                day=start_day,
+                hour=start_hour,
+                minute=time_parameters["start_minute"],
+                second=time_parameters["start_second"],
+            )
+
+
+        date_time = datetime.datetime(
+            year=self.time_parameters["year"],
+            month=self.time_parameters["month"],
+            day=start_day,
+            hour=start_hour,
+            minute=0,
+            second=0,
+        )
+
+        pass
     ###########################################################################
     def _get_satellite_RA_DEC_from_azimuth_and_altitude(
         self, satellite_azimuth: float, satellite_altitude: float
