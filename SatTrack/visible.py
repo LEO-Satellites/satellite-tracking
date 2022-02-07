@@ -9,16 +9,18 @@ from pyorbital.orbital import Orbital
 
 from SatTrack.units import ConvertUnits
 from SatTrack import output
+from SatTrack import ConfigurationFile
 
 ###############################################################################
 convert = ConvertUnits()
 
 
-class ComputeVisibility:
+class ComputeVisibility(ConfigurationFile):
     """Class to compute whether a satellite is visible or not"""
 
     def __init__(
         self,
+        custom_window: bool,
         time_parameters: dict,
         observatory_data: dict,
         observation_constraints: dict,
@@ -68,7 +70,8 @@ class ComputeVisibility:
         """
         #######################################################################
 
-        self.time_parameters = self._set_time_parameters(time_parameters)
+        self.time_parameters = super().(time_parameters)
+        # self.time_parameters = self._set_time_parameters(time_parameters)
 
         self.observatory_data = self._set_observatory_data(observatory_data)
 
@@ -233,7 +236,7 @@ class ComputeVisibility:
 
     ###########################################################################
     def _get_date_time_object(self, time_parameters: dict, time_zone: int,
-        adaptable_window: bool
+        custom_window: bool
     ) -> list:
         """
         OUTPUTS
@@ -245,7 +248,7 @@ class ComputeVisibility:
 
         time_zone = datetime.timedelta(hours=time_zone)
 
-        if adaptable_window is True:
+        if custom_window is True:
             # define local time
             start_date_time = datetime.datetime(
                     year=time_parameters["year"],

@@ -15,7 +15,6 @@ from observatories import observatories
 from SatTrack.visible import ComputeVisibility
 from SatTrack.tle import TLE
 from SatTrack.output import OutputFile
-from SatTrack.superclasses import ConfigurationFile
 
 ###############################################################################
 

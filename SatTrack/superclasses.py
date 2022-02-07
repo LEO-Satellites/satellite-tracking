@@ -23,9 +23,8 @@ class ConfigurationFile:
     def section_to_dictionary(
         self,
         section_items: tuple,
-        value_separators: list,
-        # multiple_lines: bool,
-        # comma_values:bool,
+        split_variable: bool=False,
+        value_separators: list=["\n"],
     ) -> dict:
         """
         Converts a section in the configuration file to a dictionary.
@@ -41,24 +40,17 @@ class ConfigurationFile:
         """
         section_dictionary = dict(section_items)
 
-        for key, value in section_dictionary.items():
+        if split_variable is True:
 
-            value = str(value)
-            ###################################################################
-            if "\n" in value:
+            for key, value in section_dictionary.items():
 
-                value = value.split("\n")
-                section_dictionary[key] = value
+                for separator in value_separators:
 
-            ###################################################################
-            for separator in value_separators:
+                    if separator in value:
 
-                if separator in value:
-
-                    value = value.split(separator)
-                    section_dictionary[key] = value
-            ###################################################################
-
+                        value = value.split(separator)
+                        section_dictionary[key] = value
+        #######################################################################
         section_dictionary = self._transform_values_in_dictionary(
             section_dictionary
         )
@@ -87,7 +79,7 @@ class ConfigurationFile:
 
         for key, value in dictionary.items():
 
-            is_list = type(value) is list
+            is_list = type(value) is type([])
             value = self._transform_values(value, is_list)
 
             dictionary[key] = value
@@ -118,24 +110,26 @@ class ConfigurationFile:
         """
         string = string.strip()
         #######################################################################
+        # check for bool
         if (string == "True") or (string == "False"):
 
             return string == "True"
 
         #######################################################################
-        if (string.isalpha() is True) | ("_" in string) is True:
+        # check for float
+        is_float = True
+        if "." in string:
+            for val in string.split("."):
+                is_float = is_float and val.isnumeric()
 
-            return string
-        #######################################################################
-        numeric_value = float(string)
-        if numeric_value.is_integer():
+            if is_float is True:
+                return float(string)
 
-            return int(numeric_value)
+        # check for int
+        if string.isnumeric():
+            return int(string)
 
-        return numeric_value
-
-    ###########################################################################
-
+        return string
 
 ###############################################################################
 class FileDirectory:
