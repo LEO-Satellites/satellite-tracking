@@ -42,42 +42,43 @@ if __name__ == "__main__":
 
     tle_file_location = f"{tle_directory}/{tle_name}"
     ###########################################################################
-    time_parameters = dict(parser.items("time"))
+    time_parameters = parser.items("time")
 
     observatory_name = parser.get("observation", "observatory")
     observatory_data = observatories[f"{observatory_name}"]
 
-    observations_constraints = dict(parser.items("observation"))
+    observations_constraints = parser.items("observation")
 
     compute_visibility = ComputeVisibility(
+        custom_window=True,
         time_parameters=time_parameters,
         observatory_data=observatory_data,
         observation_constraints=observations_constraints,
         tle_file_location=tle_file_location,
     )
 
-    # print("Compute visibility of satellite")
-    # results = compute_visibility.compute_visibility_of_satellite(
-    #     satellite_name="ONEWEB-0231"
-    # )
+    print("Compute visibility of satellite")
+    results = compute_visibility.compute_visibility_of_satellite(
+        satellite_name="ONEWEB-0231"
+    )
     # print(results[0])
 
-    number_processes = parser.getint("parameters", "processes")
-
-    visible_satellites = parser.get("observation", "visible_satellites")
-    visible_satellites = visible_satellites.split("\n")
-
-    with mp.Pool(processes=number_processes) as pool:
-        results = pool.map(
-            compute_visibility.compute_visibility_of_satellite,
-            visible_satellites,
-        )
-
-    output_directory = parser.get("directories", "data_output")
-    output = OutputFile(results, output_directory)
-    details_name = parser.get("names", "complete")
-    visible_name = parser.get("names", "simple")
-    output.save_data(simple_name=visible_name, full_name=details_name)
+    # number_processes = parser.getint("parameters", "processes")
+    #
+    # visible_satellites = parser.get("observation", "visible_satellites")
+    # visible_satellites = visible_satellites.split("\n")
+    #
+    # with mp.Pool(processes=number_processes) as pool:
+    #     results = pool.map(
+    #         compute_visibility.compute_visibility_of_satellite,
+    #         visible_satellites,
+    #     )
+    #
+    # output_directory = parser.get("directories", "data_output")
+    # output = OutputFile(results, output_directory)
+    # details_name = parser.get("names", "complete")
+    # visible_name = parser.get("names", "simple")
+    # output.save_data(simple_name=visible_name, full_name=details_name)
     ###########################################################################
     tf = time.time()
     print(f"Running time: {tf-ti:.2} [s]")
