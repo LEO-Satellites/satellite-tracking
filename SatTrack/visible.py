@@ -67,12 +67,6 @@ class ComputeVisibility:
             tle_file_location: path to tle file used to compute visibility
         """
         #######################################################################
-        window = time_parameters["window"]
-
-        if window not in ["morning", "evening"]:
-            print(f'window keyword must be of either "morning" or "evening"')
-            sys.exit()
-        #######################################################################
 
         self.time_parameters = self._set_time_parameters(time_parameters)
 
@@ -249,10 +243,9 @@ class ComputeVisibility:
             ]
         """
 
-        time_zone = datetime.datetime(hours=4)
+        time_zone = datetime.timedelta(hours=time_zone)
 
         if adaptable_window is True:
-            ###################################################################
             # define local time
             start_date_time = datetime.datetime(
                     year=time_parameters["year"],
@@ -284,13 +277,20 @@ class ComputeVisibility:
 
         #######################################################################
         else:
-            ###################################################################
             # define local time
+            if time_parameters["window"] == "morning":
+                hour = 0
+            elif time_parameters["windows"] == "evening":
+                hour= 12
+            else:
+                print(f"window must be: 'morning' or 'evening'")
+                sys.exit()
+
             start_date_time = datetime.datetime(
                 year=time_parameters["year"],
                 month=time_parameters["month"],
                 day=time_parameters["day"],
-                hour=time_parameters["hour"],
+                hour=hour,
                 minute=0,
                 second=0,
             )
@@ -301,7 +301,6 @@ class ComputeVisibility:
             finish_date_time += datetime.timedelta(hours=12)
 
             return start_date_time, finish_date_time
-        #######################################################################
     ###########################################################################
     def _get_satellite_RA_DEC_from_azimuth_and_altitude(
         self, satellite_azimuth: float, satellite_altitude: float
