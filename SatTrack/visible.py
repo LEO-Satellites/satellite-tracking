@@ -103,10 +103,8 @@ class ComputeVisibility(ConfigurationFile):
         satellite = self._set_dark_satellite(satellite_name)
         ######################################################################
         # if time_delta = 60, then it will move minute by minute
-        time_step_in_seconds = self.time_parameters["delta"]
-
-        time_delta_in_seconds = datetime.timedelta(
-            seconds=time_step_in_seconds
+        time_delta = datetime.timedelta(
+            seconds=self.time_parameters["delta"]
         )
 
         ######################################################################
@@ -117,23 +115,23 @@ class ComputeVisibility(ConfigurationFile):
         )
 
         date_time = start_date_time
-        time_delta = finish_date_time - start_date_time
-        print(start_date_time)
-        print(finish_date_time)
-        print(time_delta)
+
+        observation_window_seconds = (
+            (finish_date_time - start_date_time).total_seconds()
+        )
+
+        number_of_time_steps = int(
+            observation_window_seconds / time_delta.total_seconds()
+        )
         #######################################################################
         previous_satellite_azimuth = 0
         previous_satellite_altitude = 0
         #######################################################################
         visible_satellite_data = []
         #######################################################################
-        # 12 because time windows are of 12 hours
-        # number_iterations = (12 * 60 * 60) / time_step_in_seconds
-        # number_iterations = range(int(number_iterations))
+        print(f"Compute visibility of: {satellite_name}", end="\r")
         #
-        # print(f"Compute visibility of: {satellite_name}", end="\r")
-        #
-        # for time_step in number_iterations:
+        # for time_step in range(number_of_time_steps):
         #     ###################################################################
         #     # compute current latitude, longitude of the satellite's
         #     # footprint and its current orbital altitude
