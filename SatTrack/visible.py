@@ -92,7 +92,6 @@ class ComputeVisibility(ConfigurationFile):
 
         self.custom_window = custom_window
         self.time_parameters = super().section_to_dictionary(time_parameters)
-        # self.time_parameters = self._set_time_parameters(time_parameters)
 
         self.observatory_data = self._set_observatory_data(observatory_data)
 
@@ -261,6 +260,11 @@ class ComputeVisibility(ConfigurationFile):
         custom_window: bool
     ) -> list:
         """
+        INPUT
+            time_parameters: check constructor
+            tz: time zone of the observatory location
+            constant_window: wheather the user defines a time window or if it
+                is the "evening" or "morning" 12 hours slot
         OUTPUTS
             [
                 start_date_time: datetime.datetime,
@@ -366,38 +370,6 @@ class ComputeVisibility(ConfigurationFile):
             [ra_satellite_h, ra_satellite_m, ra_satellite_s],
             [dec_satellite_d, dec_satellite_m, dec_satellite_s],
         ]
-
-    ###########################################################################
-    def _set_time_parameters(self, time_parameters: dict) -> dict:
-        """
-        Convert strings to numeric values in time parameters dictionary
-
-        PARAMETERS
-            time_parameters: contains parameters of the observation date
-                {
-                    'year': '2021'
-                    'month': '11'
-                    'day': '25'
-                    'delta': '60'
-                    'window': either 'morning' or 'evening'
-                }
-        OUTPUTS
-            time_parameters: contains parameters of the observation date
-                {
-                    'year': 2021
-                    'month': 11
-                    'day': 25
-                    'delta': 60
-                    'window': either 'morning' or 'evening'
-                }
-        """
-
-        time_parameters["year"] = int(time_parameters["year"])
-        time_parameters["month"] = int(time_parameters["month"])
-        time_parameters["day"] = int(time_parameters["day"])
-        time_parameters["delta"] = float(time_parameters["delta"])
-
-        return time_parameters
 
     ###########################################################################
     def _set_dark_satellite(self, satellite: str) -> Orbital:

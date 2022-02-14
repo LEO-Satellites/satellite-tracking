@@ -45,7 +45,6 @@ if __name__ == "__main__":
 
     ###########################################################################
     time_parameters = parser.items("time")
-    print(time_parameters)
 
     observatory_name = parser.get("observation", "observatory")
     observatory_data = observatories[f"{observatory_name}"]
