@@ -44,14 +44,15 @@ if __name__ == "__main__":
     satellites_list = tle.get_satellites_from_tle(f"{tle_file_location}")
 
     ###########################################################################
-    time_parameters = dict(parser.items("time"))
+    time_parameters = parser.items("time")
 
     observatory_name = parser.get("observation", "observatory")
     observatory_data = observatories[f"{observatory_name}"]
 
-    observations_constraints = dict(parser.items("observation"))
+    observations_constraints = parser.items("observation")
 
     compute_visibility = ComputeVisibility(
+        custom_window=False,
         time_parameters=time_parameters,
         observatory_data=observatory_data,
         observation_constraints=observations_constraints,

@@ -134,7 +134,6 @@ class ComputeVisibility(ConfigurationFile):
         print(f"Compute visibility of: {satellite_name}", end="\r")
 
         for time_step in range(number_of_time_steps):
-            print(date_time)
             # compute current latitude, longitude of the satellite's
             # footprint and its current orbital altitude
             try:
@@ -286,7 +285,7 @@ class ComputeVisibility(ConfigurationFile):
             # define local time
             if time_parameters["window"] == "morning":
                 hour = 0
-            elif time_parameters["windows"] == "evening":
+            elif time_parameters["window"] == "evening":
                 hour= 12
             else:
                 print(f"window must be: 'morning' or 'evening'")
@@ -304,7 +303,7 @@ class ComputeVisibility(ConfigurationFile):
             # convert to UTC
             start_date_time += time_zone
 
-            finish_date_time += datetime.timedelta(hours=12)
+            finish_date_time = start_date_time + datetime.timedelta(hours=12)
 
             return start_date_time, finish_date_time
     ###########################################################################
