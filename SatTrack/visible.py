@@ -21,24 +21,44 @@ class ComputeVisibility(ConfigurationFile):
     def __init__(
         self,
         custom_window: bool,
-        time_parameters: dict,
+        time_parameters: list,
         observatory_data: dict,
-        observation_constraints: dict,
+        observation_constraints: list,
         tle_file_location: str,
     ):
         """
         PARAMETERS
 
-            time_parameters: contains parameters of the observation date
-                {
-                    'year': year of observation, eg, '2021'
-                    'month': month of observation, eg, '11'
-                    'day': day of observation, eg, '25'
-                    'delta': time delta for computation in seconds, eg,
-                        '60'
-                    'window': observation done either 'morning'
-                        or 'evening'
-                }
+            custom_window: decide if fixed [evening-morning] setup or
+                let user define the time window
+
+            time_parameters: parameters of the observation date
+
+                if custom_window is True,
+                [
+                    ('year', year of observation, eg, '2021')
+                    ('month', month of observation, eg, '11'),
+                    ('day', day of observation, eg, '25'),
+                    ('delta', time step resolution in seconds, eg, '60'),
+                    ('window', either 'morning' or 'evening')
+                ]
+
+                if custom_window is False,
+                if custom_window is True,
+                [
+                    ('year', '2021')
+                    ('month', '11'),
+                    ('day', '25'),
+                    # observation starts at 22[h]: 30[m]: 56[s]
+                    ('start_hour', '22')
+                    ('start_minute', '30'),
+                    ('start_second', '56'),
+                    # observation finishes at 02[h]: 20[m]: 15[s]
+                    ('finish_hour', '02')
+                    ('finish_minute', '20'),
+                    ('finish_second', '15'),
+                    ('delta', time step resolution in seconds, eg, '60'),
+                ]
 
             observatory_data: contains parameters of observatory
                 {
