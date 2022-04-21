@@ -8,7 +8,7 @@ Celestrak to calculate times and positions of LEOsats to plan observations.
 
 * Set observing parameters in configuration file: track.ini
 * run via terminal with: python track.py
-
+### track.ini
 ## High resolution track with custom time window
 
 * Set observing parameters in configuration file: custom_track.ini

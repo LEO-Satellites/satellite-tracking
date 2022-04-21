@@ -20,16 +20,17 @@ from SatTrack.output import OutputFile
 
 if __name__ == "__main__":
     ###########################################################################
-    ti = time.time()
+    start_time = time.time()
     ###########################################################################
+    config_file_name = "track.ini"
     parser = ConfigParser(interpolation=ExtendedInterpolation())
-    parser.read("track.ini")
+    parser.read(f"{config_file_name}")
     ###########################################################################
     # downloading tle file
     print("Fetch TLE file", end="\n")
 
     satellite_brand = parser.get("observation", "satellite")
-    tle_directory = parser.get("directories", "tle")
+    tle_directory = parser.get("directory", "tle")
 
     tle = TLE(satellite_brand=satellite_brand, directory=tle_directory)
 
@@ -69,11 +70,27 @@ if __name__ == "__main__":
         satellites_list
     )
 
-    output_directory = parser.get("directories", "data_output")
+    ###########################################################################
+    # Get string formats for output files
+    # date
+    time_parameters = dict(time_parameters)
+    year = int(time_parameters["year"])
+    month = int(time_parameters["month"])
+    day = int(time_parameters["day"])
+    window = time_parameters["window"]
+    date = f"{year}_{month:02d}_{day:02d}_{window}"
+    # Set output directory
+    output_directory = parser.get("directory", "data_output")
+    output_directory = f"{output_directory}/{satellite_brand}_{date}"
     output = OutputFile(results, output_directory)
-    details_name = parser.get("names", "complete")
-    visible_name = parser.get("names", "simple")
+    # Save data
+    details_name = parser.get("file", "complete")
+    visible_name = parser.get("file", "simple")
     output.save_data(simple_name=visible_name, full_name=details_name)
     ###########################################################################
-    tf = time.time()
-    print(f"Running time: {tf-ti:.2} [s]")
+    print(output_directory)
+    with open(f"{output_directory}/{config_file_name}", "w") as config_file:
+        parser.write(config_file)
+    ###########################################################################
+    finish_time = time.time()
+    print(f"Running time: {finish_time-start_time:.2f} [s]")
