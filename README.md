@@ -1,12 +1,24 @@
-# Satellite-tracking
+# LEOsat tracking
 Low Earth orbit Satellite tracking code using supplemental TLE data from
 Celestrak to calculate times and positions of LEOsats to plan observations.
-After setting the observing parameters in the configuration file "track.ini"
-the code can be run via terminal with the command: "python track.py"
 
-This package uses:
-* Pyorbital package (https://github.com/pytroll/pyorbital).
-*
+# How to use the package:
+
+## Low resolution track
+
+* Set observing parameters in configuration file: track.ini
+* run via terminal with: python track.py
+
+## High resolution track with custom time window
+
+* Set observing parameters in configuration file: custom_track.ini
+* run via terminal with: python custom_track.py
+
+This package relies on the following packages:
+* pyorbital: https://github.com/pytroll/pyorbital.
+* ephem: https://github.com/brandon-rhodes/pyephem
+* Other packages listed in requirements.txt
+
 If this code is used in any published work, please cite the following
 publications:
 * Tregloan-Reed, J., et al. 2020, A&A, 637, L1
