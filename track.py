@@ -43,7 +43,6 @@ if __name__ == "__main__":
 
     tle_file_location = f"{tle_directory}/{tle_name}"
     satellites_list = tle.get_satellites_from_tle(f"{tle_file_location}")
-
     ###########################################################################
     time_parameters = parser.items("time")
 
@@ -88,9 +87,12 @@ if __name__ == "__main__":
     visible_name = parser.get("file", "simple")
     output.save_data(simple_name=visible_name, full_name=details_name)
     ###########################################################################
-    print(output_directory)
     with open(f"{output_directory}/{config_file_name}", "w") as config_file:
         parser.write(config_file)
+    # save tle file too if person wants to reproduce code1
+    # print(f"{tle_name}")
+    # with open(f"{tle_file_location}", "rw" ) as file:
+    #     file.write(f"{output_directory}/tel_file")
     ###########################################################################
     finish_time = time.time()
     print(f"Running time: {finish_time-start_time:.2f} [s]")
