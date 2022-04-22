@@ -84,7 +84,7 @@ class TLE(FileDirectory):
         """
 
         now = datetime.datetime.now(tz=datetime.timezone.utc)
-        time_stamp = f"{now:%Y-%m-%d-%H:%M:%S}"
+        time_stamp = f"{now:%Y-%m-%d_%H:%M:%S}"
 
         return time_stamp
 
