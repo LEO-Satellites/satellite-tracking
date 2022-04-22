@@ -32,7 +32,7 @@ if __name__ == "__main__":
     date = f"{year}_{month:02d}_{day:02d}_{window}"
 
     # Set output directory
-    output_directory = parser.get("directory", "data_output")
+    output_directory = parser.get("directory", "output")
     output_directory = f"{output_directory}/{satellite_brand}_{date}"
     ###########################################################################
     # downloading tle file

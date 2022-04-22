@@ -1,4 +1,5 @@
 # test output
+output/*
 test/*
 # Project specific ignores
 *.csv
