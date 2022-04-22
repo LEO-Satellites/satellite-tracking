@@ -1,14 +1,6 @@
-#! /usr/bin/env python3
 import multiprocessing as mp
-import os
-import sys
 import time
 from configparser import ConfigParser, ExtendedInterpolation
-from functools import partial
-
-###############################################################################
-import numpy as np
-import pandas as pd
 
 ###############################################################################
 from observatories import observatories
@@ -22,9 +14,9 @@ if __name__ == "__main__":
     ###########################################################################
     start_time = time.time()
     ###########################################################################
-    config_file_name = "track.ini"
+    CONFIG_FILE_NAME = "track"
     parser = ConfigParser(interpolation=ExtendedInterpolation())
-    parser.read(f"{config_file_name}")
+    parser.read(f"{CONFIG_FILE_NAME}.ini")
     ###########################################################################
     # Set output directory
     satellite_brand = parser.get("observation", "satellite")
@@ -57,7 +49,7 @@ if __name__ == "__main__":
 
     tle_file_location = f"{output_directory}/{tle_name}"
     ###########################################################################
-    print(f"Get list of satellites from TLE file", end="\n")
+    print("Get list of satellites from TLE file", end="\n")
     satellites_list = tle.get_satellites_from_tle(f"{tle_file_location}")
     ###########################################################################
     # reload to get it as a tuple again
@@ -93,8 +85,8 @@ if __name__ == "__main__":
     visible_name = parser.get("file", "simple")
     output.save_data(simple_name=visible_name, full_name=details_name)
     ###########################################################################
-    with open(f"{output_directory}/{config_file_name}", "w") as config_file:
-        parser.write(config_file)
+    with open(f"{output_directory}/{CONFIG_FILE_NAME}.ini", "w") as file:
+        parser.write(file)
     ###########################################################################
     finish_time = time.time()
     print(f"Running time: {finish_time-start_time:.2f} [s]")
