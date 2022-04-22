@@ -23,8 +23,8 @@ class ConfigurationFile:
     def section_to_dictionary(
         self,
         section_items: tuple,
-        split_variable: bool=False,
-        value_separators: list=["\n"],
+        split_variable: bool = False,
+        value_separators: list = ["\n"],
     ) -> dict:
         """
         Converts a section in the configuration file to a dictionary.
@@ -130,6 +130,7 @@ class ConfigurationFile:
             return int(string)
 
         return string
+
 
 ###############################################################################
 class FileDirectory:
