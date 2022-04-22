@@ -8,7 +8,37 @@ Celestrak to calculate times and positions of LEOsats to plan observations.
 
 * Set observing parameters in configuration file: track.ini
 * run via terminal with: python track.py
-### track.ini
+
+### Sections in track.ini
+
+* [time]
+    * year, month and day of observations
+    * delta: time resolution for calculation in seconds
+    * window: morning or eveneing
+
+* [observation]
+    * observatory: available observatories are in observatories.py
+    * satellite: oneweb or starlink for instance
+
+Next items define visibility constraints:
+    * lowest_altitude_satellite
+    * sun_zenith_lowest
+    * sun_zenith_highest
+
+* [tle]
+    * download: if True to download and use the latest TLE file
+    if False, load file below
+    * name: tle_oneweb_2022-04-22-04:55:16.txt for instance
+
+* [directory]
+    * work: location of repository in your machine
+    * output: where to save data
+* [file]
+    simple: name of file with time stamp, RA and DEC of visible satellites
+    complete: name of file with detailed information of visible satellites
+
+* [configuration]
+    * processes: number of cores to track satellites in parallel
 ## High resolution track with custom time window
 
 * Set observing parameters in configuration file: custom_track.ini
