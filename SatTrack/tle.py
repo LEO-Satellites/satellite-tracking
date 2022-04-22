@@ -37,7 +37,7 @@ class TLE(FileDirectory):
 
         tle_query = f"{TLE_URL}/{self.satellite_brand}.txt"
 
-        time_stamp = self._get_time_stamp()
+        time_stamp = self.get_time_stamp()
         tle_file_name = f"tle_{self.satellite_brand}_{time_stamp}.txt"
 
         super().check_directory(directory=self.directory, exit=False)
@@ -46,7 +46,7 @@ class TLE(FileDirectory):
             tle_query, f"{self.directory}/{tle_file_name}"
         )
 
-        return tle_file_name
+        return tle_file_name, time_stamp
 
     ###########################################################################
     def get_satellites_from_tle(self, file_location: str) -> list:
@@ -78,13 +78,13 @@ class TLE(FileDirectory):
         return satellites
 
     ###########################################################################
-    def _get_time_stamp(self) -> str:
+    def get_time_stamp(self) -> str:
         """
         Returns time stamp for tle file download: "2021-10-09 16:18:16"
         """
 
         now = datetime.datetime.now(tz=datetime.timezone.utc)
-        time_stamp = f"{now:%Y-%m-%d %H:%M:%S}"
+        time_stamp = f"{now:%Y-%m-%d-%H:%M:%S}"
 
         return time_stamp
 

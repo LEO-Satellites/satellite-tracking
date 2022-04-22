@@ -124,13 +124,11 @@ class ComputeVisibility(ConfigurationFile):
         satellite = self._set_dark_satellite(satellite_name)
         ######################################################################
         # if time_delta = 60, then it will move minute by minute
-        time_delta = datetime.timedelta(
-            seconds=self.time_parameters["delta"]
-        )
+        time_delta = datetime.timedelta(seconds=self.time_parameters["delta"])
 
         ######################################################################
         start_date_time, finish_date_time = self._get_date_time_object(
-            custom_window = self.custom_window,
+            custom_window=self.custom_window,
             time_parameters=self.time_parameters,
             time_zone=self.observatory_data["tz"],
         )
@@ -138,8 +136,8 @@ class ComputeVisibility(ConfigurationFile):
         date_time = start_date_time
 
         observation_window_seconds = (
-            (finish_date_time - start_date_time).total_seconds()
-        )
+            finish_date_time - start_date_time
+        ).total_seconds()
 
         number_of_time_steps = int(
             observation_window_seconds / time_delta.total_seconds()
@@ -190,8 +188,9 @@ class ComputeVisibility(ConfigurationFile):
                 satellite_azimuth, satellite_altitude
             )
             ###################################################################
-            lowest_altitude_satellite =( self.constraints["lowest_altitude_satellite"]
-            )
+            lowest_altitude_satellite = self.constraints[
+                "lowest_altitude_satellite"
+            ]
             ###################################################################
             sun_zenith_angle = pyorbital.astronomy.sun_zenith_angle(
                 date_time, observatory_longitude, observatory_latitude
@@ -256,8 +255,8 @@ class ComputeVisibility(ConfigurationFile):
         # return [time_delta, date_time]
 
     ###########################################################################
-    def _get_date_time_object(self, time_parameters: dict, time_zone: int,
-        custom_window: bool
+    def _get_date_time_object(
+        self, time_parameters: dict, time_zone: int, custom_window: bool
     ) -> list:
         """
         INPUT
@@ -277,12 +276,12 @@ class ComputeVisibility(ConfigurationFile):
         if custom_window is True:
             # define local time
             start_date_time = datetime.datetime(
-                    year=time_parameters["year"],
-                    month=time_parameters["month"],
-                    day=time_parameters["start_day"],
-                    hour=time_parameters["start_hour"],
-                    minute=time_parameters["start_minute"],
-                    second=time_parameters["start_second"],
+                year=time_parameters["year"],
+                month=time_parameters["month"],
+                day=time_parameters["start_day"],
+                hour=time_parameters["start_hour"],
+                minute=time_parameters["start_minute"],
+                second=time_parameters["start_second"],
             )
 
             # convert to UTC
@@ -291,12 +290,12 @@ class ComputeVisibility(ConfigurationFile):
             ###################################################################
             # define local time
             finish_date_time = datetime.datetime(
-                    year=time_parameters["year"],
-                    month=time_parameters["month"],
-                    day=time_parameters["finish_day"],
-                    hour=time_parameters["finish_hour"],
-                    minute=time_parameters["finish_minute"],
-                    second=time_parameters["finish_second"],
+                year=time_parameters["year"],
+                month=time_parameters["month"],
+                day=time_parameters["finish_day"],
+                hour=time_parameters["finish_hour"],
+                minute=time_parameters["finish_minute"],
+                second=time_parameters["finish_second"],
             )
 
             # convert to UTC
@@ -310,7 +309,7 @@ class ComputeVisibility(ConfigurationFile):
             if time_parameters["window"] == "morning":
                 hour = 0
             elif time_parameters["window"] == "evening":
-                hour= 12
+                hour = 12
             else:
                 print(f"window must be: 'morning' or 'evening'")
                 sys.exit()
@@ -330,6 +329,7 @@ class ComputeVisibility(ConfigurationFile):
             finish_date_time = start_date_time + datetime.timedelta(hours=12)
 
             return start_date_time, finish_date_time
+
     ###########################################################################
     def _get_satellite_RA_DEC_from_azimuth_and_altitude(
         self, satellite_azimuth: float, satellite_altitude: float

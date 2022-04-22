@@ -1,49 +1,60 @@
-#! /usr/bin/env python3
-from configparser import ConfigParser, ExtendedInterpolation
-from functools import partial
 import multiprocessing as mp
-import os
-import sys
 import time
-
-###############################################################################
-import numpy as np
-import pandas as pd
+from configparser import ConfigParser, ExtendedInterpolation
 
 ###############################################################################
 from observatories import observatories
-from SatTrack.visible import ComputeVisibility
-from SatTrack.tle import TLE
 from SatTrack.output import OutputFile
+from SatTrack.tle import TLE
+from SatTrack.visible import ComputeVisibility
 
 ###############################################################################
 
 if __name__ == "__main__":
     ###########################################################################
-    ti = time.time()
+    start_time = time.time()
     ###########################################################################
+    CONFIG_FILE_NAME = "track"
     parser = ConfigParser(interpolation=ExtendedInterpolation())
-    parser.read("track.ini")
+    parser.read(f"{CONFIG_FILE_NAME}.ini")
+    ###########################################################################
+    # Set output directory
+    satellite_brand = parser.get("observation", "satellite")
+    # observation date
+    time_parameters = parser.items("time")
+    time_parameters = dict(time_parameters)
+
+    year = int(time_parameters["year"])
+    month = int(time_parameters["month"])
+    day = int(time_parameters["day"])
+    window = time_parameters["window"]
+
+    date = f"{year}_{month:02d}_{day:02d}_{window}"
+
+    # Set output directory
+    output_directory = parser.get("directory", "output")
+    output_directory = f"{output_directory}/{satellite_brand}_{date}"
     ###########################################################################
     # downloading tle file
     print("Fetch TLE file", end="\n")
 
-    satellite_brand = parser.get("observation", "satellite")
-    tle_directory = parser.get("directories", "tle")
-
-    tle = TLE(satellite_brand=satellite_brand, directory=tle_directory)
+    tle = TLE(satellite_brand=satellite_brand, directory=output_directory)
 
     download_tle = parser.getboolean("tle", "download")
 
     if download_tle:
-        tle_name = tle.download()
+        tle_name, tle_time_stamp = tle.download()
     else:
         tle_name = parser.get("tle", "name")
 
-    tle_file_location = f"{tle_directory}/{tle_name}"
-    satellites_list = tle.get_satellites_from_tle(f"{tle_file_location}")
-
+    tle_file_location = f"{output_directory}/{tle_name}"
     ###########################################################################
+    print("Get list of satellites from TLE file", end="\n")
+    satellites_list = tle.get_satellites_from_tle(f"{tle_file_location}")
+    ###########################################################################
+    # reload to get it as a tuple again
+    print("Compute visibility of satellite", end="\n")
+
     time_parameters = parser.items("time")
 
     observatory_name = parser.get("observation", "observatory")
@@ -59,21 +70,23 @@ if __name__ == "__main__":
         tle_file_location=tle_file_location,
     )
 
-    print("Compute visibility of satellite")
-
-    number_processes = parser.getint("parameters", "processes")
+    number_processes = parser.getint("configuration", "processes")
 
     with mp.Pool(processes=number_processes) as pool:
         results = pool.map(
-        compute_visibility.compute_visibility_of_satellite,
-        satellites_list
-    )
+            compute_visibility.compute_visibility_of_satellite, satellites_list
+        )
 
-    output_directory = parser.get("directories", "data_output")
+    ###########################################################################
+    # Get string formats for output files
     output = OutputFile(results, output_directory)
-    details_name = parser.get("names", "complete")
-    visible_name = parser.get("names", "simple")
+    # Save data
+    details_name = parser.get("file", "complete")
+    visible_name = parser.get("file", "simple")
     output.save_data(simple_name=visible_name, full_name=details_name)
     ###########################################################################
-    tf = time.time()
-    print(f"Running time: {tf-ti:.2} [s]")
+    with open(f"{output_directory}/{CONFIG_FILE_NAME}.ini", "w") as file:
+        parser.write(file)
+    ###########################################################################
+    finish_time = time.time()
+    print(f"Running time: {finish_time-start_time:.2f} [s]")
