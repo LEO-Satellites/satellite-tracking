@@ -4,7 +4,7 @@ import re
 import sys
 import urllib
 
-from SatTrack.superclasses import FileDirectory
+from leosTrack.utils.filedir import FileDirectory
 
 ###############################################################################
 # CONSTANTS

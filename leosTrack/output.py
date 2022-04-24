@@ -1,7 +1,7 @@
-import os
+"""Handle output file of visible LEO-satellites"""
 import pandas as pd
 
-from SatTrack.superclasses import FileDirectory
+from leosTrack.utils.filedir import FileDirectory
 
 ###############################################################################
 # CONSTANTS

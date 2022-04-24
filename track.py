@@ -1,12 +1,13 @@
+"""Spot visible LEO-sats with low resolution track"""
 import multiprocessing as mp
 import time
 from configparser import ConfigParser, ExtendedInterpolation
 
-###############################################################################
+from leosTrack.output import OutputFile
+from leosTrack.tle import TLE
+from leosTrack.utils.filedir import FileDirectory
+from leosTrack.visible import ComputeVisibility
 from observatories import observatories
-from SatTrack.output import OutputFile
-from SatTrack.tle import TLE
-from SatTrack.visible import ComputeVisibility
 
 ###############################################################################
 
@@ -34,6 +35,7 @@ if __name__ == "__main__":
     # Set output directory
     output_directory = parser.get("directory", "output")
     output_directory = f"{output_directory}/{satellite_brand}_{date}"
+    FileDirectory().check_directory(output_directory, exit=False)
     ###########################################################################
     # downloading tle file
     print("Fetch TLE file", end="\n")
@@ -43,8 +45,11 @@ if __name__ == "__main__":
     download_tle = parser.getboolean("tle", "download")
 
     if download_tle:
+
         tle_name, tle_time_stamp = tle.download()
+
     else:
+
         tle_name = parser.get("tle", "name")
 
     tle_file_location = f"{output_directory}/{tle_name}"
@@ -85,7 +90,10 @@ if __name__ == "__main__":
     visible_name = parser.get("file", "simple")
     output.save_data(simple_name=visible_name, full_name=details_name)
     ###########################################################################
-    with open(f"{output_directory}/{CONFIG_FILE_NAME}.ini", "w") as file:
+    with open(
+        f"{output_directory}/{CONFIG_FILE_NAME}.ini", "w",
+        encoding="utf-8"
+    ) as file:
         parser.write(file)
     ###########################################################################
     finish_time = time.time()
