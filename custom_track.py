@@ -3,11 +3,11 @@ import multiprocessing as mp
 import time
 from configparser import ConfigParser, ExtendedInterpolation
 
+from leosTrack.output import OutputFile
+from leosTrack.tle import TLE
+from leosTrack.visible import ComputeVisibility
 ###############################################################################
 from observatories import observatories
-from SatTrack.output import OutputFile
-from SatTrack.tle import TLE
-from SatTrack.visible import ComputeVisibility
 
 ###############################################################################
 if __name__ == "__main__":
@@ -76,7 +76,9 @@ if __name__ == "__main__":
 
     visible_satellites = parser.get("observation", "satellites")
     visible_satellites = visible_satellites.split("\n")
-
+    print(output_directory)
+    # import sys
+    # sys.exit()
     with mp.Pool(processes=number_processes) as pool:
         results = pool.map(
             compute_visibility.compute_visibility_of_satellite,

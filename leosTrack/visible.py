@@ -1,5 +1,5 @@
+"""Compute visibility of LEO sats according to observation constraints"""
 import datetime
-import multiprocessing as mp
 import sys
 
 import ephem
