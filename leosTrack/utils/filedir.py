@@ -9,9 +9,9 @@ class FileDirectory:
     def __init__(self):
         pass
 
-    @classmethod
+    @staticmethod
     def check_directory(
-        cls, directory: str, exit_operation: bool = False
+        directory: str, exit_operation: bool = False
     ) -> None:
         """
         Check if a directory exists, if not it creates it or
@@ -27,8 +27,8 @@ class FileDirectory:
 
             os.makedirs(directory)
 
-    @classmethod
-    def file_exists(cls, location: str, exit_operation: bool = False) -> bool:
+    @staticmethod
+    def file_exists(location: str, exit_operation: bool = False) -> bool:
         """
         Check if a location is a file, if not exits depending
         on the value of exit_operation
