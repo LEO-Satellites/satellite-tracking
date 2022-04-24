@@ -10,9 +10,7 @@ class FileDirectory:
         pass
 
     @staticmethod
-    def check_directory(
-        directory: str, exit_operation: bool = False
-    ) -> None:
+    def check_directory(directory: str, exit_operation: bool = False) -> None:
         """
         Check if a directory exists, if not it creates it or
         exits depending on the value of exit_operation

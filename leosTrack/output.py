@@ -31,6 +31,8 @@ COLUMN_NAMES_SIMPLE = [
     "DEC[dd:mm:ss]",
 ]
 ###############################################################################
+
+
 class OutputFile(FileDirectory):
     """Handles data output for visible satellites"""
 
@@ -42,7 +44,7 @@ class OutputFile(FileDirectory):
                 visibility in a given tle file
             directory: directory to save all the outputs
         """
-
+        FileDirectory.__init__(self)
         self.results = results
         self.directory = directory
 
@@ -95,7 +97,7 @@ class OutputFile(FileDirectory):
 
         data_frame = data_frame.drop_duplicates(
             subset="satellite", keep="first"
-        )
+        )  # type: ignore
 
         data_frame.sort_values(by=["date[UT]", "satellite"], inplace=True)
 
@@ -164,7 +166,7 @@ class OutputFile(FileDirectory):
             returns list with visible satellites
         """
 
-        visible_satellites = list(filter(lambda x: x != None, results))
+        visible_satellites = list(filter(lambda x: x is not None, results))
 
         return visible_satellites
 
