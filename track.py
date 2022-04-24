@@ -35,7 +35,6 @@ if __name__ == "__main__":
     # Set output directory
     output_directory = parser.get("directory", "output")
     output_directory = f"{output_directory}/{satellite_brand}_{date}"
-    FileDirectory.check_directory(output_directory, exit_operation=False)
     ###########################################################################
     # downloading tle file
     print("Fetch TLE file", end="\n")
@@ -51,6 +50,8 @@ if __name__ == "__main__":
     else:
 
         tle_name = parser.get("tle", "name")
+        FileDirectory.check_directory(output_directory, exit_operation=True)
+        FileDirectory.file_exists(f"{output_directory}/{tle_name}")
 
     tle_file_location = f"{output_directory}/{tle_name}"
     ###########################################################################
