@@ -62,7 +62,7 @@ class OutputFile(FileDirectory):
 
         print("Save data")
         self._get_data()
-        super().check_directory(self.directory, exit=False)
+        super().check_directory(self.directory, exit_operation=False)
         self._save_simple_output(simple_name)
         self._save_output(full_name)
 

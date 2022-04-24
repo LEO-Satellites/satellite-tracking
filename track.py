@@ -35,7 +35,7 @@ if __name__ == "__main__":
     # Set output directory
     output_directory = parser.get("directory", "output")
     output_directory = f"{output_directory}/{satellite_brand}_{date}"
-    FileDirectory().check_directory(output_directory, exit=False)
+    FileDirectory().check_directory(output_directory, exit_operation=False)
     ###########################################################################
     # downloading tle file
     print("Fetch TLE file", end="\n")

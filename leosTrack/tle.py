@@ -40,7 +40,7 @@ class TLE(FileDirectory):
         time_stamp = self.get_time_stamp()
         tle_file_name = f"tle_{self.satellite_brand}_{time_stamp}.txt"
 
-        super().check_directory(directory=self.directory, exit=False)
+        super().check_directory(directory=self.directory, exit_operation=False)
 
         urllib.request.urlretrieve(
             tle_query, f"{self.directory}/{tle_file_name}"
@@ -62,7 +62,7 @@ class TLE(FileDirectory):
             example: [oneweb-000, ...]
         """
 
-        super().file_exists(file_location, exit=True)
+        super().file_exists(file_location, exit_operation=True)
 
         # oneweb -> ONEWEB
         satellite = self.satellite_brand.upper()
