@@ -1,15 +1,15 @@
-import sys
+"""Compute visibility of LEO sats according to observation constraints"""
 import datetime
-import multiprocessing as mp
+import sys
 
 import ephem
 import numpy as np
 import pyorbital
 from pyorbital.orbital import Orbital
 
-from SatTrack.units import ConvertUnits
-from SatTrack import output
-from SatTrack.superclasses import ConfigurationFile
+from leosTrack import output
+from leosTrack.units import ConvertUnits
+from leosTrack.utils.configfile import ConfigurationFile
 
 ###############################################################################
 convert = ConvertUnits()

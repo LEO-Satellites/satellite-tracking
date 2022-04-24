@@ -1,7 +1,7 @@
-import os
+"""Handle output file of visible LEO-satellites"""
 import pandas as pd
 
-from SatTrack.superclasses import FileDirectory
+from leosTrack.utils.filedir import FileDirectory
 
 ###############################################################################
 # CONSTANTS
@@ -31,6 +31,8 @@ COLUMN_NAMES_SIMPLE = [
     "DEC[dd:mm:ss]",
 ]
 ###############################################################################
+
+
 class OutputFile(FileDirectory):
     """Handles data output for visible satellites"""
 
@@ -42,7 +44,7 @@ class OutputFile(FileDirectory):
                 visibility in a given tle file
             directory: directory to save all the outputs
         """
-
+        FileDirectory.__init__(self)
         self.results = results
         self.directory = directory
 
@@ -62,7 +64,7 @@ class OutputFile(FileDirectory):
 
         print("Save data")
         self._get_data()
-        super().check_directory(self.directory, exit=False)
+        super().check_directory(self.directory, exit_operation=False)
         self._save_simple_output(simple_name)
         self._save_output(full_name)
 
@@ -95,7 +97,7 @@ class OutputFile(FileDirectory):
 
         data_frame = data_frame.drop_duplicates(
             subset="satellite", keep="first"
-        )
+        )  # type: ignore
 
         data_frame.sort_values(by=["date[UT]", "satellite"], inplace=True)
 
@@ -164,7 +166,7 @@ class OutputFile(FileDirectory):
             returns list with visible satellites
         """
 
-        visible_satellites = list(filter(lambda x: x != None, results))
+        visible_satellites = list(filter(lambda x: x is not None, results))
 
         return visible_satellites
 
@@ -177,17 +179,18 @@ def data_formating(
     darksat_latlon,
     sat_az,
     sat_alt,
-    raSAT_h,
-    raSAT_m,
-    raSAT_s,
-    decSAT_d,
-    decSAT_m,
-    decSAT_s,
-    sunRA,
-    sunDEC,
+    ra_sat_h,
+    ra_sat_m,
+    ra_sat_s,
+    dec_sat_d,
+    dec_sat_m,
+    dec_sat_s,
+    sun_ra,
+    sun_dec,
     sun_zenith_angle,
     ang_motion,
 ):
+    """Prepare data to txt file"""
 
     year = date_obj.year
     month = date_obj.month
@@ -207,10 +210,10 @@ def data_formating(
         f"{darksat_latlon[2]:5.2f}",
         f"{sat_az:06.3f}",
         f"{sat_alt:06.3f}",
-        f"{raSAT_h:02d}:{raSAT_m:02d}:{raSAT_s:05.2f}",
-        f"{decSAT_d:+03d}:{decSAT_m:02d}:{decSAT_s:05.2f}",
-        f"{sunRA:09.7f}",
-        f"{sunDEC:09.7f}",
+        f"{ra_sat_h:02d}:{ra_sat_m:02d}:{ra_sat_s:05.2f}",
+        f"{dec_sat_d:+03d}:{dec_sat_m:02d}:{dec_sat_s:05.2f}",
+        f"{sun_ra:09.7f}",
+        f"{sun_dec:09.7f}",
         f"{sun_zenith_angle:07.3f}",
         f"{ang_motion:08.3f}",
     ]
@@ -218,8 +221,8 @@ def data_formating(
     data_simple = [
         f"{date}",
         f"{time}",
-        f"{raSAT_h:02d}:{raSAT_m:02d}:{raSAT_s:05.2f}",
-        f"{decSAT_d:+03d}:{decSAT_m:02d}:{decSAT_s:05.2f}",
+        f"{ra_sat_h:02d}:{ra_sat_m:02d}:{ra_sat_s:05.2f}",
+        f"{dec_sat_d:+03d}:{dec_sat_m:02d}:{dec_sat_s:05.2f}",
     ]
 
     return data, data_simple
