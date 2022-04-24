@@ -1,3 +1,4 @@
+"""Track LEO-sats with a custom time windows """
 import multiprocessing as mp
 import time
 from configparser import ConfigParser, ExtendedInterpolation
@@ -37,7 +38,7 @@ if __name__ == "__main__":
         f"{start_hour:02d}:{start_minute:02d}_"
         f"{finish_hour:02d}:{finish_minute:02d}"
     )
-    
+
     # Set output directory
     output_directory = parser.get("directory", "output")
     output_directory = f"{output_directory}/{satellite_brand}_{date}"
@@ -72,22 +73,26 @@ if __name__ == "__main__":
     )
 
     number_processes = parser.getint("configuration", "processes")
-    
+
     visible_satellites = parser.get("observation", "satellites")
     visible_satellites = visible_satellites.split("\n")
-    
+
     with mp.Pool(processes=number_processes) as pool:
         results = pool.map(
             compute_visibility.compute_visibility_of_satellite,
             visible_satellites,
         )
-    ########################################################################### 
+    ##########################################################################
     output = OutputFile(results, output_directory)
     details_name = parser.get("file", "complete")
     visible_name = parser.get("file", "simple")
-    output.save_data(simple_name=visible_name, full_name=details_name)    ###########################################################################
-    with open(f"{output_directory}/{CONFIG_FILE_NAME}.ini", "w") as file:
+    output.save_data(simple_name=visible_name, full_name=details_name)
+    ##########################################################################
+    with open(
+        f"{output_directory}/{CONFIG_FILE_NAME}.ini", "w", encoding="utf-8"
+    ) as file:
+
         parser.write(file)
-    ###########################################################################
+    ##########################################################################
     finish_time = time.time()
     print(f"Running time: {finish_time-start_time:.2f} [s]")
