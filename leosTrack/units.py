@@ -79,6 +79,8 @@ class ConvertUnits:
         seconds = (minutes - int(minutes)) * 60
 
         declination, minutes = [
-            declination_sign * int(declination_in_degrees) , int(minutes) ]
+            declination_sign * int(declination_in_degrees),
+            int(minutes),
+        ]
 
         return [declination, minutes, seconds]

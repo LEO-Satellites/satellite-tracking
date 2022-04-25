@@ -65,14 +65,14 @@ if __name__ == "__main__":
 
     time_parameters = ConfigurationFile().section_to_dictionary(
         parser.items("time")
-        )
+    )
 
     observatory_name = parser.get("observation", "observatory")
     observatory_data = observatories[f"{observatory_name}"]
 
     observations_constraints = ConfigurationFile().section_to_dictionary(
         parser.items("observation")
-        )
+    )
 
     # compute_visibility = ComputeVisibility(
     compute_visibility = FixWindow(
@@ -88,7 +88,7 @@ if __name__ == "__main__":
         results = pool.map(
             # compute_visibility.compute_visibility_of_satellite, satellites_list
             compute_visibility.compute_visibility_of_satellite,
-            ["ONEWEB-0060", "ONEWEB-0069", "ONEWEB-0090"]
+            ["ONEWEB-0060", "ONEWEB-0069", "ONEWEB-0090"],
         )
 
     ###########################################################################

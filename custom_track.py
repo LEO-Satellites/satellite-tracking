@@ -6,6 +6,7 @@ from configparser import ConfigParser, ExtendedInterpolation
 from leosTrack.output import OutputFile
 from leosTrack.tle import TLE
 from leosTrack.visible import ComputeVisibility
+
 ###############################################################################
 from observatories import observatories
 
