@@ -83,6 +83,8 @@ class ComputeVisibility:
         #######################################################################
 
         self.time_parameters = time_parameters
+        # if time_delta = 60, then it will move minute by minute
+        self.time_delta = datetime.timedelta(seconds=time_parameters["delta"])
 
         # from heredo:
         self.observatory_data = self.set_observatory_data(observatory_data)

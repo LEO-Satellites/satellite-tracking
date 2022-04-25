@@ -79,6 +79,7 @@ class AdaptiveWindow(ComputeVisibility):
         for time_step in range(number_of_time_steps):
             # compute current latitude, longitude of the satellite's
             # footprint and its current orbital altitude
+            satellite_lon_lat_alt = satellite.get_lonlatalt(date_time)
             try:
                 satellite_lon_lat_alt = satellite.get_lonlatalt(date_time)
             except:
@@ -103,12 +104,12 @@ class AdaptiveWindow(ComputeVisibility):
             )
             ###################################################################
             # gets the Sun's RA and DEC at the time of observation
-            sun_RA, sun_DEC = pyorbital.astronomy.sun_ra_dec(date_time)
+            sun_RA, sun_declination = pyorbital.astronomy.sun_ra_dec(date_time)
 
             sun_RA = CONVERT.right_ascension_in_radians_to_hours(
                 right_ascension=sun_RA
             )
-            sun_DEC = np.rad2deg(sun_DEC)
+            sun_declination = np.rad2deg(sun_declination)
             ###################################################################
             self._update_observer_date(date_time)
 
@@ -169,7 +170,7 @@ class AdaptiveWindow(ComputeVisibility):
                     dec_satellite_m,
                     dec_satellite_s,
                     sun_RA,
-                    sun_DEC,
+                    sun_declination,
                     sun_zenith_angle,
                     angular_velocity,
                 )
