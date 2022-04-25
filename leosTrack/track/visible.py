@@ -15,12 +15,11 @@ from leosTrack.utils.configfile import ConfigurationFile
 convert = ConvertUnits()
 
 
-class ComputeVisibility(ConfigurationFile):
+class ComputeVisibility:
     """Class to compute whether a satellite is visible or not"""
 
     def __init__(
         self,
-        custom_window: bool,
         time_parameters: list,
         observatory_data: dict,
         observation_constraints: list,
@@ -28,9 +27,6 @@ class ComputeVisibility(ConfigurationFile):
     ):
         """
         PARAMETERS
-
-            custom_window: decide if fixed [evening-morning] setup or
-                let user define the time window
 
             time_parameters: parameters of the observation date
 
@@ -90,14 +86,14 @@ class ComputeVisibility(ConfigurationFile):
         """
         #######################################################################
 
-        self.custom_window = custom_window
-        self.time_parameters = super().section_to_dictionary(time_parameters)
+        self.time_parameters = time_parameters
 
+        # from heredo:
         self.observatory_data = self._set_observatory_data(observatory_data)
+        # import sys
+        # sys.exit()
 
-        self.constraints = super().section_to_dictionary(
-            observation_constraints
-        )
+        self.constraints = observation_constraints
 
         self.tle_file_location = tle_file_location
 
@@ -127,8 +123,7 @@ class ComputeVisibility(ConfigurationFile):
         time_delta = datetime.timedelta(seconds=self.time_parameters["delta"])
 
         ######################################################################
-        start_date_time, finish_date_time = self._get_date_time_object(
-            custom_window=self.custom_window,
+        start_date_time, finish_date_time = self.get_date_time_object(
             time_parameters=self.time_parameters,
             time_zone=self.observatory_data["tz"],
         )
@@ -176,8 +171,10 @@ class ComputeVisibility(ConfigurationFile):
             # gets the Sun's RA and DEC at the time of observation
             sun_RA, sun_DEC = pyorbital.astronomy.sun_ra_dec(date_time)
 
-            sun_RA = convert.RA_in_radians_to_hours(RA=sun_RA)
-            sun_DEC = convert.radians_to_degrees(radians=sun_DEC)
+            sun_RA = convert.right_ascension_in_radians_to_hours(
+                right_ascension=sun_RA
+            )
+            sun_DEC = np.rad2deg(sun_DEC)
             ###################################################################
             self._update_observer_date(date_time)
 
@@ -255,8 +252,9 @@ class ComputeVisibility(ConfigurationFile):
         # return [time_delta, date_time]
 
     ###########################################################################
-    def _get_date_time_object(
-        self, time_parameters: dict, time_zone: int, custom_window: bool
+    # implement it according to object
+    def get_date_time_object(
+        self, time_parameters: dict, time_zone: int,
     ) -> list:
         """
         INPUT
@@ -270,65 +268,30 @@ class ComputeVisibility(ConfigurationFile):
                 finish_date_time: datetime.datetime
             ]
         """
-
-        time_zone = datetime.timedelta(hours=time_zone)
-
-        if custom_window is True:
-            # define local time
-            start_date_time = datetime.datetime(
-                year=time_parameters["year"],
-                month=time_parameters["month"],
-                day=time_parameters["start_day"],
-                hour=time_parameters["start_hour"],
-                minute=time_parameters["start_minute"],
-                second=time_parameters["start_second"],
-            )
-
-            # convert to UTC
-            start_date_time += time_zone
-
-            ###################################################################
-            # define local time
-            finish_date_time = datetime.datetime(
-                year=time_parameters["year"],
-                month=time_parameters["month"],
-                day=time_parameters["finish_day"],
-                hour=time_parameters["finish_hour"],
-                minute=time_parameters["finish_minute"],
-                second=time_parameters["finish_second"],
-            )
-
-            # convert to UTC
-            finish_date_time += time_zone
-
-            return start_date_time, finish_date_time
-
-        #######################################################################
+        # define local time
+        if time_parameters["window"] == "morning":
+            hour = 0
+        elif time_parameters["window"] == "evening":
+            hour = 12
         else:
-            # define local time
-            if time_parameters["window"] == "morning":
-                hour = 0
-            elif time_parameters["window"] == "evening":
-                hour = 12
-            else:
-                print(f"window must be: 'morning' or 'evening'")
-                sys.exit()
+            print(f"window must be: 'morning' or 'evening'")
+            sys.exit()
 
-            start_date_time = datetime.datetime(
-                year=time_parameters["year"],
-                month=time_parameters["month"],
-                day=time_parameters["day"],
-                hour=hour,
-                minute=0,
-                second=0,
-            )
+        start_date_time = datetime.datetime(
+            year=time_parameters["year"],
+            month=time_parameters["month"],
+            day=time_parameters["day"],
+            hour=hour,
+            minute=0,
+            second=0,
+        )
 
-            # convert to UTC
-            start_date_time += time_zone
+        # convert to UTC
+        start_date_time += time_zone
 
-            finish_date_time = start_date_time + datetime.timedelta(hours=12)
+        finish_date_time = start_date_time + datetime.timedelta(hours=12)
 
-            return start_date_time, finish_date_time
+        return start_date_time, finish_date_time
 
     ###########################################################################
     def _get_satellite_RA_DEC_from_azimuth_and_altitude(
@@ -358,13 +321,17 @@ class ComputeVisibility(ConfigurationFile):
             ra_satellite_h,
             ra_satellite_m,
             ra_satellite_s,
-        ] = convert.RA_in_radians_to_hh_mm_ss(RA=RA_satellite)
+        ] = convert.right_ascension_in_radians_to_hh_mm_ss(
+            right_ascension=RA_satellite
+        )
 
         [
             dec_satellite_d,
             dec_satellite_m,
             dec_satellite_s,
-        ] = convert.DEC_in_radians_to_dd_mm_ss(DEC=DEC_satellite)
+        ] = convert.declination_in_radians_to_dd_mm_ss(
+            declination=DEC_satellite
+        )
 
         return [
             [ra_satellite_h, ra_satellite_m, ra_satellite_s],
@@ -486,6 +453,7 @@ class ComputeVisibility(ConfigurationFile):
                         parameter_observatory
                     ]
 
+        update_format["tz"] = datetime.timedelta(hours=data_observatory["tz"])
         return update_format
 
     ###########################################################################
