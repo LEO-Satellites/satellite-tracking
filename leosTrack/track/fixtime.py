@@ -1,4 +1,3 @@
-
 """Compute visibility of LEO sats according to observation constraints"""
 import datetime
 import sys
@@ -33,7 +32,6 @@ class FixWindow(ComputeVisibility):
             observation_constraints,
             tle_file_location,
         )
-    ###########################################################################
     def get_date_time_object(
         self, time_parameters: dict, time_zone: int,
     ) -> list:
