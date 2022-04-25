@@ -253,45 +253,45 @@ class ComputeVisibility:
 
     ###########################################################################
     # implement it according to object
-    def get_date_time_object(
-        self, time_parameters: dict, time_zone: int,
-    ) -> list:
-        """
-        INPUT
-            time_parameters: check constructor
-            tz: time zone of the observatory location
-            constant_window: wheather the user defines a time window or if it
-                is the "evening" or "morning" 12 hours slot
-        OUTPUTS
-            [
-                start_date_time: datetime.datetime,
-                finish_date_time: datetime.datetime
-            ]
-        """
-        # define local time
-        if time_parameters["window"] == "morning":
-            hour = 0
-        elif time_parameters["window"] == "evening":
-            hour = 12
-        else:
-            print(f"window must be: 'morning' or 'evening'")
-            sys.exit()
+    # def get_date_time_object(
+    #     self, time_parameters: dict, time_zone: int,
+    # ) -> list:
+    #     """
+    #     INPUT
+    #         time_parameters: check constructor
+    #         tz: time zone of the observatory location
+    #         constant_window: wheather the user defines a time window or if it
+    #             is the "evening" or "morning" 12 hours slot
+    #     OUTPUTS
+    #         [
+    #             start_date_time: datetime.datetime,
+    #             finish_date_time: datetime.datetime
+    #         ]
+    #     """
+    #     # define local time
+    #     if time_parameters["window"] == "morning":
+    #         hour = 0
+    #     elif time_parameters["window"] == "evening":
+    #         hour = 12
+    #     else:
+    #         print(f"window must be: 'morning' or 'evening'")
+    #         sys.exit()
 
-        start_date_time = datetime.datetime(
-            year=time_parameters["year"],
-            month=time_parameters["month"],
-            day=time_parameters["day"],
-            hour=hour,
-            minute=0,
-            second=0,
-        )
+   #      start_date_time = datetime.datetime(
+    #         year=time_parameters["year"],
+    #         month=time_parameters["month"],
+    #         day=time_parameters["day"],
+    #         hour=hour,
+    #         minute=0,
+    #         second=0,
+    #     )
 
-        # convert to UTC
-        start_date_time += time_zone
+   #      # convert to UTC
+    #     start_date_time += time_zone
 
-        finish_date_time = start_date_time + datetime.timedelta(hours=12)
+   #      finish_date_time = start_date_time + datetime.timedelta(hours=12)
 
-        return start_date_time, finish_date_time
+   #      return start_date_time, finish_date_time
 
     ###########################################################################
     def _get_satellite_RA_DEC_from_azimuth_and_altitude(

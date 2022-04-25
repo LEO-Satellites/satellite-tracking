@@ -20,11 +20,12 @@ class FixWindow(ComputeVisibility):
 
     def __init__(
         self,
-        time_parameters: list,
+        time_parameters: dict,
         observatory_data: dict,
-        observation_constraints: list,
-        tle_file_location: str,
+        observation_constraints: dict,
+        tle_file_location: dict,
     ):
+        # init parent class
         ComputeVisibility.__init__(
             self,
             time_parameters,
@@ -33,7 +34,7 @@ class FixWindow(ComputeVisibility):
             tle_file_location,
         )
     ###########################################################################
-def get_date_time_object(
+    def get_date_time_object(
         self, time_parameters: dict, time_zone: int,
     ) -> list:
         """
