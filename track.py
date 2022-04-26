@@ -5,8 +5,9 @@ from configparser import ConfigParser, ExtendedInterpolation
 
 from leosTrack.output import OutputFile
 from leosTrack.tle import TLE
+from leosTrack.utils.configfile import ConfigurationFile
 from leosTrack.utils.filedir import FileDirectory
-from leosTrack.visible import ComputeVisibility
+from leosTrack.track.fixtime import FixWindow
 from observatories import observatories
 
 ###############################################################################
@@ -61,15 +62,19 @@ if __name__ == "__main__":
     # reload to get it as a tuple again
     print("Compute visibility of satellite", end="\n")
 
-    time_parameters = parser.items("time")
+    time_parameters = ConfigurationFile().section_to_dictionary(
+        parser.items("time")
+    )
 
     observatory_name = parser.get("observation", "observatory")
     observatory_data = observatories[f"{observatory_name}"]
 
-    observations_constraints = parser.items("observation")
+    observations_constraints = ConfigurationFile().section_to_dictionary(
+        parser.items("observation")
+    )
 
-    compute_visibility = ComputeVisibility(
-        custom_window=False,
+    # compute_visibility = ComputeVisibility(
+    compute_visibility = FixWindow(
         time_parameters=time_parameters,
         observatory_data=observatory_data,
         observation_constraints=observations_constraints,
