@@ -126,7 +126,7 @@ class FixWindow(ComputeVisibility):
                 ###############################################################
                 # compute the change in AZ and ALT of the satellite position
                 # between current and previous observation
-                angular_velocity = self.compute_angular_velocity(
+                angular_velocity = self.angular_velocity(
                     satellite_coordinates,
                     previous_satellite_azimuth,
                     previous_satellite_altitude,

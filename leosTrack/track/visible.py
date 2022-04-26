@@ -22,7 +22,7 @@ class ComputeVisibility:
         tle_file_location: str,
     ):
         """
-        PARAMETERS
+        INPUTS
 
             time_parameters: parameters of the observation date
             {
@@ -74,18 +74,12 @@ class ComputeVisibility:
         #######################################################################
 
         self.time_parameters = time_parameters
-        # if time_delta = 60, then it will move minute by minute
+        # if time_delta = 60, time steps last a minute
         self.time_delta = datetime.timedelta(seconds=time_parameters["delta"])
 
-        # from heredo:
         self.observatory_data = self.set_observatory_data(observatory_data)
-        # import sys
-        # sys.exit()
-
         self.constraints = observation_constraints
-
         self.tle_file_location = tle_file_location
-
         self.observer = None
         # self._set_observer()
 
@@ -93,14 +87,14 @@ class ComputeVisibility:
         self, satellite_azimuth: float, satellite_altitude: float
     ) -> list:
         """
-        Compute satellite RA [hh, mm, ss] and DEC [dd, mm, ss] using
-        satellite's azimuth and altitude in degrees.
+            Compute satellite RA [hh, mm, ss] and DEC [dd, mm, ss] using
+            satellite's azimuth and altitude in degrees.
 
-        PARAMETERS
-            satellite_azimuth: [degree]
-            satellite_altitude: [degree]
+            INPUTS
+            satellite_azimuth: in units of [degree]
+            satellite_altitude: in units of [degree]
 
-        OUTPUTS
+            OUTPUTS
             [
                 [ra_satellite_h, ra_satellite_m, ra_satellite_s],
                 [dec_satellite_d, dec_satellite_m, dec_satellite_s]
@@ -114,7 +108,7 @@ class ComputeVisibility:
         ] = self.observer.radec_of(
             np.radians(satellite_azimuth), np.radians(satellite_altitude)
         )
-        ##################################################################
+        # convert right ascension to hh, mm, ss
         [
             ra_satellite_h,
             ra_satellite_m,
@@ -123,6 +117,7 @@ class ComputeVisibility:
             right_ascension=right_ascension_satellite
         )
 
+        # convert declination to dd, mm, ss
         [
             dec_satellite_d,
             dec_satellite_m,
@@ -136,12 +131,25 @@ class ComputeVisibility:
             [dec_satellite_d, dec_satellite_m, dec_satellite_s],
         ]
 
-    def compute_angular_velocity(
+    def angular_velocity(
         self,
         satellite_coordinates: list,
         previous_satellite_azimuth: float,
         previous_satellite_altitude: float,
     ) -> float:
+
+        """
+            Compute the angular velocity of the satellite
+
+            INPUTS
+
+            satellite_coordinates: [azimuth in t_{n}, altitude in t_{n}]
+            previous_satellite_azimuth: azimuth in t_{n-1}
+            previous_satellite_altitude: altitude in t_{n-1}
+
+            OUTPUTS
+            angular_velocity: satellite angular velocity
+        """
 
         delta_azimuth = (
             satellite_coordinates[0] - previous_satellite_azimuth

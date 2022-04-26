@@ -86,8 +86,7 @@ if __name__ == "__main__":
 
     with mp.Pool(processes=number_processes) as pool:
         results = pool.map(
-            compute_visibility.compute_visibility_of_satellite,
-            satellites_list,
+            compute_visibility.compute_visibility_of_satellite, satellites_list
         )
 
     ###########################################################################
