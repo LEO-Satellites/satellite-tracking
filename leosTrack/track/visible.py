@@ -171,6 +171,22 @@ class ComputeVisibility:
         self, satellite_altitude: float, sun_zenith_angle: float
     ) -> bool:
 
+        """
+            Verify if satellite is visible according to constraints
+            defined in the constructor of the class
+
+            INPUTS
+
+            satellite: current altitude of altitude:
+            sun_zenith_angle: current sun zenith
+
+            OUTPUTS
+
+            is_visible: boolean indicating if satellite is visible
+                according to observing constraints introduce in
+                the constructor of the class
+        """
+
         lowest_altitude_satellite = self.constraints[
             "lowest_altitude_satellite"
         ]
@@ -183,9 +199,9 @@ class ComputeVisibility:
         check_sun_zenith = sun_zenith_lowest < sun_zenith_angle
         check_sun_zenith *= sun_zenith_angle < sun_zenith_highest
         # Add bool() to avoid having np.bool_ type. This way, I can have
-        satellite_visibility = bool(check_altitude and check_sun_zenith)
+        is_visible = bool(check_altitude and check_sun_zenith)
 
-        return satellite_visibility
+        return is_visible
 
     def _set_dark_satellite(self, satellite: str) -> Orbital:
         """
