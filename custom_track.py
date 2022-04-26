@@ -3,9 +3,10 @@ import multiprocessing as mp
 import time
 from configparser import ConfigParser, ExtendedInterpolation
 
+from leosTrack.utils.configfile import ConfigurationFile
 from leosTrack.output import OutputFile
 from leosTrack.tle import TLE
-from leosTrack.visible import ComputeVisibility
+from leosTrack.track.adaptivetime import AdaptiveTime
 
 ###############################################################################
 from observatories import observatories
@@ -27,17 +28,15 @@ if __name__ == "__main__":
 
     year = int(time_parameters["year"])
     month = int(time_parameters["month"])
-    day = int(time_parameters["start_day"])
+    day = int(time_parameters["day"])
 
-    start_hour = int(time_parameters["start_hour"])
-    start_minute = int(time_parameters["start_minute"])
-    finish_hour = int(time_parameters["finish_hour"])
-    finish_minute = int(time_parameters["finish_minute"])
+    hour = int(time_parameters["hour"])
+    minute = int(time_parameters["minute"])
+    observing_time = int(time_parameters["observing_time"])
 
     date = (
         f"{year}-{month:02d}-{day:02d}_"
-        f"{start_hour:02d}:{start_minute:02d}_"
-        f"{finish_hour:02d}:{finish_minute:02d}"
+        f"{hour:02d}:{minute:02d}_{observing_time:02.0f}"
     )
 
     # Set output directory
@@ -58,15 +57,18 @@ if __name__ == "__main__":
 
     tle_file_location = f"{output_directory}/{tle_name}"
     ###########################################################################
-    time_parameters = parser.items("time")
+    time_parameters = ConfigurationFile().section_to_dictionary(
+        parser.items("time")
+    )
 
     observatory_name = parser.get("observation", "observatory")
     observatory_data = observatories[f"{observatory_name}"]
 
-    observations_constraints = parser.items("observation")
+    observations_constraints = ConfigurationFile().section_to_dictionary(
+        parser.items("observation")
+    )
 
-    compute_visibility = ComputeVisibility(
-        custom_window=True,
+    compute_visibility = AdaptiveTime(
         time_parameters=time_parameters,
         observatory_data=observatory_data,
         observation_constraints=observations_constraints,

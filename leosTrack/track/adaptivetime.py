@@ -179,27 +179,20 @@ class AdaptiveTime(ComputeVisibility):
         start_date_time = datetime.datetime(
             year=time_parameters["year"],
             month=time_parameters["month"],
-            day=time_parameters["start_day"],
-            hour=time_parameters["start_hour"],
-            minute=time_parameters["start_minute"],
-            second=time_parameters["start_second"],
+            day=time_parameters["day"],
+            hour=time_parameters["hour"],
+            minute=time_parameters["minute"],
+            second=0,
         )
 
         # convert to UTC
         start_date_time += time_zone
 
-        ###################################################################
-        # define local time
-        finish_date_time = datetime.datetime(
-            year=time_parameters["year"],
-            month=time_parameters["month"],
-            day=time_parameters["finish_day"],
-            hour=time_parameters["finish_hour"],
-            minute=time_parameters["finish_minute"],
-            second=time_parameters["finish_second"],
+        # define end of observation
+        observing_time = datetime.timedelta(
+            minutes=time_parameters["observing_time"]
         )
 
-        # convert to UTC
-        finish_date_time += time_zone
+        finish_date_time = start_date_time + observing_time
 
         return start_date_time, finish_date_time
