@@ -75,101 +75,87 @@ class FixWindow(ComputeVisibility):
             # Check with jeremy what was the error that motivated this block
             try:
                 satellite_lon_lat_alt = satellite.get_lonlatalt(date_time)
-            except:
+            except RuntimeError:
                 return None
             ###################################################################
             # uses the observer coordinates to compute the satellite azimuth
             # and elevation, negative elevation implies satellite is under
             # the horizon. altitude must be in kilometers
-            [
-                satellite_azimuth,
-                satellite_altitude,
-            ] = satellite.get_observer_look(
+            # satellite_azimuth, satellite_altitude = satellite_coordinates
+
+            satellite_coordinates = satellite.get_observer_look(
                 date_time,
                 self.observatory_data["longitude"],
                 self.observatory_data["latitude"],
-                self.observatory_data["altitude"] / 1000.,
+                self.observatory_data["altitude"] / 1000.0,
             )
             ###################################################################
             # gets the Sun's RA and DEC at the time of observation
-            [
-                sun_right_ascension, sun_declination
-            ] = pyorbital.astronomy.sun_ra_dec(date_time)
+            # sun_right_ascension, sun_declination = sun_coordinates
 
-            sun_right_ascension = CONVERT.right_ascension_in_radians_to_hours(
-                right_ascension=sun_right_ascension
+            sun_coordinates = pyorbital.astronomy.sun_ra_dec(date_time)
+            # convert to list and allow to update variables later on
+            sun_coordinates = list(sun_coordinates)
+
+            sun_coordinates[0] = CONVERT.right_ascension_in_radians_to_hours(
+                right_ascension=sun_coordinates[0]
             )
-            sun_declination = np.rad2deg(sun_declination)
+            sun_coordinates[1] = np.rad2deg(sun_coordinates[1])
             ###################################################################
             self._update_observer_date(date_time)
 
             [
-                [ra_satellite_h, ra_satellite_m, ra_satellite_s],
-                [dec_satellite_d, dec_satellite_m, dec_satellite_s],
+                satellite_ra_hms,
+                satellite_dec_dms,
             ] = self.get_satellite_ra_dec_from_azimuth_and_altitude(
-                satellite_azimuth, satellite_altitude
+                satellite_coordinates[0], satellite_coordinates[1]
             )
             ###################################################################
-            lowest_altitude_satellite = self.constraints[
-                "lowest_altitude_satellite"
-            ]
-            ###################################################################
-            sun_zenith_angle = pyorbital.astronomy.sun_zenith_angle(
-                date_time, self.observatory_data["longitude"], self.observatory_data["latitude"]
+            sun_zenith = pyorbital.astronomy.sun_zenith_angle(
+                date_time,
+                self.observatory_data["longitude"],
+                self.observatory_data["latitude"],
             )
 
-            sun_zenith_highest = self.constraints["sun_zenith_highest"]
-            sun_zenith_lowest = self.constraints["sun_zenith_lowest"]
-            ###################################################################
-
-            check_altitude = satellite_altitude > lowest_altitude_satellite
-            check_sun_zenith = sun_zenith_lowest < sun_zenith_angle
-            check_sun_zenith *= sun_zenith_angle < sun_zenith_highest
-            # Add bool() to avoid having np.bool_ type. This way, I can have
-            # if satellite_is_visible is True:
-            satellite_visibility = bool(check_altitude and check_sun_zenith)
+            satellite_visibility = self.check_visibility(
+                satellite_coordinates[1], sun_zenith
+            )
 
             if satellite_visibility is True:
                 print(f"{satellite_name} is visible", end="\r")
                 ###############################################################
                 # compute the change in AZ and ALT of the satellite position
                 # between current and previous observation
-                # difference in azimuth arcsecs
-                delta_azimuth = (
-                    satellite_azimuth - previous_satellite_azimuth
-                ) * 3600
-                # difference in altitude in arcsecs
-                delta_altitude = (
-                    satellite_altitude - previous_satellite_altitude
-                ) * 3600
-                ###############################################################
-                dtime = self.time_delta.total_seconds()
-                angular_velocity = (
-                    np.sqrt(delta_azimuth ** 2 + delta_altitude ** 2) / dtime
+                angular_velocity = self.compute_angular_velocity(
+                    satellite_coordinates,
+                    previous_satellite_azimuth,
+                    previous_satellite_altitude,
                 )
 
                 data_str, data_str_simple = output.data_formating(
                     date_time,
                     satellite_lon_lat_alt,
-                    satellite_azimuth,
-                    satellite_altitude,
-                    ra_satellite_h,
-                    ra_satellite_m,
-                    ra_satellite_s,
-                    dec_satellite_d,
-                    dec_satellite_m,
-                    dec_satellite_s,
-                    sun_right_ascension,
-                    sun_declination,
-                    sun_zenith_angle,
+                    satellite_coordinates[0],
+                    satellite_coordinates[1],
+                    satellite_ra_hms[0],
+                    satellite_ra_hms[1],
+                    satellite_ra_hms[2],
+                    satellite_dec_dms[0],
+                    satellite_dec_dms[1],
+                    satellite_dec_dms[2],
+                    sun_coordinates[0],
+                    sun_coordinates[1],
+                    sun_zenith,
                     angular_velocity,
                 )
                 ##############################################################
                 visible_satellite_data.append([data_str, data_str_simple])
             ###################################################################
             # current position, time as the "previous" for next observation
-            previous_satellite_azimuth = satellite_azimuth
-            previous_satellite_altitude = satellite_altitude
+            # previous_satellite_azimuth = satellite_azimuth
+            # previous_satellite_altitude = satellite_altitude
+            previous_satellite_azimuth = satellite_coordinates[0]
+            previous_satellite_altitude = satellite_coordinates[1]
             date_time += self.time_delta
         #######################################################################
         if len(visible_satellite_data) > 0:

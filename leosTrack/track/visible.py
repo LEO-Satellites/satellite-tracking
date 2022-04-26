@@ -145,7 +145,49 @@ class ComputeVisibility:
             [dec_satellite_d, dec_satellite_m, dec_satellite_s],
         ]
 
-    ###########################################################################
+    def compute_angular_velocity(
+        self,
+        satellite_coordinates: list,
+        previous_satellite_azimuth: float,
+        previous_satellite_altitude: float,
+    ) -> float:
+
+        delta_azimuth = (
+            satellite_coordinates[0] - previous_satellite_azimuth
+        ) * 3600
+        # difference in altitude in arcsecs
+        delta_altitude = (
+            satellite_coordinates[1] - previous_satellite_altitude
+        ) * 3600
+        ###############################################################
+        dtime = self.time_delta.total_seconds()
+
+        angular_velocity = (
+            np.sqrt(delta_azimuth ** 2 + delta_altitude ** 2) / dtime
+        )
+
+        return angular_velocity
+
+    def check_visibility(
+        self, satellite_altitude: float, sun_zenith_angle: float
+    ) -> bool:
+
+        lowest_altitude_satellite = self.constraints[
+            "lowest_altitude_satellite"
+        ]
+
+        sun_zenith_highest = self.constraints["sun_zenith_highest"]
+        sun_zenith_lowest = self.constraints["sun_zenith_lowest"]
+        ###################################################################
+
+        check_altitude = satellite_altitude > lowest_altitude_satellite
+        check_sun_zenith = sun_zenith_lowest < sun_zenith_angle
+        check_sun_zenith *= sun_zenith_angle < sun_zenith_highest
+        # Add bool() to avoid having np.bool_ type. This way, I can have
+        satellite_visibility = bool(check_altitude and check_sun_zenith)
+
+        return satellite_visibility
+
     def _set_dark_satellite(self, satellite: str) -> Orbital:
         """
         Set dark satellite object for orbital computations
