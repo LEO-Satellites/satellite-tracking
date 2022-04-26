@@ -7,7 +7,6 @@ from leosTrack.output import OutputFile
 from leosTrack.tle import TLE
 from leosTrack.utils.configfile import ConfigurationFile
 from leosTrack.utils.filedir import FileDirectory
-from leosTrack.track.visible import ComputeVisibility
 from leosTrack.track.fixtime import FixWindow
 from observatories import observatories
 
