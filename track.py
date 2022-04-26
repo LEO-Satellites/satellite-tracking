@@ -87,8 +87,7 @@ if __name__ == "__main__":
     with mp.Pool(processes=number_processes) as pool:
         results = pool.map(
             compute_visibility.compute_visibility_of_satellite,
-            ["ONEWEB-0060", "ONEWEB-0069", "ONEWEB-0090"],
-            # satellites_list,
+            satellites_list,
         )
 
     ###########################################################################

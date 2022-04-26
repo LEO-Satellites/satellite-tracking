@@ -25,58 +25,49 @@ class ComputeVisibility:
         PARAMETERS
 
             time_parameters: parameters of the observation date
+            {
+                'year': year of observation, eg, 2021
+                'month': month of observation, eg, 11
+                'day': day of observation, eg, 25
+                'delta': time step resolution in seconds, eg, 60
+                'window': either 'morning' or 'evening'
 
-                if custom_window is True,
-                [
-                    ('year', year of observation, eg, '2021')
-                    ('month', month of observation, eg, '11'),
-                    ('day', day of observation, eg, '25'),
-                    ('delta', time step resolution in seconds, eg, '60'),
-                    ('window', either 'morning' or 'evening')
-                ]
+                if it is for an adaptive time window:
 
-                if custom_window is False,
-                if custom_window is True,
-                [
-                    ('year', '2021')
-                    ('month', '11'),
-                    ('day', '25'),
-                    # observation starts at 22[h]: 30[m]: 56[s]
-                    ('start_hour', '22')
-                    ('start_minute', '30'),
-                    ('start_second', '56'),
-                    # observation finishes at 02[h]: 20[m]: 15[s]
-                    ('finish_hour', '02')
-                    ('finish_minute', '20'),
-                    ('finish_second', '15'),
-                    ('delta', time step resolution in seconds, eg, '60'),
-                ]
-
+                'year': year of observation, eg, 2021
+                'month': month of observation, eg, 11
+                'day': day of observation, eg, 25
+                'hour': at which observation begins, e.g, 22
+                'minute': at which observation begins, e.g, 30
+                'observing_time': how much the observation
+                    lasts, it is measure in minutes e.g, 45
+                'delta': time step resolution in seconds, e.g, 0.1
+            }
             observatory_data: contains parameters of observatory
-                {
-                    'name': 'European Southern Observatory, La Silla',
-                    'longitude': [70, 43.8], # entries for [deg, ', ']
-                    'latitude': [-29, 15.4],
-                    'altitude': 2347.0, # in meters above sea level
-                    'tz': 4
-                }
+            {
+                'name': 'European Southern Observatory, La Silla',
+                'longitude': [70, 43.8], # entries for [deg, ', ']
+                'latitude': [-29, 15.4],
+                'altitude': 2347.0, # in meters above sea level
+                'tz': 4
+            }
 
             observation_constraints: constrains for visibility of a satellite
-                {
-                    'observatory': 'lasilla'
-                    'satellite': 'oneweb'
+            {
+                'observatory': 'lasilla'
+                'satellite': 'oneweb'
 
-                    # lower bound for altitude of satellite to be
-                    # considered visible, in [units]
+                # lower bound for altitude of satellite to be
+                # considered visible
 
-                    'lowest_altitude_satellite': '30' # degree
+                'lowest_altitude_satellite': 30 # degree
 
-                    # if sun zenith is between these bounds satellite
-                    # is considered baseurl
+                # if sun zenith is between these bounds, satellite
+                # is considered be visible
 
-                    'sun_zenith_lowest': '97' # degree
-                    'sun_zenith_highest': '114' # degree
-                }
+                'sun_zenith_lowest': 97 # degree
+                'sun_zenith_highest': 114 # degree
+            }
 
             tle_file_location: path to tle file used to compute visibility
         """
