@@ -1,4 +1,5 @@
 # test output
+data/*
 output/*
 test/*
 # Project specific ignores
