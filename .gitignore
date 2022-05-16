@@ -1,3 +1,6 @@
+# data
+data/*
+*.npy
 # test output
 output/*
 test/*
