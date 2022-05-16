@@ -74,9 +74,12 @@ class FixWindow(ComputeVisibility):
             # satellite_lon_lat_alt = satellite.get_lonlatalt(date_time)
             # Check with jeremy what was the error that motivated this block
             try:
+
                 satellite_lon_lat_alt = satellite.get_lonlatalt(date_time)
+
             except RuntimeError:
-                return None
+
+                continue
             ###################################################################
             # uses the observer coordinates to compute the satellite azimuth
             # and elevation, negative elevation implies satellite is under
@@ -135,16 +138,10 @@ class FixWindow(ComputeVisibility):
                 data_str, data_str_simple = output.data_formating(
                     date_time,
                     satellite_lon_lat_alt,
-                    satellite_coordinates[0],
-                    satellite_coordinates[1],
-                    satellite_ra_hms[0],
-                    satellite_ra_hms[1],
-                    satellite_ra_hms[2],
-                    satellite_dec_dms[0],
-                    satellite_dec_dms[1],
-                    satellite_dec_dms[2],
-                    sun_coordinates[0],
-                    sun_coordinates[1],
+                    satellite_coordinates, # [azimuth, altitude]
+                    satellite_ra_hms,
+                    satellite_dec_dms,
+                    sun_coordinates, # [ra, dec]
                     sun_zenith,
                     angular_velocity,
                 )
@@ -158,8 +155,9 @@ class FixWindow(ComputeVisibility):
             previous_satellite_altitude = satellite_coordinates[1]
             date_time += self.time_delta
         #######################################################################
-        if len(visible_satellite_data) > 0:
-            return [[satellite_name] + data for data in visible_satellite_data]
+        # if len(visible_satellite_data) > 0:
+        return [[satellite_name] + data for data in visible_satellite_data]
+        # else:
 
     @staticmethod
     def get_date_time_object(time_parameters: dict, time_zone: int) -> list:
