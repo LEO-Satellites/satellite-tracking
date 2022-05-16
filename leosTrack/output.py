@@ -167,10 +167,11 @@ class OutputFile(FileDirectory):
             returns list with visible satellites
         """
 
-        # visible_satellites = list(filter(lambda x: x is not None, results))
-        visible_satellites = list(filter(lambda x: len(x) > 1, results))
+        # visible satellites come as a list
+        visible_satellites = filter(lambda x: isinstance(x, list), results)
 
-        return visible_satellites
+        return list(visible_satellites)
+
 
 ###############################################################################
 def data_formating(
@@ -219,12 +220,7 @@ def data_formating(
         f"{angular_velocity:08.3f}",
     ]
 
-    data_simple = [
-        f"{date}",
-        f"{time}",
-        satellite_ra_hms,
-        satellite_dec_dms,
-    ]
+    data_simple = [f"{date}", f"{time}", satellite_ra_hms, satellite_dec_dms]
 
     return data, data_simple
 

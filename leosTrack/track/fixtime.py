@@ -138,10 +138,10 @@ class FixWindow(ComputeVisibility):
                 data_str, data_str_simple = output.data_formating(
                     date_time,
                     satellite_lon_lat_alt,
-                    satellite_coordinates, # [azimuth, altitude]
+                    satellite_coordinates,  # [azimuth, altitude]
                     satellite_ra_hms,
                     satellite_dec_dms,
-                    sun_coordinates, # [ra, dec]
+                    sun_coordinates,  # [ra, dec]
                     sun_zenith,
                     angular_velocity,
                 )
@@ -155,9 +155,10 @@ class FixWindow(ComputeVisibility):
             previous_satellite_altitude = satellite_coordinates[1]
             date_time += self.time_delta
         #######################################################################
-        # if len(visible_satellite_data) > 0:
-        return [[satellite_name] + data for data in visible_satellite_data]
-        # else:
+        if len(visible_satellite_data) > 0:
+            return [[satellite_name] + data for data in visible_satellite_data]
+
+        return satellite_name
 
     @staticmethod
     def get_date_time_object(time_parameters: dict, time_zone: int) -> list:
