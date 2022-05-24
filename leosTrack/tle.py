@@ -73,7 +73,9 @@ class TLE(FileDirectory):
         # oneweb -> ONEWEB
         satellite = self.satellite_brand.upper()
 
-        regular_expression = f"{satellite}-[0-9]*.*\)|{satellite}.[0-9]*"
+        regular_expression = (
+            f"{satellite}.*[)]|{satellite}.*[0-9a-zA-Z]"
+        )
         pattern = re.compile(regular_expression)
 
         with open(f"{file_location}", "r", encoding="utf-8") as tle:
