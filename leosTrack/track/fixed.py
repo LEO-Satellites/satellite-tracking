@@ -5,7 +5,6 @@ import sys
 import numpy as np
 import pyorbital
 
-from leosTrack import output
 from leosTrack.track.visible import ComputeVisibility, CONVERT
 
 
@@ -46,25 +45,18 @@ class FixWindow(ComputeVisibility):
         self._set_observer()
         satellite = self._set_dark_satellite(satellite_name)
 
-        start_date_time, finish_date_time = self.get_date_time_object(
+        # date_time --> start_date_time
+        date_time, number_of_time_steps = self.get_date_time_object(
             time_parameters=self.time_parameters,
             time_zone=self.observatory_data["tz"],
         )
 
-        date_time = start_date_time
 
-        observation_window_seconds = (
-            finish_date_time - start_date_time
-        ).total_seconds()
-
-        number_of_time_steps = int(
-            observation_window_seconds / self.time_delta.total_seconds()
-        )
         #######################################################################
-        previous_satellite_azimuth = 0
-        previous_satellite_altitude = 0
+        # previous_satellite_coordinates --> [azimuth, altitude]
+        previous_satellite_coordinates = [0, 0]
         #######################################################################
-        visible_satellite_data = []
+        visible_satellite_data = {}
         #######################################################################
         print(f"Compute visibility of: {satellite_name}", end="\r")
 
@@ -107,12 +99,7 @@ class FixWindow(ComputeVisibility):
             ###################################################################
             self._update_observer_date(date_time)
 
-            [
-                satellite_ra_hms,
-                satellite_dec_dms,
-            ] = self.get_satellite_ra_dec_from_azimuth_and_altitude(
-                satellite_coordinates[0], satellite_coordinates[1]
-            )
+
             ###################################################################
             sun_zenith = pyorbital.astronomy.sun_zenith_angle(
                 date_time,
@@ -131,37 +118,36 @@ class FixWindow(ComputeVisibility):
                 # between current and previous observation
                 angular_velocity = self.angular_velocity(
                     satellite_coordinates,
-                    previous_satellite_azimuth,
-                    previous_satellite_altitude,
+                    previous_satellite_coordinates[0], # azimuth
+                    previous_satellite_coordinates[1], # altitude
                 )
 
-                data_str, data_str_simple = output.data_formating(
-                    date_time,
+                satellite_ra_hms_dec_dms= self.get_satellite_ra_dec(
+                    satellite_coordinates
+                )
+                visible_satellite_data[f"{date_time:%H:%M:%S}s"] = [
+                    f"{date_time:%Y-%m-%d}",
                     satellite_lon_lat_alt,
                     satellite_coordinates,  # [azimuth, altitude]
-                    satellite_ra_hms,
-                    satellite_dec_dms,
+                    satellite_ra_hms_dec_dms[0], # satellite_ra_hms
+                    satellite_ra_hms_dec_dms[1], # satellite_dec_dms
                     sun_coordinates,  # [ra, dec]
                     sun_zenith,
                     angular_velocity,
-                )
-                ##############################################################
-                visible_satellite_data.append([data_str, data_str_simple])
+                ]
             ###################################################################
             # current position, time as the "previous" for next observation
             # previous_satellite_azimuth = satellite_azimuth
             # previous_satellite_altitude = satellite_altitude
-            previous_satellite_azimuth = satellite_coordinates[0]
-            previous_satellite_altitude = satellite_coordinates[1]
+            previous_satellite_coordinates[0] = satellite_coordinates[0]
+            previous_satellite_coordinates[1] = satellite_coordinates[1]
             date_time += self.time_delta
         #######################################################################
-        if len(visible_satellite_data) > 0:
-            return [[satellite_name] + data for data in visible_satellite_data]
+        return visible_satellite_data
 
-        return satellite_name
-
-    @staticmethod
-    def get_date_time_object(time_parameters: dict, time_zone: int) -> list:
+    def get_date_time_object(self,
+        time_parameters: dict, time_zone: int
+    ) -> list:
         """
         INPUT
             time_parameters: check constructor
@@ -180,7 +166,7 @@ class FixWindow(ComputeVisibility):
         elif time_parameters["window"] == "evening":
             hour = 12
         else:
-            print(f"window must be: 'morning' or 'evening'")
+            print("window must be: 'morning' or 'evening'")
             sys.exit()
 
         start_date_time = datetime.datetime(
@@ -197,4 +183,13 @@ class FixWindow(ComputeVisibility):
 
         finish_date_time = start_date_time + datetime.timedelta(hours=12)
 
-        return start_date_time, finish_date_time
+        observation_window_seconds = (
+            finish_date_time - start_date_time
+        ).total_seconds()
+
+        number_of_time_steps = int(
+            observation_window_seconds / self.time_delta.total_seconds()
+        )
+
+
+        return start_date_time, number_of_time_steps

@@ -83,16 +83,16 @@ class ComputeVisibility:
         self.observer = None
         # self._set_observer()
 
-    def get_satellite_ra_dec_from_azimuth_and_altitude(
-        self, satellite_azimuth: float, satellite_altitude: float
+    def get_satellite_ra_dec(self, satellite_coordinates:list
+        # self, satellite_azimuth: float, satellite_altitude: float
     ) -> list:
         """
             Compute satellite RA [hh, mm, ss] and DEC [dd, mm, ss] using
             satellite's azimuth and altitude in degrees.
 
             INPUTS
-            satellite_azimuth: in units of [degree]
-            satellite_altitude: in units of [degree]
+            satellite_coordinates[0]: satellite_azimuth in units of [degree]
+            satellite_coordinates[1]: satellite_altitude: in units of [degree]
 
             OUTPUTS
             [
@@ -101,6 +101,7 @@ class ComputeVisibility:
             ]
 
         """
+        satellite_azimuth, satellite_altitude = satellite_coordinates
 
         [
             right_ascension_satellite,

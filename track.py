@@ -1,13 +1,11 @@
 """Spot visible LEO-sats with low resolution track"""
-import multiprocessing as mp
+# import multiprocessing as mp
 import time
 from configparser import ConfigParser, ExtendedInterpolation
 
-from leosTrack.output import OutputFile
 from leosTrack.tle import TLE
 from leosTrack.utils.configfile import ConfigurationFile
 from leosTrack.utils.filedir import FileDirectory
-from leosTrack.track.fixtime import FixWindow
 from observatories import observatories
 
 ###############################################################################
@@ -73,28 +71,23 @@ if __name__ == "__main__":
         parser.items("observation")
     )
 
-    # compute_visibility = ComputeVisibility(
-    compute_visibility = FixWindow(
-        time_parameters=time_parameters,
-        observatory_data=observatory_data,
-        observation_constraints=observations_constraints,
-        tle_file_location=tle_file_location,
-    )
 
     number_processes = parser.getint("configuration", "processes")
 
-    with mp.Pool(processes=number_processes) as pool:
-        results = pool.map(
-            compute_visibility.compute_visibility_of_satellite, satellites_list
-        )
+    # with mp.Pool(processes=number_processes) as pool:
+    #     results = pool.map(
+    #        compute_visibility.compute_visibility_of_satellite,
+    #        satellites_list
+    #     )
 
     ###########################################################################
     # Get string formats for output files
-    output = OutputFile(results, output_directory)
-    # Save data
-    details_name = parser.get("file", "complete")
-    visible_name = parser.get("file", "simple")
-    output.save_data(simple_name=visible_name, full_name=details_name)
+    # output = OutputFile(results, output_directory)
+    # # Save data
+    # details_name = parser.get("file", "complete")
+    # visible_name = parser.get("file", "simple")
+    # output.save_data(simple_name=visible_name, full_name=details_name)
+
     ###########################################################################
     with open(
         f"{output_directory}/{CONFIG_FILE_NAME}.ini", "w", encoding="utf-8"
