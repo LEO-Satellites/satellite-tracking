@@ -154,7 +154,8 @@ class OutputFile(FileDirectory):
                 self.simple_data.append([satellite] + simple_data)
 
     ###########################################################################
-    def _get_visible_satellites(self, results: list) -> list:
+    @staticmethod
+    def _get_visible_satellites(results: list) -> list:
         """
         Get visible satellites from parallel computation
 
@@ -166,64 +167,60 @@ class OutputFile(FileDirectory):
             returns list with visible satellites
         """
 
-        visible_satellites = list(filter(lambda x: x is not None, results))
+        # visible satellites come as a list
+        visible_satellites = filter(lambda x: isinstance(x, list), results)
 
-        return visible_satellites
-
-    ###########################################################################
+        return list(visible_satellites)
 
 
 ###############################################################################
 def data_formating(
-    date_obj,
-    darksat_latlon,
-    sat_az,
-    sat_alt,
-    ra_sat_h,
-    ra_sat_m,
-    ra_sat_s,
-    dec_sat_d,
-    dec_sat_m,
-    dec_sat_s,
-    sun_ra,
-    sun_dec,
+    date_time,
+    satellite_lon_lat_alt: list,
+    satellite_coordinates: list,
+    satellite_ra_hms: list,
+    satellite_dec_dms: list,
+    sun_coordinates: list,
     sun_zenith_angle,
-    ang_motion,
+    angular_velocity,
 ):
-    """Prepare data to txt file"""
+    """
+    Prepare data to txt file
 
-    year = date_obj.year
-    month = date_obj.month
-    day = date_obj.day
-    hour = date_obj.hour
-    minute = date_obj.minute
-    second = date_obj.second
+    INPUT
+    satellite_coordinates: [azimuth, altitude] of satellite
+    """
 
-    date = f"{year}-{month:02}-{day:02}"
-    time = f"{hour:02}:{minute:02}:{second:02}s"
+    date = f"{date_time:%Y-%m-%d}"
+    time = f"{date_time:%H:%M:%S}s"
+
+    satellite_ra_hms = (
+        f"{satellite_ra_hms[0]:02d}:{satellite_ra_hms[1]:02d}:"
+        f"{satellite_ra_hms[2]:05.2f}"
+    )
+
+    satellite_dec_dms = (
+        f"{satellite_dec_dms[0]:+03d}:{satellite_dec_dms[1]:02d}:"
+        f"{satellite_dec_dms[2]:05.2f}"
+    )
 
     data = [
         f"{date}",
         f"{time}",
-        f"{darksat_latlon[0]:9.6f}",
-        f"{darksat_latlon[1]:9.6f}",
-        f"{darksat_latlon[2]:5.2f}",
-        f"{sat_az:06.3f}",
-        f"{sat_alt:06.3f}",
-        f"{ra_sat_h:02d}:{ra_sat_m:02d}:{ra_sat_s:05.2f}",
-        f"{dec_sat_d:+03d}:{dec_sat_m:02d}:{dec_sat_s:05.2f}",
-        f"{sun_ra:09.7f}",
-        f"{sun_dec:09.7f}",
+        f"{satellite_lon_lat_alt[0]:9.6f}",
+        f"{satellite_lon_lat_alt[1]:9.6f}",
+        f"{satellite_lon_lat_alt[2]:5.2f}",
+        f"{satellite_coordinates[0]:06.3f}",
+        f"{satellite_coordinates[1]:06.3f}",
+        satellite_ra_hms,
+        satellite_dec_dms,
+        f"{sun_coordinates[0]:09.7f}",
+        f"{sun_coordinates[1]:09.7f}",
         f"{sun_zenith_angle:07.3f}",
-        f"{ang_motion:08.3f}",
+        f"{angular_velocity:08.3f}",
     ]
 
-    data_simple = [
-        f"{date}",
-        f"{time}",
-        f"{ra_sat_h:02d}:{ra_sat_m:02d}:{ra_sat_s:05.2f}",
-        f"{dec_sat_d:+03d}:{dec_sat_m:02d}:{dec_sat_s:05.2f}",
-    ]
+    data_simple = [f"{date}", f"{time}", satellite_ra_hms, satellite_dec_dms]
 
     return data, data_simple
 
