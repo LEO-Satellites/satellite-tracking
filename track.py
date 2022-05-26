@@ -35,24 +35,30 @@ if __name__ == "__main__":
 
     # Set output directory
     output_directory = parser.get("directory", "output")
-    output_directory = f"{output_directory}/{satellite_brand}_{date}"
     ###########################################################################
     # downloading tle file
     print("Fetch TLE file", end="\n")
 
-    tle = TLE(satellite_brand=satellite_brand, directory=output_directory)
 
     download_tle = parser.getboolean("tle", "download")
 
     if download_tle:
+
+        output_directory = f"{output_directory}/{satellite_brand}_{date}"
+
+        tle = TLE(satellite_brand=satellite_brand, directory=output_directory)
 
         tle_name, tle_time_stamp = tle.download()
 
     else:
 
         tle_name = parser.get("tle", "name")
+
         FileDirectory.check_directory(output_directory, exit_operation=True)
         FileDirectory.file_exists(f"{output_directory}/{tle_name}")
+
+        tle = TLE(satellite_brand=satellite_brand, directory=output_directory)
+
 
     tle_file_location = f"{output_directory}/{tle_name}"
     ###########################################################################
