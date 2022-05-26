@@ -100,6 +100,25 @@ class TLE(FileDirectory):
         return satellites
 
     @staticmethod
+    def unique_satellites(satellites: list) -> list:
+        """
+        If a satellite is repeated in the list, it will add an
+        index to defentiate them
+        """
+
+        number_of_satellites = len(satellites)
+
+        for idx_a in range(number_of_satellites):
+
+            for idx_b in range(idx_a, number_of_satellites):
+
+                if satellites[idx_b] == satellites[idx_a]:
+
+                    satellites[idx_b] = f"{satellites[idx_b]}-{idx_b:02d}"
+
+        return satellites
+
+    @staticmethod
     def get_time_stamp() -> str:
         """
         Returns time stamp for tle file download: "2021-10-09 16:18:16"
