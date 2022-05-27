@@ -15,7 +15,7 @@ class TLE(FileDirectory):
 
     """Handle operations with TLE file"""
 
-    def __init__(self, satellite_brand: str, directory: str):
+    def __init__(self, satellite_brand: str, tle_directory: str):
         """
         Handles tle files
 
@@ -27,9 +27,64 @@ class TLE(FileDirectory):
         FileDirectory.__init__(self)
 
         self.satellite_brand = satellite_brand
-        self.directory = directory
+        self.directory = tle_directory
 
-    ###########################################################################
+    def update_tle_file(self, tle_name:str) -> None:
+        """
+        Make all satellite entries uniqe in tle file
+
+        INPUT
+            tle_name: name of tle file
+        """
+
+        with open(
+            f"{self.directory}/{tle_name}", "r", encoding="utf8"
+        ) as file:
+
+            tle_file_lines = file.readlines()
+
+        # raw_satellites = self.get_satellites_from_tle(
+        #     f"{self.directory}/{tle_name}"
+        # )
+        #
+        # unique_satellites = self.unique_satellites(raw_satellites[:])
+
+        updated_tle = ""
+
+        regular_expression = (
+            r"[a-zA-Z ][a-zA-Z1-9]?.*[)]"
+            r"|"
+            r"[a-zA-Z ][a-zA-Z1-9]?.*[0-9a-zA-Z]"
+        )
+
+        pattern = re.compile(regular_expression)
+
+        for idx, tle_line in enumerate(tle_file_lines):
+
+
+            if idx % 3 == 0:
+
+                satellite = pattern.findall(tle_line)[0]
+
+                sat_id = f"{idx//3:04d}"
+
+                tle_line = re.sub(
+                    regular_expression,
+                    f"{satellite}-ID-{sat_id}",
+                    tle_line,
+                    1
+                )
+
+            updated_tle += tle_line
+
+
+        with open(
+            f"{self.directory}/unique_{tle_name}", "w", encoding="utf8"
+        ) as file:
+
+            file.write(updated_tle)
+
+
     def download(self) -> tuple:
         """
         Downloads the tle_file pass in the costructor from
@@ -73,15 +128,47 @@ class TLE(FileDirectory):
         # oneweb -> ONEWEB
         satellite = self.satellite_brand.upper()
 
-        regular_expression = (
-            f"{satellite}.*[)]|{satellite}.*[0-9a-zA-Z]"
-        )
+        if satellite == "ALL":
+
+            regular_expression = (
+                r"\n[a-zA-Z ][a-zA-Z1-9]?.*[)][-]ID[-][0-9]*"
+                r"|"
+                r"\n[a-zA-Z ][a-zA-Z1-9]?.*[0-9a-zA-Z][-]ID[-][0-9]*"
+            )
+
+        else:
+
+            regular_expression = (
+                f"{satellite}.*[)]|{satellite}.*[0-9a-zA-Z]"
+            )
+
         pattern = re.compile(regular_expression)
 
         with open(f"{file_location}", "r", encoding="utf-8") as tle:
             content = tle.read()
 
         satellites = pattern.findall(content)
+        satellites = [satellite.strip("\n") for satellite in satellites]
+        satellites = [satellite.strip() for satellite in satellites]
+
+        return satellites
+
+    @staticmethod
+    def unique_satellites(satellites: list) -> list:
+        """
+        If a satellite is repeated in the list, it will add an
+        index to defentiate them
+        """
+
+        number_of_satellites = len(satellites)
+
+        for idx_a in range(number_of_satellites):
+
+            for idx_b in range(idx_a, number_of_satellites):
+
+                if satellites[idx_b] == satellites[idx_a]:
+
+                    satellites[idx_b] = f"{satellites[idx_b]}-{idx_b:02d}"
 
         return satellites
 
