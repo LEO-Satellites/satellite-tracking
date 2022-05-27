@@ -70,13 +70,10 @@ class TLE(FileDirectory):
 
                 tle_line = re.sub(
                     regular_expression,
-                    f"{satellite}-{sat_id}",
+                    f"{satellite}-ID-{sat_id}",
                     tle_line,
                     1
                 )
-
-
-                # print(idx, satellite, "\n", f"{tle_line}")
 
             updated_tle += tle_line
 
@@ -134,11 +131,10 @@ class TLE(FileDirectory):
         if satellite == "ALL":
 
             regular_expression = (
-                r"\n[a-zA-Z ][a-zA-Z1-9]?.*[)][-][0-9]*"
+                r"\n[a-zA-Z ][a-zA-Z1-9]?.*[)][-]ID[-][0-9]*"
                 r"|"
-                r"\n[a-zA-Z ][a-zA-Z1-9]?.*[0-9a-zA-Z][-][0-9]*"
+                r"\n[a-zA-Z ][a-zA-Z1-9]?.*[0-9a-zA-Z][-]ID[-][0-9]*"
             )
-
 
         else:
 
