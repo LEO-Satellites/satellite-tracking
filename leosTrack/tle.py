@@ -15,7 +15,7 @@ class TLE(FileDirectory):
 
     """Handle operations with TLE file"""
 
-    def __init__(self, satellite_brand: str, directory: str):
+    def __init__(self, satellite_brand: str, tle_directory: str):
         """
         Handles tle files
 
@@ -27,9 +27,67 @@ class TLE(FileDirectory):
         FileDirectory.__init__(self)
 
         self.satellite_brand = satellite_brand
-        self.directory = directory
+        self.directory = tle_directory
 
-    ###########################################################################
+    def update_tle_file(self, tle_name:str) -> None:
+        """
+        Make all satellite entries uniqe in tle file
+
+        INPUT
+            tle_name: name of tle file
+        """
+
+        with open(
+            f"{self.directory}/{tle_name}", "r", encoding="utf8"
+        ) as file:
+
+            tle_file_lines = file.readlines()
+
+        # raw_satellites = self.get_satellites_from_tle(
+        #     f"{self.directory}/{tle_name}"
+        # )
+        #
+        # unique_satellites = self.unique_satellites(raw_satellites[:])
+
+        updated_tle = ""
+
+        regular_expression = (
+            r"[a-zA-Z ][a-zA-Z1-9]?.*[)]"
+            r"|"
+            r"[a-zA-Z ][a-zA-Z1-9]?.*[0-9a-zA-Z]"
+        )
+
+        pattern = re.compile(regular_expression)
+
+        for idx, tle_line in enumerate(tle_file_lines):
+
+
+            if idx % 3 == 0:
+
+                satellite = pattern.findall(tle_line)[0]
+
+                sat_id = f"{idx//3:04d}"
+
+                tle_line = re.sub(
+                    regular_expression,
+                    f"{satellite}-{sat_id}",
+                    tle_line,
+                    1
+                )
+
+
+                # print(idx, satellite, "\n", f"{tle_line}")
+
+            updated_tle += tle_line
+
+
+        with open(
+            f"{self.directory}/unique_{tle_name}", "w", encoding="utf8"
+        ) as file:
+
+            file.write(updated_tle)
+
+
     def download(self) -> tuple:
         """
         Downloads the tle_file pass in the costructor from
@@ -76,9 +134,9 @@ class TLE(FileDirectory):
         if satellite == "ALL":
 
             regular_expression = (
-                r"\n[a-zA-Z ][a-zA-Z1-9]?.*[)]"
+                r"\n[a-zA-Z ][a-zA-Z1-9]?.*[)][-][0-9]*"
                 r"|"
-                r"\n[a-zA-Z ][a-zA-Z1-9]?.*[0-9a-zA-Z]"
+                r"\n[a-zA-Z ][a-zA-Z1-9]?.*[0-9a-zA-Z][-][0-9]*"
             )
 
 

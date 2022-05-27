@@ -46,7 +46,9 @@ if __name__ == "__main__":
 
         output_directory = f"{output_directory}/{satellite_brand}_{date}"
 
-        tle = TLE(satellite_brand=satellite_brand, directory=output_directory)
+        tle = TLE(
+            satellite_brand=satellite_brand, tle_directory=output_directory
+        )
 
         tle_name, tle_time_stamp = tle.download()
 
@@ -57,10 +59,12 @@ if __name__ == "__main__":
         FileDirectory.check_directory(output_directory, exit_operation=True)
         FileDirectory.file_exists(f"{output_directory}/{tle_name}")
 
-        tle = TLE(satellite_brand=satellite_brand, directory=output_directory)
+        tle = TLE(
+            satellite_brand=satellite_brand, tle_directory=output_directory
+        )
 
-
-    tle_file_location = f"{output_directory}/{tle_name}"
+    tle.update_tle_file(f"{tle_name}")
+    tle_file_location = f"{output_directory}/unique_{tle_name}"
     ###########################################################################
     print("Get list of satellites from TLE file", end="\n")
     satellites_list = tle.get_satellites_from_tle(f"{tle_file_location}")
