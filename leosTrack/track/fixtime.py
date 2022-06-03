@@ -77,7 +77,7 @@ class FixWindow(ComputeVisibility):
 
                 satellite_lon_lat_alt = satellite.get_lonlatalt(date_time)
 
-            except RuntimeError:
+            except NotImplementedError:
 
                 continue
             ###################################################################
@@ -180,7 +180,7 @@ class FixWindow(ComputeVisibility):
         elif time_parameters["window"] == "evening":
             hour = 12
         else:
-            print(f"window must be: 'morning' or 'evening'")
+            print("window must be: 'morning' or 'evening'")
             sys.exit()
 
         start_date_time = datetime.datetime(
