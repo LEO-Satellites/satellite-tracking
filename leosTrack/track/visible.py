@@ -215,7 +215,6 @@ class ComputeVisibility:
             dark_satellite: instance of class pyorbital.orbital.Orbital
 
         """
-
         dark_satellite = Orbital(satellite, tle_file=self.tle_file_location)
 
         return dark_satellite

@@ -139,7 +139,9 @@ class TLE(FileDirectory):
         else:
 
             regular_expression = (
-                f"{satellite}.*[)]|{satellite}.*[0-9a-zA-Z]"
+                f"\n{satellite}.*[)][-]ID[-][0-9]*"
+                f"|"
+                f"\n{satellite}.*[0-9a-zA-Z][-]ID[-][0-9]*"
             )
 
         pattern = re.compile(regular_expression)
