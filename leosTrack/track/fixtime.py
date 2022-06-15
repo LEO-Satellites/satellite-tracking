@@ -61,8 +61,12 @@ class FixWindow(ComputeVisibility):
             observation_window_seconds / self.time_delta.total_seconds()
         )
         #######################################################################
-        previous_satellite_azimuth = 0
-        previous_satellite_altitude = 0
+        previous_satellite_coordinates = satellite.get_observer_look(
+            date_time-self.time_delta,
+            self.observatory_data["longitude"],
+            self.observatory_data["latitude"],
+            self.observatory_data["altitude"] / 1000.0,
+        )
         #######################################################################
         visible_satellite_data = []
         #######################################################################
@@ -131,8 +135,7 @@ class FixWindow(ComputeVisibility):
                 # between current and previous observation
                 angular_velocity = self.angular_velocity(
                     satellite_coordinates,
-                    previous_satellite_azimuth,
-                    previous_satellite_altitude,
+                    previous_satellite_coordinates
                 )
 
                 data_str, data_str_simple = output.data_formating(
@@ -149,10 +152,8 @@ class FixWindow(ComputeVisibility):
                 visible_satellite_data.append([data_str, data_str_simple])
             ###################################################################
             # current position, time as the "previous" for next observation
-            # previous_satellite_azimuth = satellite_azimuth
-            # previous_satellite_altitude = satellite_altitude
-            previous_satellite_azimuth = satellite_coordinates[0]
-            previous_satellite_altitude = satellite_coordinates[1]
+            # use [:] to make a copy of list
+            previous_satellite_coordinates = satellite_coordinates[:]
             date_time += self.time_delta
         #######################################################################
         if len(visible_satellite_data) > 0:

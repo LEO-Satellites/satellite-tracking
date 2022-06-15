@@ -134,8 +134,7 @@ class ComputeVisibility:
     def angular_velocity(
         self,
         satellite_coordinates: list,
-        previous_satellite_azimuth: float,
-        previous_satellite_altitude: float,
+        previous_satellite_coordinates: list,
     ) -> float:
 
         """
@@ -144,19 +143,19 @@ class ComputeVisibility:
             INPUTS
 
             satellite_coordinates: [azimuth in t_{n}, altitude in t_{n}]
-            previous_satellite_azimuth: azimuth in t_{n-1}
-            previous_satellite_altitude: altitude in t_{n-1}
+            previous_satellite_coordinates:
+                [azimuth in t_{n-1}, altitude in t_{n-1}]
 
             OUTPUTS
             angular_velocity: satellite angular velocity
         """
 
         delta_azimuth = (
-            satellite_coordinates[0] - previous_satellite_azimuth
+            satellite_coordinates[0] - previous_satellite_coordinates[0]
         ) * 3600
         # difference in altitude in arcsecs
         delta_altitude = (
-            satellite_coordinates[1] - previous_satellite_altitude
+            satellite_coordinates[1] - previous_satellite_coordinates[1]
         ) * 3600
         ###############################################################
         dtime = self.time_delta.total_seconds()
