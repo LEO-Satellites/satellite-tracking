@@ -74,8 +74,10 @@ class AdaptiveTime(ComputeVisibility):
             # Check with jeremy what was the error that motivated this block
             try:
                 satellite_lon_lat_alt = satellite.get_lonlatalt(date_time)
-            except RuntimeError:
-                return None
+
+            except NotImplementedError:
+
+                continue
             ###################################################################
             # uses the observer coordinates to compute the satellite azimuth
             # and elevation, negative elevation implies satellite is under
