@@ -150,19 +150,34 @@ class ComputeVisibility:
             angular_velocity: satellite angular velocity
         """
 
-        delta_azimuth = (
-            satellite_coordinates[0] - previous_satellite_coordinates[0]
-        ) * 3600
-        # difference in altitude in arcsecs
-        delta_altitude = (
-            satellite_coordinates[1] - previous_satellite_coordinates[1]
-        ) * 3600
+        [
+            previous_right_ascension,
+            previous_declination,
+        ] = self.observer.radec_of(
+            np.radians(previous_satellite_coordinates[0]),
+            np.radians(previous_satellite_coordinates[1])
+        )
+
+        right_ascension, declination = self.observer.radec_of(
+            np.radians(satellite_coordinates[0]),
+            np.radians(satellite_coordinates[1])
+        )
+
+        dtheta = 2 * np.arcsin(
+            np.sqrt(
+                np.sin(0.5*(declination - previous_declination))**2
+                +
+                np.cos(declination) * np.cos(previous_declination) *
+                np.sin(0.5*(right_ascension-previous_right_ascension))**2
+            )
+        )
+        # convert from radians to arcseconds
+        # 1rad × (3600 × 180)/π = 206264.806"
+        dtheta *= 206264.806
         ###############################################################
         dtime = self.time_delta.total_seconds()
 
-        angular_velocity = (
-            np.sqrt(delta_azimuth ** 2 + delta_altitude ** 2) / dtime
-        )
+        angular_velocity = dtheta/dtime
 
         return angular_velocity
 
