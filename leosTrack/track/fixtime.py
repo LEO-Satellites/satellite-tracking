@@ -61,12 +61,18 @@ class FixWindow(ComputeVisibility):
             observation_window_seconds / self.time_delta.total_seconds()
         )
         #######################################################################
-        previous_satellite_coordinates = satellite.get_observer_look(
-            date_time-self.time_delta,
-            self.observatory_data["longitude"],
-            self.observatory_data["latitude"],
-            self.observatory_data["altitude"] / 1000.0,
-        )
+        try:
+
+            previous_satellite_coordinates = satellite.get_observer_look(
+                date_time-self.time_delta,
+                self.observatory_data["longitude"],
+                self.observatory_data["latitude"],
+                self.observatory_data["altitude"] / 1000.0,
+            )
+
+        except NotImplementedError:
+
+            return satellite_name
         #######################################################################
         visible_satellite_data = []
         #######################################################################
