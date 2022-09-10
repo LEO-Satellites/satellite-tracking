@@ -20,7 +20,7 @@ Celestrak to calculate times and positions of LEOsats to plan observations.
 
 [observation]
 
-    - observatory: available observatories are in observatories.py
+    - observatory: available observatories are in observatories.py. Additional observatories can be appended to the file.
     - satellite: oneweb or starlink for instance
 
     Next items define visibility constraints:
