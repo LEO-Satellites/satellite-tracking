@@ -44,7 +44,14 @@ class FixWindow(ComputeVisibility):
         # cannot be serialized avoiding the parallel computation.
         # Therefore in parallel the observer will be set over and over
         self._set_observer()
-        satellite = self._set_dark_satellite(satellite_name)
+
+        try: 
+        
+            satellite = self._set_dark_satellite(satellite_name)
+
+        except pyorbital.orbital.OrbitalError:
+
+            return satellite_name
 
         start_date_time, finish_date_time = self.get_date_time_object(
             time_parameters=self.time_parameters,
