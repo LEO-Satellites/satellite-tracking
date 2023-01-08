@@ -105,6 +105,13 @@ class FixWindow(ComputeVisibility):
             except NotImplementedError:
 
                 continue
+
+            except Exception:
+                # catches either:
+                # 'Satellite crashed at time %s', utc_time
+                # 'e**2 >= 1 at %s', utc_time
+
+                continue
             #############################################################
             # uses the observer coordinates to compute the satellite azimuth
             # and elevation, negative elevation implies satellite is under
