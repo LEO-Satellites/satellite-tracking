@@ -3,7 +3,7 @@ data/*
 *.npy
 # test output
 output/*
-test/*
+tests/*
 # Project specific ignores
 *.csv
 *.txt

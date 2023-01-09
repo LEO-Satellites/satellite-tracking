@@ -67,7 +67,7 @@ class FixWindow(ComputeVisibility):
         number_of_time_steps = int(
             observation_window_seconds / self.time_delta.total_seconds()
         )
-        #######################################################################
+        #################################################################
         try:
 
             previous_satellite_coordinates = satellite.get_observer_look(
@@ -80,9 +80,17 @@ class FixWindow(ComputeVisibility):
         except NotImplementedError:
 
             return satellite_name
-        #######################################################################
+
+        except Exception:
+            # catches either:
+            # 'Satellite crashed at time %s', utc_time
+            # 'e**2 >= 1 at %s', utc_time
+
+            return satellite_name
+
+        #################################################################
         visible_satellite_data = []
-        #######################################################################
+        #################################################################
         print(f"Compute visibility of: {satellite_name}", end="\r")
 
         for _ in range(number_of_time_steps):
@@ -97,7 +105,14 @@ class FixWindow(ComputeVisibility):
             except NotImplementedError:
 
                 continue
-            ###################################################################
+
+            except Exception:
+                # catches either:
+                # 'Satellite crashed at time %s', utc_time
+                # 'e**2 >= 1 at %s', utc_time
+
+                continue
+            #############################################################
             # uses the observer coordinates to compute the satellite azimuth
             # and elevation, negative elevation implies satellite is under
             # the horizon. altitude must be in kilometers
@@ -109,7 +124,7 @@ class FixWindow(ComputeVisibility):
                 self.observatory_data["latitude"],
                 self.observatory_data["altitude"] / 1000.0,
             )
-            ###################################################################
+            #############################################################
             # gets the Sun's RA and DEC at the time of observation
             # sun_right_ascension, sun_declination = sun_coordinates
 
@@ -121,7 +136,7 @@ class FixWindow(ComputeVisibility):
                 right_ascension=sun_coordinates[0]
             )
             sun_coordinates[1] = np.rad2deg(sun_coordinates[1])
-            ###################################################################
+            #############################################################
             self._update_observer_date(date_time)
 
             [
@@ -130,7 +145,7 @@ class FixWindow(ComputeVisibility):
             ] = self.get_satellite_ra_dec_from_azimuth_and_altitude(
                 satellite_coordinates[0], satellite_coordinates[1]
             )
-            ###################################################################
+            #############################################################
             sun_zenith = pyorbital.astronomy.sun_zenith_angle(
                 date_time,
                 self.observatory_data["longitude"],
@@ -143,7 +158,7 @@ class FixWindow(ComputeVisibility):
 
             if satellite_visibility is True:
                 print(f"{satellite_name} is visible", end="\r")
-                ###############################################################
+                #########################################################
                 # compute the change in AZ and ALT of the satellite position
                 # between current and previous observation
                 angular_velocity = self.angular_velocity(
@@ -161,14 +176,14 @@ class FixWindow(ComputeVisibility):
                     sun_zenith,
                     angular_velocity,
                 )
-                ##############################################################
+                #########################################################
                 visible_satellite_data.append([data_str, data_str_simple])
-            ###################################################################
+            #############################################################
             # current position, time as the "previous" for next observation
             # use [:] to make a copy of list
             previous_satellite_coordinates = satellite_coordinates[:]
             date_time += self.time_delta
-        #######################################################################
+        #################################################################
         if len(visible_satellite_data) > 0:
             return [[satellite_name] + data for data in visible_satellite_data]
 
