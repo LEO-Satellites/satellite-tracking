@@ -1,5 +1,8 @@
 # General overview: running track.py in the cloud with **Google-Colab** 
 
+Google-Colab (short for Colaboratory) is a free, cloud-based Jupyter notebook environment provided by Google that enables users to write, run and share code, notebooks, and experiments.
+Link to **Google-Colab**: https://colab.research.google.com/
+
 * The code enables parallel processing in the **Google-Colab** environment, allowing it to utilize multiple cores to speed up computations.
 * It clones the **[satellite-tracking repository](https://github.com/CLEOsat-group/satellite-tracking)** from GitHub and installs the required dependencies listed in the **requirements.txt** file.
 * Then it reads the contents of the **track.ini** configuration file and parses it using the ``configparser`` library.
