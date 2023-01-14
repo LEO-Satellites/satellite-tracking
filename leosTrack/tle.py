@@ -29,7 +29,7 @@ class TLE(FileDirectory):
         self.satellite_brand = satellite_brand
         self.directory = tle_directory
 
-    def update_tle_file(self, tle_name:str) -> None:
+    def update_tle_file(self, tle_name: str) -> None:
         """
         Make all satellite entries uniqe in tle file
 
@@ -61,9 +61,10 @@ class TLE(FileDirectory):
 
         for idx, tle_line in enumerate(tle_file_lines):
 
-
             if idx % 3 == 0:
 
+                satellite = pattern.findall(tle_line)
+                print(satellite)
                 satellite = pattern.findall(tle_line)[0]
 
                 sat_id = f"{idx//3:04d}"
@@ -77,13 +78,11 @@ class TLE(FileDirectory):
 
             updated_tle += tle_line
 
-
         with open(
             f"{self.directory}/unique_{tle_name}", "w", encoding="utf8"
         ) as file:
 
             file.write(updated_tle)
-
 
     def download(self) -> tuple:
         """
