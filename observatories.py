@@ -9,6 +9,13 @@
 # Details taken from the IDL script observatories.pro
 ###############################################################################
 observatories = {
+    "kent": {
+        "name": "Mt. Kent Observatory",
+        "longitude": 151.8554,
+        "latitude": -27.79770,
+        "altitude": 682,
+        "tz": 10,
+    }, 
     "kpno": {
         "name": "Kitt Peak National Observatory",
         "longitude": [111, 36.0],
